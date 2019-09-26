@@ -1,10 +1,10 @@
 {
-    "name": "template-lib",
-    "version": "1.0.0",
-    "description": "Template for Nodejs libraries",
+    "name": "supervised-emitter",
+    "version": "0.1.0",
+    "description": "A NodeJS event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.",
     "main": "dist/index.js",
     "scripts": {
-        "_test": "mocha --require babel-core/register --require babel-polyfill test/**/*.test.js",
+        "_test": "mocha --require babel-core/register --require babel-polyfill test/**/*.js",
         "_test:exit": "npm run _test -- --exit",
         "test": "export NODE_ENV=test && npm run _test:exit",
         "test:dev": "export NODE_ENV=test &&  npm run _test -- -w",
@@ -15,17 +15,20 @@
         "benchmark": "radargun benchmark/**/*.bench.js",
         "status": "git status"
     },
+    "engines": {
+        "node": ">=7"
+    },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/AkashBabu/template-lib.git"
+        "url": "git+https://github.com/AkashBabu/supervised-emitter.git"
     },
     "keywords": [],
     "author": "001akashbabu@gmail.com",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/AkashBabu/template-lib/issues"
+        "url": "https://github.com/AkashBabu/supervised-emitter/issues"
     },
-    "homepage": "https://github.com/AkashBabu/template-lib#readme",
+    "homepage": "https://github.com/AkashBabu/supervised-emitter#readme",
     "precommit": [
         "lint",
         "coverage",
@@ -41,6 +44,7 @@
         "babel-preset-env": "^1.7.0",
         "babel-watch": "^2.0.7",
         "chai": "^4.1.2",
+        "delay": "^4.3.0",
         "eslint": "^3.19.0",
         "eslint-config-airbnb": "^14.1.0",
         "eslint-plugin-class-property": "^1.0.6",
@@ -58,6 +62,7 @@
     },
     "dependencies": {
         "babel-polyfill": "^6.26.0",
-        "babel-runtime": "^6.26.0"
+        "babel-runtime": "^6.26.0",
+        "node-lfu-cache": "^5.0.0"
     }
 }
