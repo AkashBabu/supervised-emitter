@@ -1,7 +1,7 @@
 import LFU from 'node-lfu-cache';
 
 import { DLL } from './dll';
-import { pipe } from './utils';
+import { pipe, compose } from './utils';
 import { isPatternEvent, doesPatternMatch } from './patternMatch';
 
 
@@ -27,16 +27,7 @@ const SupervisedEmitter = (() => {
 
   // This is used to maintain the context
   // throughout the singleton
-  let state = {
-    debug                    : false,
-    middlewares              : ({ data }) => data,
-    subscriptionId           : 0,
-    subscribers              : {},
-    subscribersEventHandlers : {},
-    patternEvents            : [],
-    subEventsCache           : new LFU({}),
-    scopeId                  : 0,
-  };
+  let state = getFreshState();
 
   /**
    * Initializes a singleton of SupervisedEmitter
@@ -77,16 +68,23 @@ const SupervisedEmitter = (() => {
   function reset() {
     initialized = false;
 
-    state = {
+    state = getFreshState();
+  }
+
+  /**
+   * Returns a fresh / new checkout of
+   * state
+   */
+  function getFreshState() {
+    return {
       debug                    : false,
       middlewares              : ({ data }) => data,
       subscriptionId           : 0,
       subscribers              : {},
       subscribersEventHandlers : {},
       patternEvents            : [],
-      subEventsCache           : new LFU({
-        max: 50,
-      }),
+      subEventsCache           : new LFU({}),
+      scopeId                  : 0,
     };
   }
 
@@ -375,15 +373,18 @@ const SupervisedEmitter = (() => {
    */
   function getScope() {
     const rand = state.scopeId++;
-    return event => `__scope_${rand}_(${event})`;
+    return event => `__scope_${rand}_/${event}`;
   }
 
   // Pre-compiling regex for efficiency
-  const scopeReg = new RegExp('^__scope_[0-9]+_[(](?<event>.+)[)]$');
+  const scopeReg = new RegExp('^__scope_[0-9]+_/(?<event>.+)');
 
   /**
    * Removes the scope from the given
    * event
+   *
+   * This method can be used in your middlewares
+   * to unshell the scope part in the topic
    *
    * @param {String} event Scoped event
    *
@@ -404,11 +405,15 @@ const SupervisedEmitter = (() => {
     subscribe,
     getScope,
     unScope,
-    displayName : 'SupervisedEmitter',
-    getState    : () => state,
+    displayName: 'SupervisedEmitter',
   };
 })();
 
+
+export {
+  pipe,
+  compose,
+};
 
 export default SupervisedEmitter;
 

@@ -134,3 +134,9 @@ Keyword:
 
 - [ ] Update template with eslintignore and other changes made in this project
 - [ ] update test cases
+
+
+## Features
+- [ ] Middlewares
+- [ ] Composing handlers
+- [ ] Glob pattern subscriptions

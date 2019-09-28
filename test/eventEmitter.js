@@ -304,9 +304,38 @@ describe('#supervised-emitter', () => {
     expect(calls).to.be.eql(3);
   });
 
-  // it('should allow middlewares to stop / block the flow of events in the system');
+  it('should be able to emit scoped events', async () => {
+    let calls = 0;
+    SE.subscribe('/asdf/asdf', () => {
+      expect(false).to.be.true;
+    });
 
-  // it('should allow middlewares to continue running statements after await next()');
+    const scope = SE.getScope();
+    SE.subscribe(scope('/asdf/asdf'), ({ data }) => {
+      calls++;
 
-  // it('should log useful debugging messages like No Subscribers found for the event or the like when NODE_ENV != \'production\'');
+      expect(data).to.be.eql('testing');
+    });
+
+    SE.publish(scope('/asdf/asdf'), 'testing');
+
+    await delay(10);
+
+    expect(calls).to.be.eql(1);
+  });
+
+  it('should match the topic when unscoped', () => {
+    const scope = SE.getScope();
+
+    const topic = '/asdf/asdf';
+    const scopedTopic = scope('/asdf/asdf');
+
+    expect(SE.unScope(scopedTopic)).to.be.eql(topic);
+  });
+
+  it('should allow middlewares to stop / block the flow of events in the system');
+
+  it('should allow middlewares to continue running statements after await next()');
+
+  it('should log useful debugging messages like No Subscribers found for the event or the like when NODE_ENV != \'production\'');
 });

@@ -1,4 +1,4 @@
-'use strict';Object.defineProperty(exports, "__esModule", { value: true });var _regenerator = require('babel-runtime/regenerator');var _regenerator2 = _interopRequireDefault(_regenerator);var _assign = require('babel-runtime/core-js/object/assign');var _assign2 = _interopRequireDefault(_assign);var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);var _map = require('babel-runtime/core-js/map');var _map2 = _interopRequireDefault(_map);var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);var _nodeLfuCache = require('node-lfu-cache');var _nodeLfuCache2 = _interopRequireDefault(_nodeLfuCache);
+'use strict';Object.defineProperty(exports, "__esModule", { value: true });exports.compose = exports.pipe = undefined;var _regenerator = require('babel-runtime/regenerator');var _regenerator2 = _interopRequireDefault(_regenerator);var _assign = require('babel-runtime/core-js/object/assign');var _assign2 = _interopRequireDefault(_assign);var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);var _map = require('babel-runtime/core-js/map');var _map2 = _interopRequireDefault(_map);var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);var _nodeLfuCache = require('node-lfu-cache');var _nodeLfuCache2 = _interopRequireDefault(_nodeLfuCache);
 
 var _dll = require('./dll');
 var _utils = require('./utils');
@@ -27,23 +27,14 @@ var SupervisedEmitter = function () {
 
   // This is used to maintain the context
   // throughout the singleton
-  var state = {
-    debug: false,
-    middlewares: function middlewares(_ref) {var data = _ref.data;return data;},
-    subscriptionId: 0,
-    subscribers: {},
-    subscribersEventHandlers: {},
-    patternEvents: [],
-    subEventsCache: new _nodeLfuCache2.default({}),
-    scopeId: 0 };
-
+  var state = getFreshState();
 
   /**
-                   * Initializes a singleton of SupervisedEmitter
-                   *
-                   * @param {function[]} middlewares array of middlewares
-                   * @param {Object} options
-                   */
+                                * Initializes a singleton of SupervisedEmitter
+                                *
+                                * @param {function[]} middlewares array of middlewares
+                                * @param {Object} options
+                                */
   function initialize() {var middlewares = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     if (initialized) {
       throw new Error('Can\'t initialize singleton => "SupervisedEmitter", more than once');
@@ -77,16 +68,23 @@ var SupervisedEmitter = function () {
   function reset() {
     initialized = false;
 
-    state = {
+    state = getFreshState();
+  }
+
+  /**
+     * Returns a fresh / new checkout of
+     * state
+     */
+  function getFreshState() {
+    return {
       debug: false,
-      middlewares: function middlewares(_ref2) {var data = _ref2.data;return data;},
+      middlewares: function middlewares(_ref) {var data = _ref.data;return data;},
       subscriptionId: 0,
       subscribers: {},
       subscribersEventHandlers: {},
       patternEvents: [],
-      subEventsCache: new _nodeLfuCache2.default({
-        max: 50 }) };
-
+      subEventsCache: new _nodeLfuCache2.default({}),
+      scopeId: 0 };
 
   }
 
@@ -314,7 +312,7 @@ var SupervisedEmitter = function () {
       *
       * @returns {Promise}
       */
-  var publish = function () {var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(pubEvent, data) {var subEvents, ctx, subEventsIter, subEventItem, subEvent, eventHandlers;return _regenerator2.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+  var publish = function () {var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(pubEvent, data) {var subEvents, ctx, subEventsIter, subEventItem, subEvent, eventHandlers;return _regenerator2.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
               subEvents = getSubEvents(pubEvent);
 
               ctx = {
@@ -346,7 +344,7 @@ var SupervisedEmitter = function () {
                 }
 
                 subEventItem = subEventsIter.next();
-              }case 8:case 'end':return _context.stop();}}}, _callee, undefined);}));return function publish(_x3, _x4) {return _ref3.apply(this, arguments);};}();
+              }case 8:case 'end':return _context.stop();}}}, _callee, undefined);}));return function publish(_x3, _x4) {return _ref2.apply(this, arguments);};}();
 
 
 
@@ -375,20 +373,23 @@ var SupervisedEmitter = function () {
                                                                                                                                                                     */
   function getScope() {
     var rand = state.scopeId++;
-    return function (event) {return '__scope_' + rand + '_(' + event + ')';};
+    return function (event) {return '__scope_' + rand + '_/' + event;};
   }
 
   // Pre-compiling regex for efficiency
-  var scopeReg = new RegExp('^__scope_[0-9]+_[(](?<event>.+)[)]$');
+  var scopeReg = new RegExp('^__scope_[0-9]+_/(?<event>.+)');
 
   /**
-                                                                     * Removes the scope from the given
-                                                                     * event
-                                                                     *
-                                                                     * @param {String} event Scoped event
-                                                                     *
-                                                                     * @returns {String} event without scope
-                                                                     */
+                                                               * Removes the scope from the given
+                                                               * event
+                                                               *
+                                                               * This method can be used in your middlewares
+                                                               * to unshell the scope part in the topic
+                                                               *
+                                                               * @param {String} event Scoped event
+                                                               *
+                                                               * @returns {String} event without scope
+                                                               */
   function unScope(event) {
     var match = event.match(scopeReg);
     if (!match) return null;
@@ -404,10 +405,14 @@ var SupervisedEmitter = function () {
     subscribe: _subscribe,
     getScope: getScope,
     unScope: unScope,
-    displayName: 'SupervisedEmitter',
-    getState: function getState() {return state;} };
+    displayName: 'SupervisedEmitter' };
 
-}();exports.default =
+}();exports.
+
+
+
+pipe = _utils.pipe;exports.
+compose = _utils.compose;exports.default =
 
 
 SupervisedEmitter;
