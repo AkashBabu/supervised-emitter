@@ -1,3 +1,6 @@
+# v0.2.1
+* Replaces `JS Object` with `Map` for better efficiency
+
 # v0.2.0
 * Bug Fixes: state was not being refreshed on `reInitialize`
 * Removes state initialization code duplication

@@ -77,14 +77,14 @@ const SupervisedEmitter = (() => {
    */
   function getFreshState() {
     return {
-      debug                    : false,
-      middlewares              : ({ data }) => data,
-      subscriptionId           : 0,
-      subscribers              : {},
-      subscribersEventHandlers : {},
-      patternEvents            : [],
-      subEventsCache           : new LFU({}),
-      scopeId                  : 0,
+      debug           : false,
+      middlewares     : ({ data }) => data,
+      subscriptionId  : 0,
+      subscribers     : new Map(),
+      subscriberEvent : new Map(),
+      patternEvents   : [],
+      subEventsCache  : new LFU({}),
+      scopeId         : 0,
     };
   }
 
@@ -95,16 +95,17 @@ const SupervisedEmitter = (() => {
    *
    * @param {number} subscriptionId SubscriptionId
    * @param {string} event Event being subscribed
-   * @param {function} eventHandler composed functions
+   * @param {function} eventHandler composed event handlers
    */
-  const setEventHandler = (subscriptionId, event, eventHandler) => {
+  const setSubscriptionEvent = (subscriptionId, event, eventHandler) => {
+    const eventArr = new Array(2);
+    eventArr[0] = event;
+    eventArr[1] = eventHandler;
+
     // Maitaining a map of subscriptionId vs event.
     // This helps us to know the event during
     // unsubscription
-    state.subscribersEventHandlers[subscriptionId] = {
-      event,
-      eventHandler,
-    };
+    state.subscriberEvent.set(subscriptionId, eventArr);
   };
 
 
@@ -114,9 +115,9 @@ const SupervisedEmitter = (() => {
    *
    * @param {number} subscriptionId Subscription Id
    *
-   * @returns {object}
+   * @returns {object} Subscription's Event & handlers
    */
-  const getEventHandler = subscriptionId => state.subscribersEventHandlers[subscriptionId] || {};
+  const getSubscriptionEvent = subscriptionId => state.subscriberEvent.get(subscriptionId) || new Array(2);
 
 
   /**
@@ -126,8 +127,10 @@ const SupervisedEmitter = (() => {
    * @param {number} subscriptionId Subscription Id
    *
    */
-  const delEventHandler = subscriptionId => {
-    state.subscribersEventHandlers[subscriptionId] = undefined;
+  const delSubscriptionEvent = subscriptionId => {
+    state.subscriberEvent.delete(subscriptionId);
+
+    // state.subscribersEventHandlers[subscriptionId] = undefined;
   };
 
 
@@ -171,7 +174,7 @@ const SupervisedEmitter = (() => {
     // We should maintain a map of subscriptionId vs
     // composedFns in here to find the right one to be
     // removed during unsubscription
-    if (!state.subscribers[event]) {
+    if (!state.subscribers.get(event)) {
       // Cache has to be updated if the
       // new pattern event matches with the
       // publish event in cache
@@ -181,7 +184,7 @@ const SupervisedEmitter = (() => {
         state.patternEvents.push(event);
       }
 
-      state.subscribers[event] = new DLL();
+      state.subscribers.set(event, new DLL());
     }
 
     // We're using dll for maintaining a list
@@ -189,7 +192,7 @@ const SupervisedEmitter = (() => {
     // handlers during unsubscription without
     // having to create a new array each time
     // by means of splicing
-    const eventHandler = state.subscribers[event].append({
+    const eventHandler = state.subscribers.get(event).append({
       handlers: pipe(...fns),
     });
 
@@ -199,7 +202,7 @@ const SupervisedEmitter = (() => {
     // functions as well.
     const subscriptionId = state.subscriptionId++;
 
-    setEventHandler(subscriptionId, event, eventHandler);
+    setSubscriptionEvent(subscriptionId, event, eventHandler);
 
 
     return {
@@ -250,19 +253,19 @@ const SupervisedEmitter = (() => {
    * @param {number} subscriptionId Subscription ID
    */
   const unsubscribe = subscriptionId => {
-    const { event, eventHandler } = getEventHandler(subscriptionId);
-    state.subscribers[event].remove(eventHandler);
+    const [event, eventHandler] = getSubscriptionEvent(subscriptionId);
+
+    // remove the handler from DLL
+    state.subscribers.get(event).remove(eventHandler);
 
     // If there are no event handlers
     // for this event, then remove the event from
     // subscribers list (for space optimization).
-    if (state.subscribers[event].length === 0) {
-      // For more info on the below statement visit:
-      // https://jsperf.com/delete-vs-undefined-vs-null/6
-      state.subscribers[event] = undefined;
+    if (state.subscribers.get(event).length === 0) {
+      state.subscribers.delete(event);
     }
 
-    delEventHandler(subscriptionId);
+    delSubscriptionEvent(subscriptionId);
   };
 
   /**
@@ -328,7 +331,7 @@ const SupervisedEmitter = (() => {
     while (!subEventItem.done) {
       const subEvent = subEventItem.value;
 
-      let eventHandlers = state.subscribers[subEvent];
+      let eventHandlers = state.subscribers.get(subEvent);
 
       if (!eventHandlers) {
         subEvents.delete(subEvent);

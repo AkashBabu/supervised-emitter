@@ -1,6 +1,6 @@
 {
     "name": "supervised-emitter",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "A NodeJS event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.",
     "main": "dist/index.js",
     "scripts": {

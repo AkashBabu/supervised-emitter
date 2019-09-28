@@ -1,4 +1,4 @@
-'use strict';Object.defineProperty(exports, "__esModule", { value: true });exports.compose = exports.pipe = undefined;var _regenerator = require('babel-runtime/regenerator');var _regenerator2 = _interopRequireDefault(_regenerator);var _assign = require('babel-runtime/core-js/object/assign');var _assign2 = _interopRequireDefault(_assign);var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);var _map = require('babel-runtime/core-js/map');var _map2 = _interopRequireDefault(_map);var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);var _nodeLfuCache = require('node-lfu-cache');var _nodeLfuCache2 = _interopRequireDefault(_nodeLfuCache);
+'use strict';Object.defineProperty(exports, "__esModule", { value: true });exports.compose = exports.pipe = undefined;var _regenerator = require('babel-runtime/regenerator');var _regenerator2 = _interopRequireDefault(_regenerator);var _assign = require('babel-runtime/core-js/object/assign');var _assign2 = _interopRequireDefault(_assign);var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);var _map = require('babel-runtime/core-js/map');var _map2 = _interopRequireDefault(_map);var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);var _nodeLfuCache = require('node-lfu-cache');var _nodeLfuCache2 = _interopRequireDefault(_nodeLfuCache);
 
 var _dll = require('./dll');
 var _utils = require('./utils');
@@ -80,8 +80,8 @@ var SupervisedEmitter = function () {
       debug: false,
       middlewares: function middlewares(_ref) {var data = _ref.data;return data;},
       subscriptionId: 0,
-      subscribers: {},
-      subscribersEventHandlers: {},
+      subscribers: new _map2.default(),
+      subscriberEvent: new _map2.default(),
       patternEvents: [],
       subEventsCache: new _nodeLfuCache2.default({}),
       scopeId: 0 };
@@ -95,16 +95,17 @@ var SupervisedEmitter = function () {
      *
      * @param {number} subscriptionId SubscriptionId
      * @param {string} event Event being subscribed
-     * @param {function} eventHandler composed functions
+     * @param {function} eventHandler composed event handlers
      */
-  var setEventHandler = function setEventHandler(subscriptionId, event, eventHandler) {
+  var setSubscriptionEvent = function setSubscriptionEvent(subscriptionId, event, eventHandler) {
+    var eventArr = new Array(2);
+    eventArr[0] = event;
+    eventArr[1] = eventHandler;
+
     // Maitaining a map of subscriptionId vs event.
     // This helps us to know the event during
     // unsubscription
-    state.subscribersEventHandlers[subscriptionId] = {
-      event: event,
-      eventHandler: eventHandler };
-
+    state.subscriberEvent.set(subscriptionId, eventArr);
   };
 
 
@@ -114,20 +115,22 @@ var SupervisedEmitter = function () {
       *
       * @param {number} subscriptionId Subscription Id
       *
-      * @returns {object}
+      * @returns {object} Subscription's Event & handlers
       */
-  var getEventHandler = function getEventHandler(subscriptionId) {return state.subscribersEventHandlers[subscriptionId] || {};};
+  var getSubscriptionEvent = function getSubscriptionEvent(subscriptionId) {return state.subscriberEvent.get(subscriptionId) || new Array(2);};
 
 
   /**
-                                                                                                                                  * Removes the event handlers for the given subscription
-                                                                                                                                  * Id
-                                                                                                                                  *
-                                                                                                                                  * @param {number} subscriptionId Subscription Id
-                                                                                                                                  *
-                                                                                                                                  */
-  var delEventHandler = function delEventHandler(subscriptionId) {
-    state.subscribersEventHandlers[subscriptionId] = undefined;
+                                                                                                                                                 * Removes the event handlers for the given subscription
+                                                                                                                                                 * Id
+                                                                                                                                                 *
+                                                                                                                                                 * @param {number} subscriptionId Subscription Id
+                                                                                                                                                 *
+                                                                                                                                                 */
+  var delSubscriptionEvent = function delSubscriptionEvent(subscriptionId) {
+    state.subscriberEvent.delete(subscriptionId);
+
+    // state.subscribersEventHandlers[subscriptionId] = undefined;
   };
 
 
@@ -171,7 +174,7 @@ var SupervisedEmitter = function () {
     // We should maintain a map of subscriptionId vs
     // composedFns in here to find the right one to be
     // removed during unsubscription
-    if (!state.subscribers[event]) {
+    if (!state.subscribers.get(event)) {
       // Cache has to be updated if the
       // new pattern event matches with the
       // publish event in cache
@@ -181,7 +184,7 @@ var SupervisedEmitter = function () {
         state.patternEvents.push(event);
       }
 
-      state.subscribers[event] = new _dll.DLL();
+      state.subscribers.set(event, new _dll.DLL());
     }
 
     // We're using dll for maintaining a list
@@ -189,7 +192,7 @@ var SupervisedEmitter = function () {
     // handlers during unsubscription without
     // having to create a new array each time
     // by means of splicing
-    var eventHandler = state.subscribers[event].append({
+    var eventHandler = state.subscribers.get(event).append({
       handlers: _utils.pipe.apply(undefined, fns) });
 
 
@@ -199,7 +202,7 @@ var SupervisedEmitter = function () {
     // functions as well.
     var subscriptionId = state.subscriptionId++;
 
-    setEventHandler(subscriptionId, event, eventHandler);
+    setSubscriptionEvent(subscriptionId, event, eventHandler);
 
 
     return {
@@ -249,20 +252,20 @@ var SupervisedEmitter = function () {
       *
       * @param {number} subscriptionId Subscription ID
       */
-  var _unsubscribe = function _unsubscribe(subscriptionId) {var _getEventHandler =
-    getEventHandler(subscriptionId),event = _getEventHandler.event,eventHandler = _getEventHandler.eventHandler;
-    state.subscribers[event].remove(eventHandler);
+  var _unsubscribe = function _unsubscribe(subscriptionId) {var _getSubscriptionEvent =
+    getSubscriptionEvent(subscriptionId),_getSubscriptionEvent2 = (0, _slicedToArray3.default)(_getSubscriptionEvent, 2),event = _getSubscriptionEvent2[0],eventHandler = _getSubscriptionEvent2[1];
+
+    // remove the handler from DLL
+    state.subscribers.get(event).remove(eventHandler);
 
     // If there are no event handlers
     // for this event, then remove the event from
     // subscribers list (for space optimization).
-    if (state.subscribers[event].length === 0) {
-      // For more info on the below statement visit:
-      // https://jsperf.com/delete-vs-undefined-vs-null/6
-      state.subscribers[event] = undefined;
+    if (state.subscribers.get(event).length === 0) {
+      state.subscribers.delete(event);
     }
 
-    delEventHandler(subscriptionId);
+    delSubscriptionEvent(subscriptionId);
   };
 
   /**
@@ -328,7 +331,7 @@ var SupervisedEmitter = function () {
               while (!subEventItem.done) {
                 subEvent = subEventItem.value;
 
-                eventHandlers = state.subscribers[subEvent];
+                eventHandlers = state.subscribers.get(subEvent);
 
                 if (!eventHandlers) {
                   subEvents.delete(subEvent);
