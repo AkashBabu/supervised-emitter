@@ -280,14 +280,14 @@ describe('#supervised-emitter', () => {
       calls++;
       expect(data).to.be.eql('asdf');
     })
-    .subscribe('/hello/world', ({ data }) => {
-      calls++;
-      expect(data).to.be.eql('hello-world');
-    })
-    .subscribe('/cat/*/rat', ({ data }) => {
-      calls++;
-      expect(data).to.be.eql('glob');
-    });
+      .subscribe('/hello/world', ({ data }) => {
+        calls++;
+        expect(data).to.be.eql('hello-world');
+      })
+      .subscribe('/cat/*/rat', ({ data }) => {
+        calls++;
+        expect(data).to.be.eql('glob');
+      });
 
     SE.publish('/asdf/asdf/asdf', 'asdf');
     SE.publish('/hello/world', 'hello-world');
@@ -333,9 +333,166 @@ describe('#supervised-emitter', () => {
     expect(SE.unScope(scopedTopic)).to.be.eql(topic);
   });
 
-  it('should allow middlewares to stop / block the flow of events in the system');
+  it('should allow middlewares to stop / block the flow of events in the system', async () => {
+    let calls = 0;
 
-  it('should allow middlewares to continue running statements after await next()');
+    SE.initialize([
+      async ({ data, pubEvent }) => {
+        calls++;
+        expect(data).to.be.eql(0);
+        expect(pubEvent).to.be.eql('test');
 
-  it('should log useful debugging messages like No Subscribers found for the event or the like when NODE_ENV != \'production\'');
+        await delay(10);
+        return 1;
+      },
+      async ({ data, pubEvent, end }) => {
+        calls++;
+        expect(pubEvent).to.be.eql('test');
+        expect(data).to.be.eql(1);
+
+        await delay(10);
+        return end(2);
+      },
+      ({ data, pubEvent }) => {
+        calls++;
+        expect(pubEvent).to.be.eql('test');
+        expect(data).to.be.eql(2);
+
+        return 3;
+      },
+    ]);
+
+    SE.subscribe('test', ({ data }) => {
+      calls++;
+      expect(data).to.be.eql(2);
+    });
+
+    SE.publish('test', 0);
+
+    await delay(50);
+
+    expect(calls).to.be.eql(3);
+  });
+
+  it('should publish events to normal event subscribers after a publish event has already occured', async () => {
+    let calls = 0;
+    SE.subscribe('/hello/*/world', ({ data }) => {
+      calls++;
+      expect(data).to.be.eql('test');
+    });
+
+    SE.publish('/hello/se/world', 'test');
+
+    await delay(10);
+    expect(calls).to.be.eql(1);
+
+    calls = 0;
+
+    SE.subscribe('/hello/se/world', () => {
+      calls++;
+    });
+
+    SE.publish('/hello/se/world', 'test');
+
+    await delay(10);
+
+    expect(calls).to.be.eql(2);
+  });
+
+  it('should publish events to pattern event after a publish event has already occured', async () => {
+    let calls = 0;
+
+    SE.subscribe('/hello/se/world', () => {
+      calls++;
+    });
+
+    SE.publish('/hello/se/world', 'test');
+
+    await delay(10);
+    expect(calls).to.be.eql(1);
+
+    calls = 0;
+
+    SE.subscribe('/hello/*/world', ({ data }) => {
+      calls++;
+      expect(data).to.be.eql('test');
+    });
+
+    SE.publish('/hello/se/world', 'test');
+
+    await delay(10);
+
+    expect(calls).to.be.eql(2);
+  });
+
+  it('should include data, published event & matching subscribers events to the pipeline', async () => {
+    let calls = 0;
+
+    SE.initialize([
+      ({ data, pubEvent, subEvents }) => {
+        calls++;
+        expect(data).to.be.eql('test');
+
+        expect(pubEvent).to.be.eql('/hello/se/world');
+
+        expect(subEvents).to.have.members(['/hello/se/world', '/hello/*/world']);
+      },
+    ]);
+
+    SE.subscribe('/hello/se/world', () => {})
+      .subscribe('/hello/*/world', () => {});
+
+    SE.publish('/hello/se/world', 'test');
+
+    await delay(10);
+
+    expect(calls).to.be.eql(1);
+  });
+
+  it('should be possible to await on publish events', async () => {
+    let calls = 0;
+
+    SE.initialize([
+      async ({ data }) => {
+        await delay(10);
+        calls++;
+        expect(data).to.be.eql('test');
+
+        return data;
+      },
+    ]);
+
+    SE.subscribe('/hello/se/world', async ({ data }) => {
+      await delay(10);
+      calls++;
+      expect(data).to.be.eql('test');
+      return data;
+    }, async ({ data }) => {
+      await delay(10);
+      calls++;
+      expect(data).to.be.eql('test');
+    });
+
+    SE.subscribe('/hello/*/world', async ({ data }) => {
+      await delay(10);
+      calls++;
+      expect(data).to.be.eql('test');
+      return data;
+    }, async ({ data }) => {
+      await delay(10);
+      calls++;
+      expect(data).to.be.eql('test');
+    });
+
+    await SE.publish('/hello/se/world', 'test');
+
+    expect(calls).to.be.eql(5);
+  });
+
+  it('should allow subscription to be unsubscribed multiple times', async () => {
+    const subscription = SE.subscribe('/hello/se/world', () => {});
+
+    subscription.unsubscribe();
+    expect(() => subscription.unsubscribe()).to.not.throw;
+  });
 });

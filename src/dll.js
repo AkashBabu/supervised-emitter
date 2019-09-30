@@ -1,13 +1,9 @@
-class DLLItem {
-  constructor(prev = null, next = null, meta = {}) {
-    this.meta = meta;
-    this.next = next;
-    this.prev = prev;
-  }
+function DLLItem(prev = null, next = null, meta = {}) {
+  this.meta = meta;
+  this.next = next;
+  this.prev = prev;
 
-  getNext() {
-    return this.next;
-  }
+  this.getNext = () => this.next;
 }
 
 export class DLL {

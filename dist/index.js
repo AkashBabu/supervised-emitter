@@ -1,27 +1,31 @@
-'use strict';Object.defineProperty(exports, "__esModule", { value: true });exports.compose = exports.pipe = undefined;var _regenerator = require('babel-runtime/regenerator');var _regenerator2 = _interopRequireDefault(_regenerator);var _assign = require('babel-runtime/core-js/object/assign');var _assign2 = _interopRequireDefault(_assign);var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);var _map = require('babel-runtime/core-js/map');var _map2 = _interopRequireDefault(_map);var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);var _nodeLfuCache = require('node-lfu-cache');var _nodeLfuCache2 = _interopRequireDefault(_nodeLfuCache);
+"use strict";var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports, "__esModule", { value: true });Object.defineProperty(exports, "pipe", { enumerable: true, get: function get() {return _utils.pipe;} });Object.defineProperty(exports, "compose", { enumerable: true, get: function get() {return _utils.compose;} });exports["default"] = void 0;var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));var _nodeLfuCache = _interopRequireDefault(require("node-lfu-cache"));
 
-var _dll = require('./dll');
-var _utils = require('./utils');
-var _patternMatch = require('./patternMatch');function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _dll = require("./dll");
+var _utils = require("./utils");
+var _patternMatch = require("./patternMatch");
+var _logger = _interopRequireDefault(require("./logger"));function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(source, true).forEach(function (key) {(0, _defineProperty2["default"])(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(source).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}
 
 
 /**
-                                                                                                                                             * SupervisedEmitter
-                                                                                                                                             * It's a singleton of event emitter which supports
-                                                                                                                                             * middlewares, event-tracing etc
-                                                                                                                                             *
-                                                                                                                                             * It's main applications can be found in
-                                                                                                                                             * State management (React, Vue etc)
-                                                                                                                                             * and nodejs for worker model
-                                                                                                                                             *
-                                                                                                                                             * @example
-                                                                                                                                             * SupervisedEmitter.subscribe('page_load',
-                                                                                                                                             *  (data) => console.log('page load data:', data),
-                                                                                                                                             *  (data) => data.item += 1,
-                                                                                                                                             *  (data) => console.log('after modification:', data),
-                                                                                                                                             * )
-                                                                                                                                             */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * SupervisedEmitter
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * It's a singleton of event emitter which supports
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * middlewares, event-tracing etc
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * It's main applications can be found in
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * State management (React, Vue etc)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * and nodejs for worker model
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * @example
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * SupervisedEmitter.subscribe('page_load',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *  (data) => console.log('page load data:', data),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *  (data) => data.item += 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *  (data) => console.log('after modification:', data),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */
 var SupervisedEmitter = function () {
+  var logger = (0, _logger["default"])(_logger["default"].LEVEL.DEBUG, false);
+  logger.setPrefix('[SE]:');
+
   // Flag used to check for singleton
   var initialized = false;
 
@@ -39,10 +43,16 @@ var SupervisedEmitter = function () {
     if (initialized) {
       throw new Error('Can\'t initialize singleton => "SupervisedEmitter", more than once');
     }
-    initialized = true;
+    initialized = true;var _options$debug =
 
-    state.debug = options.debug || false;
-    state.middlewares = _utils.pipe.apply(undefined, (0, _toConsumableArray3.default)(middlewares));
+    options.debug,debug = _options$debug === void 0 ? false : _options$debug,_options$lfu = options.lfu,lfu = _options$lfu === void 0 ? { max: 100 } : _options$lfu;
+    state.debug = debug;
+    logger[debug ? 'enable' : 'disable']();
+
+    state.middlewares = _utils.pipe.apply(void 0, (0, _toConsumableArray2["default"])(middlewares));
+    state.subEventsCache = new _nodeLfuCache["default"](lfu);
+
+    logger.debug('INITIALIZED');
   }
 
   /**
@@ -50,12 +60,15 @@ var SupervisedEmitter = function () {
      *
      * Reinitializes the singleton 😜
      *
+     * This is equivalent to running reset() -> initialize()
+     *
      * @param {function[]} middlewares array of middlewares
      * @param {Object} options
      */
   function reInitialize(middlewares, options) {
-    reset();
+    logger.debug('RE-INITIALIZING');
 
+    reset();
     initialize(middlewares, options);
   }
 
@@ -80,10 +93,10 @@ var SupervisedEmitter = function () {
       debug: false,
       middlewares: function middlewares(_ref) {var data = _ref.data;return data;},
       subscriptionId: 0,
-      subscribers: new _map2.default(),
-      subscriberEvent: new _map2.default(),
+      subscribers: new Map(),
+      subscriberEvent: new Map(),
       patternEvents: [],
-      subEventsCache: new _nodeLfuCache2.default({}),
+      subEventsCache: new _nodeLfuCache["default"]({}),
       scopeId: 0 };
 
   }
@@ -103,7 +116,7 @@ var SupervisedEmitter = function () {
     eventArr[1] = eventHandler;
 
     // Maitaining a map of subscriptionId vs event.
-    // This helps us to know the event during
+    // This helps us to determine the event during
     // unsubscription
     state.subscriberEvent.set(subscriptionId, eventArr);
   };
@@ -128,7 +141,7 @@ var SupervisedEmitter = function () {
                                                                                                                                                  *
                                                                                                                                                  */
   var delSubscriptionEvent = function delSubscriptionEvent(subscriptionId) {
-    state.subscriberEvent.delete(subscriptionId);
+    state.subscriberEvent["delete"](subscriptionId);
 
     // state.subscribersEventHandlers[subscriptionId] = undefined;
   };
@@ -142,10 +155,23 @@ var SupervisedEmitter = function () {
       *
       * @param {String} patternEvent Pattern event
       */
-  var addEventToCache = function addEventToCache(patternEvent) {
+  var addPatternEventToCache = function addPatternEventToCache(patternEvent) {
     state.subEventsCache.forEach(function (cachedEvents, pubEvent) {
       if ((0, _patternMatch.doesPatternMatch)(pubEvent, patternEvent)) cachedEvents.set(patternEvent, true);
     });
+  };
+
+  /**
+      * Checks if the matching pubEvent is present
+      * in the cache, if so then it adds this event
+      *
+      * @param {String} event Normal event (w/o pattern)
+      */
+  var addNormalEventToCache = function addNormalEventToCache(event) {
+    var matchingEvents = state.subEventsCache.peek(event);
+    if (matchingEvents) {
+      matchingEvents.set(event, true);
+    }
   };
 
 
@@ -166,7 +192,7 @@ var SupervisedEmitter = function () {
       * @returns {{unsubscribe: function}} unsubscribe function for
       *    unsubscribing these handlers from the event
       */
-  var _subscribe = function _subscribe(event) {for (var _len = arguments.length, fns = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {fns[_key - 1] = arguments[_key];}
+  var _subscribe = function _subscribe(event) {
     // Compose all the subscribers passed at once.
     // Users can use this feature if needed, else
     // can choose to go with the classical approach
@@ -179,9 +205,11 @@ var SupervisedEmitter = function () {
       // new pattern event matches with the
       // publish event in cache
       if ((0, _patternMatch.isPatternEvent)(event)) {
-        addEventToCache(event);
+        addPatternEventToCache(event);
 
         state.patternEvents.push(event);
+      } else {
+        addNormalEventToCache(event);
       }
 
       state.subscribers.set(event, new _dll.DLL());
@@ -192,8 +220,8 @@ var SupervisedEmitter = function () {
     // handlers during unsubscription without
     // having to create a new array each time
     // by means of splicing
-    var eventHandler = state.subscribers.get(event).append({
-      handlers: _utils.pipe.apply(undefined, fns) });
+    for (var _len = arguments.length, fns = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {fns[_key - 1] = arguments[_key];}var eventHandler = state.subscribers.get(event).append({
+      handlers: _utils.pipe.apply(void 0, fns) });
 
 
     // Generate a new subscriptionId, so that
@@ -204,6 +232,7 @@ var SupervisedEmitter = function () {
 
     setSubscriptionEvent(subscriptionId, event, eventHandler);
 
+    logger.debug("SUBSCRIBED => ".concat(event));
 
     return {
       /**
@@ -230,8 +259,8 @@ var SupervisedEmitter = function () {
           * @param {String} event Subscription event
           * @param  {...function} fns List of handlers
           */
-      subscribe: function subscribe(event) {for (var _len2 = arguments.length, fns = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {fns[_key2 - 1] = arguments[_key2];} // eslint-disable-line
-        var subscription = _subscribe.apply(undefined, [event].concat((0, _toConsumableArray3.default)(fns)));
+      subscribe: function subscribe(event) {for (var _len2 = arguments.length, fns = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {fns[_key2 - 1] = arguments[_key2];} // eslint-disable-line
+        var subscription = _subscribe.apply(void 0, [event].concat(fns));
         var self = this;
 
         return {
@@ -253,19 +282,24 @@ var SupervisedEmitter = function () {
       * @param {number} subscriptionId Subscription ID
       */
   var _unsubscribe = function _unsubscribe(subscriptionId) {var _getSubscriptionEvent =
-    getSubscriptionEvent(subscriptionId),_getSubscriptionEvent2 = (0, _slicedToArray3.default)(_getSubscriptionEvent, 2),event = _getSubscriptionEvent2[0],eventHandler = _getSubscriptionEvent2[1];
+    getSubscriptionEvent(subscriptionId),_getSubscriptionEvent2 = (0, _slicedToArray2["default"])(_getSubscriptionEvent, 2),event = _getSubscriptionEvent2[0],eventHandler = _getSubscriptionEvent2[1];
 
+    var subscribers = state.subscribers.get(event);
     // remove the handler from DLL
-    state.subscribers.get(event).remove(eventHandler);
+    if (subscribers) {
+      subscribers.remove(eventHandler);
 
-    // If there are no event handlers
-    // for this event, then remove the event from
-    // subscribers list (for space optimization).
-    if (state.subscribers.get(event).length === 0) {
-      state.subscribers.delete(event);
+      // If there are no event handlers
+      // for this event, then remove the event from
+      // subscribers list (for space optimization).
+      if (subscribers.length === 0) {
+        state.subscribers["delete"](event);
+      }
     }
 
     delSubscriptionEvent(subscriptionId);
+
+    logger.debug("UNSUBSCRIBED => ".concat(event));
   };
 
   /**
@@ -283,9 +317,13 @@ var SupervisedEmitter = function () {
     var subEvents = state.subEventsCache.get(pubEvent);
 
     if (!subEvents) {
-      var matchingEvents = new _map2.default();
-      matchingEvents.set(pubEvent, true);
+      var matchingEvents = new Map();
 
+      // if normal event subscribers are present
+      // then add it as well
+      state.subscribers.get(pubEvent) && matchingEvents.set(pubEvent, true);
+
+      // Check if any pattern matches pubEvent
       state.patternEvents.forEach(function (pattern) {
         if ((0, _patternMatch.doesPatternMatch)(pubEvent, pattern)) matchingEvents.set(pattern, true);
       });
@@ -315,68 +353,77 @@ var SupervisedEmitter = function () {
       *
       * @returns {Promise}
       */
-  var publish = function () {var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(pubEvent, data) {var subEvents, ctx, subEventsIter, subEventItem, subEvent, eventHandlers;return _regenerator2.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+  var publish = /*#__PURE__*/function () {var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(pubEvent, data) {var subEvents, subEventsArr, ctx;return _regenerator["default"].wrap(function _callee2$(_context2) {while (1) {switch (_context2.prev = _context2.next) {case 0:
               subEvents = getSubEvents(pubEvent);
+
+              subEventsArr = [];
+
+              (function () {
+                var subEventsIter = subEvents.keys();
+                var subEventItem = subEventsIter.next();
+                while (!subEventItem.done) {
+                  subEventsArr.push(subEventItem.value);
+                  subEventItem = subEventsIter.next();
+                }
+              })();
 
               ctx = {
                 data: data,
-                pubEvent: pubEvent };_context.next = 4;return (
+                pubEvent: pubEvent,
+                subEvents: subEventsArr };_context2.next = 6;return (
 
 
-                state.middlewares(ctx));case 4:ctx.data = _context.sent;
+                state.middlewares(ctx));case 6:ctx.data = _context2.sent;return _context2.abrupt("return",
 
-              subEventsIter = subEvents.keys();
+              Promise.all(subEventsArr.map( /*#__PURE__*/function () {var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(subEvent) {var eventHandlers, handlingSubscribers;return _regenerator["default"].wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+                          eventHandlers = state.subscribers.get(subEvent);
 
-              subEventItem = subEventsIter.next();
-              while (!subEventItem.done) {
-                subEvent = subEventItem.value;
+                          handlingSubscribers = [];
 
-                eventHandlers = state.subscribers.get(subEvent);
+                          if (!eventHandlers) {
+                            subEvents["delete"](subEvent);
+                          } else {
+                            // loop through the entire dll chain
+                            while (eventHandlers = eventHandlers.getNext()) {
+                              // use new ctx for every pipeline because
+                              // one pipeline must never affect the other
+                              // except middleware pipeline, else it gets
+                              // difficult to debug
+                              handlingSubscribers.push(eventHandlers.meta.handlers(_objectSpread({}, ctx)));
+                            }
+                          }return _context.abrupt("return",
 
-                if (!eventHandlers) {
-                  subEvents.delete(subEvent);
-                } else {
-                  // loop through the entire dll chain
-                  while (eventHandlers = eventHandlers.getNext()) {
-                    // use new ctx for every pipeline because
-                    // one pipeline must never affect the other
-                    // except middleware pipeline, else it gets
-                    // difficult to debug
-                    eventHandlers.meta.handlers((0, _assign2.default)({}, ctx));
-                  }
-                }
+                          Promise.all(handlingSubscribers));case 4:case "end":return _context.stop();}}}, _callee);}));return function (_x3) {return _ref3.apply(this, arguments);};}())));case 8:case "end":return _context2.stop();}}}, _callee2);}));return function publish(_x, _x2) {return _ref2.apply(this, arguments);};}();
 
-                subEventItem = subEventsIter.next();
-              }case 8:case 'end':return _context.stop();}}}, _callee, undefined);}));return function publish(_x3, _x4) {return _ref2.apply(this, arguments);};}();
 
 
 
   /**
-                                                                                                                                                                    * Adds scope to a event by prefixing
-                                                                                                                                                                    * it with a incrementing counter string,
-                                                                                                                                                                    * such that everytime this is called the
-                                                                                                                                                                    * subscribers can listen only on scoped events.
-                                                                                                                                                                    * This is especially useful when multiple
-                                                                                                                                                                    * instances of the same class is listening and
-                                                                                                                                                                    * is interested only in events of its own instance.
-                                                                                                                                                                    *
-                                                                                                                                                                    * @example
-                                                                                                                                                                    * const scope = getScope()
-                                                                                                                                                                    *
-                                                                                                                                                                    * // ...
-                                                                                                                                                                    * SE.subscribe(scope('asdf/asdf/asdf'))
-                                                                                                                                                                    * // ...
-                                                                                                                                                                    *
-                                                                                                                                                                    * <ChildComponent scope={scope} />
-                                                                                                                                                                    *
-                                                                                                                                                                    * /// In ChildComponent.jsx
-                                                                                                                                                                    * SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
-                                                                                                                                                                    *
-                                                                                                                                                                    * @returns {function} that can add scope to events
-                                                                                                                                                                    */
+                                                                                                                                                                                                                                                                                                                                      * Adds scope to a event by prefixing
+                                                                                                                                                                                                                                                                                                                                      * it with a incrementing counter string,
+                                                                                                                                                                                                                                                                                                                                      * such that everytime this is called the
+                                                                                                                                                                                                                                                                                                                                      * subscribers can listen only on scoped events.
+                                                                                                                                                                                                                                                                                                                                      * This is especially useful when multiple
+                                                                                                                                                                                                                                                                                                                                      * instances of the same class is listening and
+                                                                                                                                                                                                                                                                                                                                      * is interested only in events of its own instance.
+                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                      * @example
+                                                                                                                                                                                                                                                                                                                                      * const scope = getScope()
+                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                      * // ...
+                                                                                                                                                                                                                                                                                                                                      * SE.subscribe(scope('asdf/asdf/asdf'))
+                                                                                                                                                                                                                                                                                                                                      * // ...
+                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                      * <ChildComponent scope={scope} />
+                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                      * /// In ChildComponent.jsx
+                                                                                                                                                                                                                                                                                                                                      * SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
+                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                      * @returns {function} that can add scope to events
+                                                                                                                                                                                                                                                                                                                                      */
   function getScope() {
     var rand = state.scopeId++;
-    return function (event) {return '__scope_' + rand + '_/' + event;};
+    return function (event) {return "__scope_".concat(rand, "_/").concat(event);};
   }
 
   // Pre-compiling regex for efficiency
@@ -410,14 +457,14 @@ var SupervisedEmitter = function () {
     unScope: unScope,
     displayName: 'SupervisedEmitter' };
 
-}();exports.
+}();var _default =
 
 
 
-pipe = _utils.pipe;exports.
-compose = _utils.compose;exports.default =
 
 
-SupervisedEmitter;
+
+
+SupervisedEmitter;exports["default"] = _default;
 
 module.exports = SupervisedEmitter;

@@ -1,21 +1,17 @@
-"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.DLL = undefined;var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);var _createClass2 = require("babel-runtime/helpers/createClass");var _createClass3 = _interopRequireDefault(_createClass2);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var DLLItem = function () {
-  function DLLItem() {var prev = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;var next = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;var meta = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};(0, _classCallCheck3.default)(this, DLLItem);
-    this.meta = meta;
-    this.next = next;
-    this.prev = prev;
-  }(0, _createClass3.default)(DLLItem, [{ key: "getNext", value: function getNext()
+"use strict";var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");Object.defineProperty(exports, "__esModule", { value: true });exports.DLL = void 0;var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));function DLLItem() {var _this = this;var prev = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;var next = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;var meta = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  this.meta = meta;
+  this.next = next;
+  this.prev = prev;
 
-    {
-      return this.next;
-    } }]);return DLLItem;}();var
+  this.getNext = function () {return _this.next;};
+}var
 
-
-DLL = exports.DLL = function () {
-  function DLL() {(0, _classCallCheck3.default)(this, DLL);
+DLL = /*#__PURE__*/function () {
+  function DLL() {(0, _classCallCheck2["default"])(this, DLL);
     this.head = null;
     this.tail = null;
     this.length = 0;
-  }(0, _createClass3.default)(DLL, [{ key: "getHead", value: function getHead()
+  }(0, _createClass2["default"])(DLL, [{ key: "getHead", value: function getHead()
 
 
     {
@@ -85,4 +81,4 @@ DLL = exports.DLL = function () {
       }
 
       this.length--;
-    } }]);return DLL;}();
+    } }]);return DLL;}();exports.DLL = DLL;

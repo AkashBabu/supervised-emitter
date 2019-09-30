@@ -1,5 +1,10 @@
-# template-lib
+# Supervised-Emitter
 A NodeJS event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.
+
+**Please note that this project is still in Draft state!!! So the APIs are subjected to change(even if the chances are minimal). Also I'm planning to rename this library**
+
+## Table of Contents
+* 
 
 ## Installation
 > npm i supervised-emitter -S
@@ -43,10 +48,13 @@ We return a closure function `unsubscribe` during subscription and the same can 
 
 Suggest you to put all the necessary information only in the data argument and DO NOT include variable data in event/topic (for better efficiency) because for every new topic all the subscribed events are chaecked for a match else the cached result is used.
 
-Highlight the word TOPIC instead of Events
-
 use new ctx for every pipeline because one pipeline must never affect the other except middleware pipeline, else it gets difficult to debug.
 If you want to use the same set of handlers in multiple places then compose such handlers and use the same in events handlers (TODO: example for the same)
+
+Addition / Removal of a hanlder doesn't trigger a rebuild of the entire handler chain (unlike redux, where all the reducers are recomposed everytime a reducers is injected / removed)
+
+## State maintaining middleware
+.subscribe("state/**")
 
 ## Publishing scoped events 
 * by generating random string and prefixing it to the event name
@@ -102,10 +110,22 @@ export default function EventTrace({traceLength = 10} = {}) {
 }
 ```
 
+## API Documentation
+Internally we use [LFU](https://www.npmjs.com/package/node-lfu-cache) cache. So the lfu options is passed directly to this constructor.
+
+Mention about async nature of execution of handlers
+
 ## Internal Working Document
 Keyword:
 `pubTopic` : Published Topic
 `subTopic` : Subscription Topic
+
+## Debug messages activation
+
+## Pipeline ctx
+- data
+- pubEvent
+- subEvents
 
 ## TODOs
 - [ ] Documentation
@@ -120,14 +140,15 @@ Keyword:
 - [ ] Subscription must also take care updating the cache
 - [ ] Unsubscription must also take care updating the cache
 - [ ] Events and handlers trace
+- [ ] Architecture documentation
+- [ ] DataFlow documentation
+- [ ] await able on SE.publish
 
 ## Challenges
 - [ ] Timeout between every middleware called (such that the main thread is never blocked because of a huge list of event handlers)
 - [ ] Use of indices of events for caching rather than the string (for space optimization)
 - [ ] LFU Cache
 - [ ] DLL for managing event handlers list
-- [ ] 
-
 
 
 
@@ -140,3 +161,7 @@ Keyword:
 - [ ] Middlewares
 - [ ] Composing handlers
 - [ ] Glob pattern subscriptions
+- [ ] Well Tested
+- [ ] Simple library and hence fewer bugs. NO Plugins bullshit! So no beating around the bush. Its just the library, so use it with ease. Least boilerplate needed.
+- [ ] Use it everywhere, irrespective of whether you use React / Vue / Angular / Vanilla JS
+- [ ] State Management is in your hands. So use it only when needed

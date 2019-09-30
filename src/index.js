@@ -3,6 +3,7 @@ import LFU from 'node-lfu-cache';
 import { DLL } from './dll';
 import { pipe, compose } from './utils';
 import { isPatternEvent, doesPatternMatch } from './patternMatch';
+import Logger from './logger';
 
 
 /**
@@ -22,6 +23,9 @@ import { isPatternEvent, doesPatternMatch } from './patternMatch';
  * )
  */
 const SupervisedEmitter = (() => {
+  const logger = Logger(Logger.LEVEL.DEBUG, false);
+  logger.setPrefix('[SE]:');
+
   // Flag used to check for singleton
   let initialized = false;
 
@@ -41,8 +45,14 @@ const SupervisedEmitter = (() => {
     }
     initialized = true;
 
-    state.debug = options.debug || false;
+    const { debug = false, lfu = { max: 100 } } = options;
+    state.debug = debug;
+    logger[debug ? 'enable' : 'disable']();
+
     state.middlewares = pipe(...middlewares);
+    state.subEventsCache = new LFU(lfu);
+
+    logger.debug('INITIALIZED');
   }
 
   /**
@@ -50,12 +60,15 @@ const SupervisedEmitter = (() => {
    *
    * Reinitializes the singleton 😜
    *
+   * This is equivalent to running reset() -> initialize()
+   *
    * @param {function[]} middlewares array of middlewares
    * @param {Object} options
    */
   function reInitialize(middlewares, options) {
-    reset();
+    logger.debug('RE-INITIALIZING');
 
+    reset();
     initialize(middlewares, options);
   }
 
@@ -103,7 +116,7 @@ const SupervisedEmitter = (() => {
     eventArr[1] = eventHandler;
 
     // Maitaining a map of subscriptionId vs event.
-    // This helps us to know the event during
+    // This helps us to determine the event during
     // unsubscription
     state.subscriberEvent.set(subscriptionId, eventArr);
   };
@@ -142,10 +155,23 @@ const SupervisedEmitter = (() => {
    *
    * @param {String} patternEvent Pattern event
    */
-  const addEventToCache = patternEvent => {
+  const addPatternEventToCache = patternEvent => {
     state.subEventsCache.forEach((cachedEvents, pubEvent) => {
       if (doesPatternMatch(pubEvent, patternEvent)) cachedEvents.set(patternEvent, true);
     });
+  };
+
+  /**
+   * Checks if the matching pubEvent is present
+   * in the cache, if so then it adds this event
+   *
+   * @param {String} event Normal event (w/o pattern)
+   */
+  const addNormalEventToCache = event => {
+    const matchingEvents = state.subEventsCache.peek(event);
+    if (matchingEvents) {
+      matchingEvents.set(event, true);
+    }
   };
 
 
@@ -179,9 +205,11 @@ const SupervisedEmitter = (() => {
       // new pattern event matches with the
       // publish event in cache
       if (isPatternEvent(event)) {
-        addEventToCache(event);
+        addPatternEventToCache(event);
 
         state.patternEvents.push(event);
+      } else {
+        addNormalEventToCache(event);
       }
 
       state.subscribers.set(event, new DLL());
@@ -204,6 +232,7 @@ const SupervisedEmitter = (() => {
 
     setSubscriptionEvent(subscriptionId, event, eventHandler);
 
+    logger.debug(`SUBSCRIBED => ${event}`);
 
     return {
       /**
@@ -255,17 +284,22 @@ const SupervisedEmitter = (() => {
   const unsubscribe = subscriptionId => {
     const [event, eventHandler] = getSubscriptionEvent(subscriptionId);
 
+    const subscribers = state.subscribers.get(event);
     // remove the handler from DLL
-    state.subscribers.get(event).remove(eventHandler);
+    if (subscribers) {
+      subscribers.remove(eventHandler);
 
-    // If there are no event handlers
-    // for this event, then remove the event from
-    // subscribers list (for space optimization).
-    if (state.subscribers.get(event).length === 0) {
-      state.subscribers.delete(event);
+      // If there are no event handlers
+      // for this event, then remove the event from
+      // subscribers list (for space optimization).
+      if (subscribers.length === 0) {
+        state.subscribers.delete(event);
+      }
     }
 
     delSubscriptionEvent(subscriptionId);
+
+    logger.debug(`UNSUBSCRIBED => ${event}`);
   };
 
   /**
@@ -284,8 +318,12 @@ const SupervisedEmitter = (() => {
 
     if (!subEvents) {
       const matchingEvents = new Map();
-      matchingEvents.set(pubEvent, true);
 
+      // if normal event subscribers are present
+      // then add it as well
+      state.subscribers.get(pubEvent) && matchingEvents.set(pubEvent, true);
+
+      // Check if any pattern matches pubEvent
       state.patternEvents.forEach(pattern => {
         if (doesPatternMatch(pubEvent, pattern)) matchingEvents.set(pattern, true);
       });
@@ -318,20 +356,29 @@ const SupervisedEmitter = (() => {
   const publish = async (pubEvent, data) => {
     const subEvents = getSubEvents(pubEvent);
 
+    const subEventsArr = [];
+
+    (() => {
+      const subEventsIter = subEvents.keys();
+      let subEventItem = subEventsIter.next();
+      while (!subEventItem.done) {
+        subEventsArr.push(subEventItem.value);
+        subEventItem = subEventsIter.next();
+      }
+    })();
+
     const ctx = {
       data,
       pubEvent,
+      subEvents: subEventsArr,
     };
 
     ctx.data = await state.middlewares(ctx);
 
-    const subEventsIter = subEvents.keys();
-
-    let subEventItem = subEventsIter.next();
-    while (!subEventItem.done) {
-      const subEvent = subEventItem.value;
-
+    return Promise.all(subEventsArr.map(async subEvent => {
       let eventHandlers = state.subscribers.get(subEvent);
+
+      const handlingSubscribers = [];
 
       if (!eventHandlers) {
         subEvents.delete(subEvent);
@@ -342,12 +389,12 @@ const SupervisedEmitter = (() => {
           // one pipeline must never affect the other
           // except middleware pipeline, else it gets
           // difficult to debug
-          eventHandlers.meta.handlers(Object.assign({}, ctx));
+          handlingSubscribers.push(eventHandlers.meta.handlers({ ...ctx }));
         }
       }
 
-      subEventItem = subEventsIter.next();
-    }
+      return Promise.all(handlingSubscribers);
+    }));
   };
 
 
