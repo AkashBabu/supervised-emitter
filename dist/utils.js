@@ -30,25 +30,25 @@ function pipe() {for (var _len2 = arguments.length, fns = new Array(_len2), _key
    * @returns {(x, ...args) => y}
    */
 function composer(method) {for (var _len3 = arguments.length, fns = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {fns[_key3 - 1] = arguments[_key3];}
-  return (/*#__PURE__*/function () {var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(ctx) {var _len4,args,_key4,hasEnded,end,_args2 = arguments;return _regenerator["default"].wrap(function _callee2$(_context2) {while (1) {switch (_context2.prev = _context2.next) {case 0:for (_len4 = _args2.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {args[_key4 - 1] = _args2[_key4];}
-                hasEnded = false;
-                end = function end(data) {
-                  hasEnded = true;
-                  return data;
-                };
+  return function (ctx) {for (var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {args[_key4 - 1] = arguments[_key4];}
+    var hasEnded = false;
+    var end = function end(data) {
+      hasEnded = true;
+      return data;
+    };
 
-                ctx.end = end;return _context2.abrupt("return",
+    ctx.end = end;
 
-                fns[method]( /*#__PURE__*/function () {var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(y, fn) {return _regenerator["default"].wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:_context.next = 2;return (
-                              y);case 2:ctx.data = _context.sent;if (!
+    return fns[method]( /*#__PURE__*/function () {var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(y, fn) {return _regenerator["default"].wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:_context.next = 2;return (
+                  y);case 2:ctx.data = _context.sent;if (!
 
 
 
-                            hasEnded) {_context.next = 5;break;}return _context.abrupt("return", ctx.data);case 5:return _context.abrupt("return",
+                hasEnded) {_context.next = 5;break;}return _context.abrupt("return", ctx.data);case 5:return _context.abrupt("return",
 
-                            fn.apply(void 0, [ctx].concat(args)));case 6:case "end":return _context.stop();}}}, _callee);}));return function (_x2, _x3) {return _ref2.apply(this, arguments);};}(),
-                ctx.data));case 5:case "end":return _context2.stop();}}}, _callee2);}));return function (_x) {return _ref.apply(this, arguments);};}());
-
+                fn.apply(void 0, [ctx].concat(args)));case 6:case "end":return _context.stop();}}}, _callee);}));return function (_x, _x2) {return _ref.apply(this, arguments);};}(),
+    ctx.data);
+  };
 }
 
 
