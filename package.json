@@ -9,11 +9,16 @@
         "test": "cross-env NODE_ENV=test npm run _test:exit",
         "test:dev": "cross-env NODE_ENV=test npm run _test -- -w",
         "test:grep": "cross-env NODE_ENV=test npm run _test -- -g ",
-        "coverage": "cross-env NODE_ENV=test nyc -- npm run _test:exit",
+        "coverage": "cross-env NODE_ENV=test nyc npm run _test:exit",
         "build": "rimraf dist/ && babel src --out-dir dist",
+        "lint:fix": "eslint --fix --config .eslintrc src/index.js",
         "lint": "eslint --config .eslintrc src/index.js",
-        "benchmark": "radargun benchmark/**/*.bench.js",
-        "status": "git status"
+        "benchmark:clean": "node benchmark/clean.js",
+        "benchmark:report": "radargun benchmark/**/*.bench.js",
+        "benchmark:template": "node benchmark/template.js",
+        "benchmark": "npm run build && npm run benchmark:clean && npm run benchmark:report && npm run benchmark:template",
+        "status": "git status",
+        "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls"
     },
     "engines": {
         "node": ">=7"
@@ -36,6 +41,7 @@
     },
     "homepage": "https://github.com/AkashBabu/supervised-emitter#readme",
     "precommit": [
+        "lint:fix",
         "lint",
         "coverage",
         "build",
@@ -52,6 +58,8 @@
         "@babel/runtime": "^7.6.2",
         "babel-eslint": "^10.0.3",
         "chai": "^4.1.2",
+        "cli-progress": "^3.3.1",
+        "coveralls": "^3.0.6",
         "cross-env": "^6.0.0",
         "delay": "^4.3.0",
         "eslint": "^6.5.0",
@@ -62,7 +70,7 @@
         "eslint-plugin-jsx-a11y": "^6.2.3",
         "eslint-plugin-mocha": "^6.1.1",
         "eslint-plugin-node": "^10.0.0",
-        "eslint-plugin-react": "^7.14.3",
+        "eslint-plugin-react": "^7.15.1",
         "mocha": "^5.2.0",
         "nodemon": "^1.19.3",
         "nyc": "^12.0.2",
