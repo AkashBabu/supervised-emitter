@@ -98,7 +98,7 @@ describe('#load-test', function() { // eslint-disable-line
       await SE.publish('hello/world', 'test');
     }
 
-    expect(calls).to.be.eql(N * 3);
+    expect(calls).to.be.eql(N * 4);
   }))(1000000);
 
 

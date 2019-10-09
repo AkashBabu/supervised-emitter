@@ -1,6 +1,15 @@
+# v0.4.0
+* Bug Fix: wasn't ignoring leading & trailing '/' in normal event subscription
+* Improved documentation
+* Added more test cases
+* Load tested
+* Benchmarking & report creation for the same
+* Controlled concurrency for publish pipelines
+* Improves code segregation
+
 # v0.3.0
 * Bug Fix: normal event subscription wasn't being updated in cache
-* adds `subEvents` to the context (ctx)
+* Adds `subEvents` to the context (ctx)
 * Adds support for stopping the flow inbetween a pipeline execution
 * Adds support for Debug logs
 
