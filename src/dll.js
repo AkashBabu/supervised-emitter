@@ -1,4 +1,8 @@
-function DLLItem(prev = null, next = null, meta = {}) {
+const isUndefined = d => d === undefined || d === null;
+
+export function DLLItem(prev = null, next = null, meta) {
+  if (isUndefined(meta)) this.invalid = true;
+
   this.meta = meta;
   this.next = next;
   this.prev = prev;
@@ -6,7 +10,7 @@ function DLLItem(prev = null, next = null, meta = {}) {
   this.getNext = () => this.next;
 }
 
-export class DLL {
+export default class DLL {
   constructor() {
     this.head = null;
     this.tail = null;
@@ -14,23 +18,51 @@ export class DLL {
   }
 
 
+  /**
+   * Returns the first items in the list
+   *
+   * @returns {DLLItem}
+   */
   getHead() {
     return this.head;
   }
 
   /**
-  * This method is in sync with DLLItem
-  * such that users can use this method
-  * for looping
-  *
-  * @example
-  * let eventHandlers = SE[state].subscribers[matchingEvent];
-  * while (eventHandlers = eventHandlers.getNext()) {
-  *   eventHandlers.meta.handlers(newData);
-  * }
-  */
-  getNext() {
-    return this.getHead();
+   * Removes and returns the first
+   * item in the list
+   *
+   * @returns {Object} Same data that was
+   *    used to append to this list
+   */
+  shift() {
+    const dllItem = this.getHead();
+
+    if (!dllItem) return undefined;
+
+    this.remove(dllItem);
+    return dllItem.meta;
+  }
+
+  /**
+   * @callback ForEachCb
+   * @param {any} data
+   * @param {number} i
+   */
+
+  /**
+   * Iterate through the entire DLL chain
+   *
+   * @param {ForEachCb} cb
+   */
+  forEach(cb) {
+    let dllItem = this.getHead();
+    let i = 0;
+
+    while (dllItem) {
+      cb(dllItem.meta, i++);
+
+      dllItem = dllItem.getNext();
+    }
   }
 
   /**
@@ -44,6 +76,7 @@ export class DLL {
    */
   append(data) {
     const dllItem = new DLLItem(this.tail, null, data);
+    if (dllItem.invalid) return null;
 
     if (this.tail) {
       this.tail.next = dllItem;
@@ -68,18 +101,27 @@ export class DLL {
    * @param {DLLItem} dllItem
    */
   remove(dllItem) {
+    if (!(dllItem instanceof DLLItem)) return false;
+
+    // If it's NOT HEAD
     if (dllItem.prev) {
       dllItem.prev.next = dllItem.next;
+
+    // If it's HEAD
     } else {
       this.head = dllItem.next;
     }
 
+    // If it's NOT TAIL
     if (dllItem.next) {
       dllItem.next.prev = dllItem.prev;
+
+    // If it's TAIL
     } else {
       this.tail = dllItem.prev;
     }
 
     this.length--;
+    return true;
   }
 }
