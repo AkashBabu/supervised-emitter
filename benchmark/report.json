@@ -2,126 +2,126 @@
   "data": [
     [
       {
-        "avg": 31731371,
+        "avg": 48681605,
         "label": "pub_same_topic",
-        "max": 61893430,
-        "min": 16702520
+        "max": 104742724,
+        "min": 19288401
       },
       {
-        "avg": 29452965,
+        "avg": 33890566,
         "label": "pub_different_topics",
-        "max": 67522573,
-        "min": 19142109
+        "max": 96880318,
+        "min": 20274059
       },
       {
-        "avg": 21369214,
+        "avg": 24273355,
         "label": "pub_normal_subscribers_same_topic",
-        "max": 23471450,
-        "min": 19085832
+        "max": 44391617,
+        "min": 17651745
       },
       {
-        "avg": 67686448,
+        "avg": 64317532,
         "label": "pub_normal_subscribers_different_topics",
-        "max": 140381675,
-        "min": 47910480
+        "max": 213413155,
+        "min": 39137774
       },
       {
-        "avg": 20655216,
+        "avg": 21288536,
         "label": "pub_same_topic_single_glob_subscriber",
-        "max": 24255385,
-        "min": 18427797
+        "max": 25966490,
+        "min": 18591460
       },
       {
-        "avg": 42767537,
+        "avg": 45909975,
         "label": "pub_different_topic_single_glob_subscriber",
-        "max": 185129647,
-        "min": 19487735
+        "max": 196003156,
+        "min": 20094192
       },
       {
-        "avg": 1456900181,
+        "avg": 1649998098,
         "label": "pub_glob_subscribers_different_topics",
-        "max": 2213394202,
-        "min": 1021199938
+        "max": 2467314072,
+        "min": 1221033947
       }
     ],
     [
       {
-        "avg": 29790604,
+        "avg": 18838745,
         "label": "gsub_same_topic",
-        "max": 49225482,
-        "min": 17927741
+        "max": 32896062,
+        "min": 9719202
       },
       {
-        "avg": 35309424,
+        "avg": 25892822,
         "label": "gsub_different_topics",
-        "max": 49698064,
-        "min": 27927749
+        "max": 36765494,
+        "min": 20692126
       }
     ],
     [
       {
-        "avg": 29211964,
+        "avg": 21053045,
         "label": "sub_same_topic",
-        "max": 50017350,
-        "min": 14213322
+        "max": 39544297,
+        "min": 11001843
       },
       {
-        "avg": 34217595,
+        "avg": 27105313,
         "label": "sub_different_topics",
-        "max": 46480166,
-        "min": 27506193
+        "max": 41770991,
+        "min": 21613869
       }
     ],
     [
       {
-        "avg": 31002051,
+        "avg": 20091413,
         "label": "gunsub_same_topic",
-        "max": 48682798,
-        "min": 18272030
+        "max": 40385498,
+        "min": 9085906
       },
       {
-        "avg": 38626599,
+        "avg": 27689505,
         "label": "gunsub_different_topics",
-        "max": 51081201,
-        "min": 29528992
+        "max": 37064862,
+        "min": 17324601
       },
       {
-        "avg": 30955906,
+        "avg": 21276330,
         "label": "chained_gunsub_same_topics",
-        "max": 39932435,
-        "min": 20612759
+        "max": 29864088,
+        "min": 15733358
       },
       {
-        "avg": 42300028,
+        "avg": 32373209,
         "label": "chained_gunsub_different_topics",
-        "max": 64722335,
-        "min": 33512654
+        "max": 39497680,
+        "min": 25882465
       }
     ],
     [
       {
-        "avg": 27237082,
+        "avg": 21460401,
         "label": "unsub_same_topic",
-        "max": 42354904,
-        "min": 16480203
+        "max": 38742515,
+        "min": 7079797
       },
       {
-        "avg": 39126117,
+        "avg": 28531015,
         "label": "unsub_different_topics",
-        "max": 55345284,
-        "min": 29115310
+        "max": 41164921,
+        "min": 22601971
       },
       {
-        "avg": 31068837,
+        "avg": 24451476,
         "label": "chained_unsub_same_topic",
-        "max": 42689432,
-        "min": 23277097
+        "max": 38235828,
+        "min": 16499797
       },
       {
-        "avg": 20968287,
+        "avg": 18275217,
         "label": "chained_unsub_different_topics",
-        "max": 26993840,
-        "min": 16564117
+        "max": 29073464,
+        "min": 11363322
       }
     ]
   ]
