@@ -1,9 +1,42 @@
 import LFU from 'node-lfu-cache';
 
-import { DLL } from './dll';
-import { pipe, compose } from './utils';
-import { isPatternEvent, doesPatternMatch } from './patternMatch';
+import DLL from './dll';
+import { pipe, compose, getKeys } from './utils';
+import { isPatternEvent, doesPatternMatch, sanitizeEvent } from './pattern';
 import Logger from './logger';
+import { SingletonError } from './errors';
+import ThreadRunner from './threadRunner';
+
+
+/**
+ * @typedef {Object} Context
+ * @property {any} data Published data
+ * @property {String} pubEvent Published event
+ * @property {String[]} subEvents Matching subscribed events
+ * @property {(data: any) => any} end Can be used to stop the pipeline
+ */
+
+/**
+ * Handler function
+ * @callback Handler
+ * @param {Context} ctx Pipeline context
+ */
+
+/**
+ * @typedef {Object} Options
+ * @property {Boolean} debug Debug
+ * @property {Object} lfu LFU cache constructor argument
+ */
+
+
+/**
+ * Subscribe function
+ * @callback Subscribe
+ * @param {String} event subscription event
+ * @param {...Handler} handlers list of handlers
+ *
+ * @returns {{unsubscribe: function, subscribe: Subscribe}}
+ */
 
 
 /**
@@ -14,13 +47,6 @@ import Logger from './logger';
  * It's main applications can be found in
  * State management (React, Vue etc)
  * and nodejs for worker model
- *
- * @example
- * SupervisedEmitter.subscribe('page_load',
- *  (data) => console.log('page load data:', data),
- *  (data) => data.item += 1,
- *  (data) => console.log('after modification:', data),
- * )
  */
 const SupervisedEmitter = (() => {
   const logger = Logger(Logger.LEVEL.DEBUG, false);
@@ -33,15 +59,16 @@ const SupervisedEmitter = (() => {
   // throughout the singleton
   let state = getFreshState();
 
+
   /**
    * Initializes a singleton of SupervisedEmitter
    *
-   * @param {function[]} middlewares array of middlewares
-   * @param {Object} options
+   * @param {Handler[]} middlewares array of middlewares
+   * @param {Options} options
    */
   function initialize(middlewares = [], options = {}) {
     if (initialized) {
-      throw new Error('Can\'t initialize singleton => "SupervisedEmitter", more than once');
+      throw new SingletonError();
     }
     initialized = true;
 
@@ -52,25 +79,10 @@ const SupervisedEmitter = (() => {
     state.middlewares = pipe(...middlewares);
     state.subEventsCache = new LFU(lfu);
 
+
     logger.debug('INITIALIZED');
   }
 
-  /**
-   * Should be used only for testing purposes!!!
-   *
-   * Reinitializes the singleton 😜
-   *
-   * This is equivalent to running reset() -> initialize()
-   *
-   * @param {function[]} middlewares array of middlewares
-   * @param {Object} options
-   */
-  function reInitialize(middlewares, options) {
-    logger.debug('RE-INITIALIZING');
-
-    reset();
-    initialize(middlewares, options);
-  }
 
   /**
    * Should be used only for testing purposes!!!
@@ -84,67 +96,22 @@ const SupervisedEmitter = (() => {
     state = getFreshState();
   }
 
+
   /**
    * Returns a fresh / new checkout of
    * state
    */
   function getFreshState() {
     return {
-      debug           : false,
-      middlewares     : ({ data }) => data,
-      subscriptionId  : 0,
-      subscribers     : new Map(),
-      subscriberEvent : new Map(),
-      patternEvents   : [],
-      subEventsCache  : new LFU({}),
-      scopeId         : 0,
+      debug          : false,
+      middlewares    : ({ data }) => data,
+      subscribers    : new Map(), // map of event vs pipelines (DLL)
+      patternEvents  : [], // list of pattern events
+      subEventsCache : new LFU({}), // cache for maintaining pubEvents vs matching subEvents
+      scopeId        : 0, // use to generate a new scope part
+      threadRunner   : ThreadRunner(publisher, { maxRunners: 100 }),
     };
   }
-
-  /**
-   * Saves the eventhandler against the given
-   * subscriptionId. This will be used during
-   * unsubscription
-   *
-   * @param {number} subscriptionId SubscriptionId
-   * @param {string} event Event being subscribed
-   * @param {function} eventHandler composed event handlers
-   */
-  const setSubscriptionEvent = (subscriptionId, event, eventHandler) => {
-    const eventArr = new Array(2);
-    eventArr[0] = event;
-    eventArr[1] = eventHandler;
-
-    // Maitaining a map of subscriptionId vs event.
-    // This helps us to determine the event during
-    // unsubscription
-    state.subscriberEvent.set(subscriptionId, eventArr);
-  };
-
-
-  /**
-   * Returns the event handlers for the given subscription
-   * Id
-   *
-   * @param {number} subscriptionId Subscription Id
-   *
-   * @returns {object} Subscription's Event & handlers
-   */
-  const getSubscriptionEvent = subscriptionId => state.subscriberEvent.get(subscriptionId) || new Array(2);
-
-
-  /**
-   * Removes the event handlers for the given subscription
-   * Id
-   *
-   * @param {number} subscriptionId Subscription Id
-   *
-   */
-  const delSubscriptionEvent = subscriptionId => {
-    state.subscriberEvent.delete(subscriptionId);
-
-    // state.subscribersEventHandlers[subscriptionId] = undefined;
-  };
 
 
   /**
@@ -187,26 +154,23 @@ const SupervisedEmitter = (() => {
    * https://medium.com/free-code-camp/pipe-and-compose-in-javascript-5b04004ac937
    *
    * @param {String} event Subscription event
-   * @param  {...function} fns List of handlers
+   * @param  {...Handler} handlers List of handlers
    *
-   * @returns {{unsubscribe: function}} unsubscribe function for
-   *    unsubscribing these handlers from the event
+   * @returns {{unsubscribe: function, subscribe: Subscribe}}
+   *    `unsubscribe` for unsubscribing from the event and
+   *    `subscribe` for chaining multiple subscriptions
    */
-  const subscribe = (event, ...fns) => {
-    // Compose all the subscribers passed at once.
-    // Users can use this feature if needed, else
-    // can choose to go with the classical approach
-    // of subscribing as many times as the handlers.
-    // We should maintain a map of subscriptionId vs
-    // composedFns in here to find the right one to be
-    // removed during unsubscription
+  const subscribe = (event, ...handlers) => {
+    event = sanitizeEvent(event);
+
+
+    // Check if this is a new or existing event
     if (!state.subscribers.get(event)) {
       // Cache has to be updated if the
       // new pattern event matches with the
       // publish event in cache
       if (isPatternEvent(event)) {
         addPatternEventToCache(event);
-
         state.patternEvents.push(event);
       } else {
         addNormalEventToCache(event);
@@ -221,46 +185,36 @@ const SupervisedEmitter = (() => {
     // having to create a new array each time
     // by means of splicing
     const eventHandler = state.subscribers.get(event).append({
-      handlers: pipe(...fns),
+      // Compose all the subscribers passed at once.
+      // Users can use this feature if needed, else
+      // can choose to go with the classical approach
+      // of subscribing as many times as the handlers.
+      handlers: pipe(...handlers),
     });
-
-    // Generate a new subscriptionId, so that
-    // the same can be used to unsubscribe.
-    // This helps us to unsubscribe from composed
-    // functions as well.
-    const subscriptionId = state.subscriptionId++;
-
-    setSubscriptionEvent(subscriptionId, event, eventHandler);
 
     logger.debug(`SUBSCRIBED => ${event}`);
 
     return {
       /**
-       * Closure function is exposed instead of
-       * returning subscriptionId because of the
-       * risk of user using a wrong subscriptionId
-       * during unsubscription.
+       * Unsubscribes from this subscription
        */
       unsubscribe() {
-        unsubscribe(subscriptionId);
+        unsubscribe(event, eventHandler);
       },
 
       /**
        * This method allows chaining subscription to
        * multiple events via the same subscription
        *
-       * @example
-       * const subscription = SE.subscribe('/test-event', handler1)
-       *  .subscribe('/hello/world', handler2, handler3)
-       *  .subscribe('/tom/cat/*', handler4, handler5)
-       *
-       * subscription.unsubscribe()
-       *
        * @param {String} event Subscription event
-       * @param  {...function} fns List of handlers
+       * @param  {...Handler} handlers List of handlers
+       *
+       * @returns {{unsubscribe: function, subscribe: Subscribe}}
+       *    `unsubscribe` for unsubscribing from the event and
+       *    `subscribe` for chaining multiple subscriptions
        */
-      subscribe(event, ...fns) { // eslint-disable-line
-        const subscription = subscribe(event, ...fns);
+      subscribe(event, ...handlers) { // eslint-disable-line
+        const subscription = subscribe(event, ...handlers);
         const self = this;
 
         return {
@@ -277,14 +231,12 @@ const SupervisedEmitter = (() => {
 
   /**
    * Unsubscribes the event handlers from the event
-   * associated with the given subscriptionId
    *
-   * @param {number} subscriptionId Subscription ID
+   * @param {String} subEvent Subscribed Event
+   * @param {Handler} eventHandler Handler pipeline
    */
-  const unsubscribe = subscriptionId => {
-    const [event, eventHandler] = getSubscriptionEvent(subscriptionId);
-
-    const subscribers = state.subscribers.get(event);
+  const unsubscribe = (subEvent, eventHandler) => {
+    const subscribers = state.subscribers.get(subEvent);
     // remove the handler from DLL
     if (subscribers) {
       subscribers.remove(eventHandler);
@@ -293,14 +245,13 @@ const SupervisedEmitter = (() => {
       // for this event, then remove the event from
       // subscribers list (for space optimization).
       if (subscribers.length === 0) {
-        state.subscribers.delete(event);
+        state.subscribers.delete(subEvent);
       }
     }
 
-    delSubscriptionEvent(subscriptionId);
-
-    logger.debug(`UNSUBSCRIBED => ${event}`);
+    logger.debug(`UNSUBSCRIBED => ${subEvent}`);
   };
+
 
   /**
    * Returns all the matching subscribed events
@@ -317,7 +268,7 @@ const SupervisedEmitter = (() => {
     let subEvents = state.subEventsCache.get(pubEvent);
 
     if (!subEvents) {
-      const matchingEvents = new Map();
+      let matchingEvents = new Map();
 
       // if normal event subscribers are present
       // then add it as well
@@ -331,6 +282,9 @@ const SupervisedEmitter = (() => {
       state.subEventsCache.set(pubEvent, matchingEvents);
 
       subEvents = matchingEvents;
+
+      // avoid memory leakage
+      matchingEvents = null;
     }
 
     return subEvents;
@@ -338,13 +292,24 @@ const SupervisedEmitter = (() => {
 
 
   /**
+   * Adds the publish task to publisher queue
+   *
+   * @param {String} pubEvent Event to publish the given data
+   * @param {Object} data Any data that need to be published
+   *
+   * @returns {Promise}
+   */
+  const publish = (pubEvent, data) => state.threadRunner(pubEvent, data);
+
+
+  /**
    * Publishes the given data to all the subscribers
    * that match the event.
    *
-   * Note: We pass only the second args (one param)
+   * Note: We pass only the second argument (one param)
    * to the subscribers. This is intentionally done
-   * because when the eventHandlers are composed, the output
-   * of one is used by the next, incase of which we'll not be
+   * because when the eventHandlers are piped (i.e. the output
+   * of one is used by the next), incase of which we'll not be
    * able to maintain a standard function signature,
    * if we allow more than one param to be passed to subscribers.
    *
@@ -353,19 +318,11 @@ const SupervisedEmitter = (() => {
    *
    * @returns {Promise}
    */
-  const publish = async (pubEvent, data) => {
+  const publisher = async (pubEvent, data) => {
+    pubEvent = sanitizeEvent(pubEvent);
+
     const subEvents = getSubEvents(pubEvent);
-
-    const subEventsArr = [];
-
-    (() => {
-      const subEventsIter = subEvents.keys();
-      let subEventItem = subEventsIter.next();
-      while (!subEventItem.done) {
-        subEventsArr.push(subEventItem.value);
-        subEventItem = subEventsIter.next();
-      }
-    })();
+    const subEventsArr = getKeys(subEvents);
 
     const ctx = {
       data,
@@ -376,22 +333,23 @@ const SupervisedEmitter = (() => {
     ctx.data = await state.middlewares(ctx);
 
     return Promise.all(subEventsArr.map(async subEvent => {
-      let eventHandlers = state.subscribers.get(subEvent);
+      const eventHandlers = state.subscribers.get(subEvent);
 
-      const handlingSubscribers = [];
 
       if (!eventHandlers) {
         subEvents.delete(subEvent);
-      } else {
-        // loop through the entire dll chain
-        while (eventHandlers = eventHandlers.getNext()) {
-          // use new ctx for every pipeline because
-          // one pipeline must never affect the other
-          // except middleware pipeline, else it gets
-          // difficult to debug
-          handlingSubscribers.push(eventHandlers.meta.handlers({ ...ctx }));
-        }
+        return null;
       }
+
+      const handlingSubscribers = [];
+
+      eventHandlers.forEach(({ handlers }) => {
+        // use new ctx for every pipeline because
+        // one pipeline must never affect the other
+        // except middleware pipeline, else it gets
+        // difficult to debug
+        handlingSubscribers.push(handlers({ ...ctx }));
+      });
 
       return Promise.all(handlingSubscribers);
     }));
@@ -427,7 +385,7 @@ const SupervisedEmitter = (() => {
   }
 
   // Pre-compiling regex for efficiency
-  const scopeReg = new RegExp('^__scope_[0-9]+_/(?<event>.+)');
+  const scopeReg = new RegExp('^__scope_[0-9]+_/(.+)$');
 
   /**
    * Removes the scope from the given
@@ -442,14 +400,13 @@ const SupervisedEmitter = (() => {
    */
   function unScope(event) {
     const match = event.match(scopeReg);
-    if (!match) return null;
 
-    return match.groups.event;
+    // return match ? match.groups.event : event;
+    return match ? match[1] : event;
   }
 
   return {
     initialize,
-    reInitialize,
     reset,
     publish,
     subscribe,
