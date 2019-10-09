@@ -15,11 +15,12 @@ matrix:
     - node_js: 7
 
 install:
-  - npm install
+  - npm i
 
 script:
-  - npm test
   - npm build
+  - npm test
+  - npm run coveralls
 
 notifications:
   email:
