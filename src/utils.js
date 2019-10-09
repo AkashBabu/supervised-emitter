@@ -27,7 +27,7 @@ function pipe(...fns) {
  * @param {String} method Array method to be called
  * @param  {...function} fns list of functions
  *
- * @returns function(x) : y
+ * @returns {(x, ...args) => y}
  */
 function composer(method, ...fns) {
   return (ctx, ...args) => {
@@ -51,4 +51,24 @@ function composer(method, ...fns) {
   };
 }
 
-export { compose, pipe };
+
+/**
+ * Returns all the keys in the map
+ *
+ * @param {Map} map Map
+ *
+ * @returns {String[]} key list
+ */
+function getKeys(map) {
+  const keys = [];
+  const keysIter = map.keys();
+  let key = keysIter.next();
+  while (!key.done) {
+    keys.push(key.value);
+    key = keysIter.next();
+  }
+
+  return keys;
+}
+
+export { compose, pipe, getKeys };
