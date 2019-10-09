@@ -1,4 +1,5 @@
-"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports["default"] = void 0; /* eslint-disable no-console */
+"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports["default"] = void 0; /* istanbul ignore file */
+/* eslint-disable no-console */
 
 var LEVEL = {
   DEBUG: 0,
