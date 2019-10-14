@@ -1,9 +1,10 @@
-import { expect } from 'chai';
+/* tslint:disable no-unused-expression */
 
+import { expect } from 'chai';
 import { doesPatternMatch, sanitizeEvent } from '../src/pattern';
 
 describe('#pattern', () => {
-  describe('#doesPatternMatch', () => {
+  describe('#doesPatternMatch()', () => {
     it('should match plain string topics', () => {
       expect(doesPatternMatch('/asdf/asdf/asdf', '/asdf/asdf/asdf')).to.be.true;
     });
@@ -60,10 +61,12 @@ describe('#pattern', () => {
     });
   });
 
-  describe('#sanitizeEvent', () => {
+  describe('#sanitizeEvent()', () => {
     it('should remove empty parts', () => {
       expect(sanitizeEvent('/foo/bar//baz///ball/')).to.be.eql('foo/bar/baz/ball');
       expect(sanitizeEvent('/foo/bar/baz/ball/')).to.be.eql('foo/bar/baz/ball');
+      expect(sanitizeEvent('foo/bar/baz/ball/')).to.be.eql('foo/bar/baz/ball');
+      expect(sanitizeEvent('foo/bar/baz/ball')).to.be.eql('foo/bar/baz/ball');
     });
 
     it('should return non-empty parts if getParts == true', () => {

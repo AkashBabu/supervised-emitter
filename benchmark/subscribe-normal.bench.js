@@ -1,4 +1,4 @@
-const SE = require('../dist/index');
+const SE = require('../').default;
 
 const N = 10000;
 bench([
@@ -6,17 +6,17 @@ bench([
     SE.reset();
 
     for (let i = 0; i < N; i++) {
-      SE.subscribe('/hello/world/is/now/big', () => {});
+      SE.subscribe('/hello/world/is/now/big', () => { });
     }
   },
   function sub_different_topics() {
     SE.reset();
 
     for (let i = 0; i < N; i++) {
-      SE.subscribe(`/hello/world/${i}/times`, () => {});
+      SE.subscribe(`/hello/world/${i}/times`, () => { });
     }
   },
 ], {
-  runs     : 10,
-  reporter : require('./reporter'),
+  runs: 10,
+  reporter: require('./reporter'),
 });

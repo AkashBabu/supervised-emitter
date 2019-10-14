@@ -1,21 +1,25 @@
+/* tslint:disable no-unused-expression */
+
 import { expect } from 'chai';
 import delay from 'delay';
 
-import SE from '../src';
+import SE, { IContext } from '../src';
 
 describe('#supervised-emitter (SE)', () => {
   beforeEach(() => SE.reset());
 
-  it(`should include the following in the context(ctx) to the pipelines: 
+  it(`should include the following in the context(ctx) to the pipelines:
       - data
       - pubEvent (published event)
       - subEvents (matching subscribers events)
       - end() (to stop the flow of data in the pipeline)`, async () => {
     let calls = 0;
 
-    function testCtx({
-      data, pubEvent, subEvents, end,
-    }) {
+    function testCtx(ctx: IContext) {
+      const {
+        data, pubEvent, subEvents, end,
+      } = ctx;
+
       calls++;
 
       expect(data).to.be.eql('test');
@@ -37,6 +41,15 @@ describe('#supervised-emitter (SE)', () => {
     await delay(10);
 
     expect(calls).to.be.eql(3);
+  });
+
+  it('should support publish and subscribe even w/o initialization', async () => {
+    let calls = 0;
+    SE.subscribe('foo/bar', () => calls++);
+
+    await SE.publish('/foo/bar/', 'hello');
+
+    expect(calls).to.be.eql(1);
   });
 
   it('should ignore leading and trailing seperators (/)', async () => {
@@ -103,7 +116,6 @@ describe('#supervised-emitter (SE)', () => {
       expect(calls).to.be.eql(4);
     });
 
-
     it('should allow middlewares to stop / block the flow of events in the system', async () => {
       let calls = 0;
 
@@ -122,7 +134,7 @@ describe('#supervised-emitter (SE)', () => {
           expect(data).to.be.eql(1);
 
           await delay(10);
-          return end(2);
+          return (end as Function)(2);
         },
         ({ data, pubEvent }) => {
           calls++;
@@ -198,7 +210,7 @@ describe('#supervised-emitter (SE)', () => {
     });
 
     it('should support async subscribers and the piped handlers must be executed in the sequence of pipe', async () => {
-      const orderOfExecution = [];
+      const orderOfExecution: number[] = [];
 
       const test = 0;
       SE.subscribe('/foo/bar', async ({ data }) => {
@@ -345,7 +357,7 @@ describe('#supervised-emitter (SE)', () => {
             await delay(10);
 
             SE.publish('completed', 2);
-            return end(2);
+            return (end as Function)(2);
           },
           ({ data }) => {
             calls++;
@@ -514,8 +526,35 @@ describe('#supervised-emitter (SE)', () => {
 
       expect(calls).to.be.eql(5);
     });
-  });
 
+    it('should gracefully handle errors in publish pipeline', async () => {
+      let calls = 0;
+
+      SE.subscribe('foo/bar',
+        ({ data }) => {
+          calls++;
+          return data;
+        },
+        () => {
+          calls++;
+          throw new Error('Failed');
+        },
+      );
+
+      SE.subscribe('foo/bar', ({ data }) => {
+        calls++;
+        return data;
+      }, async () => {
+        calls++;
+        await delay(10);
+        throw new Error('failed');
+      });
+
+      await SE.publish('foo/bar', 'test');
+
+      expect(calls).to.be.eql(4);
+    })
+  });
 
   describe('.unsubscribe()', () => {
     it('should be able to unsubscribe from topics', async () => {
@@ -538,17 +577,15 @@ describe('#supervised-emitter (SE)', () => {
       expect(calls).to.be.eql(1);
     });
 
-
     it('should allow subscription to be unsubscribed multiple times', async () => {
-      const subscription = SE.subscribe('/hello/se/world', () => {});
+      const subscription = SE.subscribe('/hello/se/world', () => { });
 
       subscription.unsubscribe();
       expect(() => subscription.unsubscribe()).to.not.throw;
     });
   });
 
-
-  describe('.scope', () => {
+  describe('.scope()', () => {
     it('should be able to emit scoped events', async () => {
       let calls = 0;
       SE.subscribe('/hello/world', () => {
@@ -570,7 +607,7 @@ describe('#supervised-emitter (SE)', () => {
     });
   });
 
-  describe('.unscope', () => {
+  describe('.unScope()', () => {
     it('should match the topic when unscoped', () => {
       const scope = SE.getScope();
 

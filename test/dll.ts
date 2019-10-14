@@ -1,3 +1,4 @@
+/* tslint:disable no-unused-expression */
 
 import { expect } from 'chai';
 import DLL, { DLLItem } from '../src/dll';
@@ -15,7 +16,7 @@ describe('#dll', () => {
 
       const dllItem = dll.getHead();
       expect(dllItem).to.exist;
-      expect(dllItem.meta.name).to.be.eql('test');
+      expect((dllItem as DLLItem).meta.name).to.be.eql('test');
     });
 
     it('should be able to append many items', () => {
@@ -24,7 +25,6 @@ describe('#dll', () => {
       Array(size).fill(0).forEach((_, i) => {
         dll.append({ name: `test${i}` });
       });
-
 
       dll.forEach((data, i) => {
         expect(data).to.exist;
@@ -40,14 +40,13 @@ describe('#dll', () => {
       expect(dllItem.meta.name).to.be.eql('test');
     });
 
-    it('should return null if we try to append an empty item', () => {
+    it('should throw an exceptionif we try to append an empty item', () => {
       const dll = new DLL();
-      const dllItem = dll.append();
 
-      expect(dllItem).to.be.null;
+      expect(() => dll.append(null)).to.throw(/Can\'t append/);
+      expect(() => dll.append(undefined)).to.throw(/Can\'t append/);
     });
   });
-
 
   describe('.remove()', () => {
     it('should return true on successful removal', () => {
@@ -63,10 +62,9 @@ describe('#dll', () => {
       expect(dll.remove()).to.be.false;
     });
 
-
     it('should be able to remove the first item', () => {
       const dll = new DLL();
-      const items = [];
+      const items: DLLItem[] = [];
       const size = 10;
       Array(size).fill(0).forEach((_, i) => {
         items.push(dll.append({ name: `test${i}` }));
@@ -75,13 +73,13 @@ describe('#dll', () => {
       expect(dll.remove(items[0])).to.be.true;
 
       const firstItem = dll.getHead();
-      expect(firstItem.meta.name).to.be.eql('test1');
+      expect((firstItem as DLLItem).meta.name).to.be.eql('test1');
       expect(dll.length).to.be.eql(size - 1);
     });
 
     it('should be able to remove the last item', () => {
       const dll = new DLL();
-      const items = [];
+      const items: DLLItem[] = [];
       const size = 10;
       Array(size).fill(0).forEach((_, i) => {
         items.push(dll.append({ name: `test${i}` }));
@@ -89,20 +87,20 @@ describe('#dll', () => {
 
       expect(dll.remove(items[size - 1])).to.be.true;
 
-      const lastItem = dll.tail;
-      expect(lastItem.meta.name).to.be.eql(`test${(size - 1) - 1}`);
+      const lastItem = dll.getTail();
+      expect((lastItem as DLLItem).meta.name).to.be.eql(`test${(size - 1) - 1}`);
       expect(dll.length).to.be.eql(size - 1);
     });
 
     it('should be able to remove any item in between first and last item', () => {
       const dll = new DLL();
-      const items = [];
+      const items: DLLItem[] = [];
       const size = 10;
       Array(size).fill(0).forEach((_, i) => {
         items.push(dll.append({ name: `test${i}` }));
       });
 
-      const removeIndex = parseInt(size / 2, 10);
+      const removeIndex = size / 2;
       expect(dll.remove(items[removeIndex])).to.be.true;
 
       dll.forEach(data => {
@@ -116,7 +114,7 @@ describe('#dll', () => {
   describe('.getHead()', () => {
     it('should return the first item in the list', () => {
       const dll = new DLL();
-      const items = [];
+      const items: DLLItem[] = [];
       const size = 10;
       Array(size).fill(0).forEach((_, i) => {
         items.push(dll.append({ name: `test${i}` }));
@@ -135,7 +133,7 @@ describe('#dll', () => {
   describe('.forEach()', () => {
     it('should iterate through the entire list', () => {
       const dll = new DLL();
-      const items = [];
+      const items: any[] = [];
       const size = 10;
       Array(size).fill(0).forEach((_, i) => {
         const item = { name: `test${i}` };

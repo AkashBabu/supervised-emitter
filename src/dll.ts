@@ -1,40 +1,49 @@
-const isUndefined = d => d === undefined || d === null;
+// Returns whether the given data is `undefined` or `null`
+const isUndefined = (d: any): boolean => d === undefined || d === null;
 
-export function DLLItem(prev = null, next = null, meta) {
-  if (isUndefined(meta)) this.invalid = true;
+export class DLLItem {
+  public invalid = false;
 
-  this.meta = meta;
-  this.next = next;
-  this.prev = prev;
+  constructor(public prev: DLLItem | null = null, public next: DLLItem | null = null, public meta: any) {
+    if (isUndefined(meta)) this.invalid = true;
+  }
 
-  this.getNext = () => this.next;
+  public getNext(): DLLItem | null {
+    return this.next;
+  }
 }
 
 export default class DLL {
-  constructor() {
-    this.head = null;
-    this.tail = null;
-    this.length = 0;
-  }
-
+  public length: number = 0;
+  private head: DLLItem | null = null;
+  private tail: DLLItem | null = null;
 
   /**
-   * Returns the first items in the list
+   * Returns the first item in the list
    *
-   * @returns {DLLItem}
+   * @returns first item
    */
-  getHead() {
+  public getHead(): DLLItem | null {
     return this.head;
+  }
+
+  /**
+   * Returns the last item in the list
+   *
+   * @returns last item
+   */
+  public getTail(): DLLItem | null {
+    return this.tail;
   }
 
   /**
    * Removes and returns the first
    * item in the list
    *
-   * @returns {Object} Same data that was
+   * @returns Same data that was
    *    used to append to this list
    */
-  shift() {
+  public shift(): any {
     const dllItem = this.getHead();
 
     if (!dllItem) return undefined;
@@ -44,17 +53,11 @@ export default class DLL {
   }
 
   /**
-   * @callback ForEachCb
-   * @param {any} data
-   * @param {number} i
-   */
-
-  /**
    * Iterate through the entire DLL chain
    *
-   * @param {ForEachCb} cb
+   * @param cb
    */
-  forEach(cb) {
+  public forEach(cb: (data: any, i: number) => void): void {
     let dllItem = this.getHead();
     let i = 0;
 
@@ -68,15 +71,17 @@ export default class DLL {
   /**
    * Adds the given item the tail of DLL
    *
-   * @param {Object} data
+   * @param data
    *
    * @returns {DLLItem} dllItem, the same
    *      can be used to remove this item from
    *      DLL
+   * 
+   * @throws Invalid data exception
    */
-  append(data) {
+  public append(data: any): DLLItem {
     const dllItem = new DLLItem(this.tail, null, data);
-    if (dllItem.invalid) return null;
+    if (dllItem.invalid) throw new Error('Can\'t append undefined or null to a DLL chain');
 
     if (this.tail) {
       this.tail.next = dllItem;
@@ -98,16 +103,16 @@ export default class DLL {
   /**
    * Removes the given item from DLL
    *
-   * @param {DLLItem} dllItem
+   * @param dllItem
    */
-  remove(dllItem) {
+  public remove(dllItem?: DLLItem): boolean {
     if (!(dllItem instanceof DLLItem)) return false;
 
     // If it's NOT HEAD
     if (dllItem.prev) {
       dllItem.prev.next = dllItem.next;
 
-    // If it's HEAD
+      // If it's HEAD
     } else {
       this.head = dllItem.next;
     }
@@ -116,7 +121,7 @@ export default class DLL {
     if (dllItem.next) {
       dllItem.next.prev = dllItem.prev;
 
-    // If it's TAIL
+      // If it's TAIL
     } else {
       this.tail = dllItem.prev;
     }

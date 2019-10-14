@@ -1,43 +1,79 @@
 import LFU from 'node-lfu-cache';
 
-import DLL from './dll';
-import { pipe, compose, getKeys } from './utils';
-import { isPatternEvent, doesPatternMatch, sanitizeEvent } from './pattern';
-import Logger from './logger';
+import DLL, { DLLItem } from './dll';
 import { SingletonError } from './errors';
-import ThreadRunner from './threadRunner';
+import Logger from './logger';
+import { doesPatternMatch, isPatternEvent, sanitizeEvent } from './pattern';
+import ThreadRunner, { IRunTask } from './threadRunner';
+import { compose, getKeys, pipe } from './utils';
 
+export type IHandler = (ctx: IContext, ...args: any[]) => any;
 
-/**
- * @typedef {Object} Context
- * @property {any} data Published data
- * @property {String} pubEvent Published event
- * @property {String[]} subEvents Matching subscribed events
- * @property {(data: any) => any} end Can be used to stop the pipeline
- */
+export interface IContext {
+  // Published data
+  data: any;
 
-/**
- * Handler function
- * @callback Handler
- * @param {Context} ctx Pipeline context
- */
+  // Published event
+  pubEvent?: string;
 
-/**
- * @typedef {Object} Options
- * @property {Boolean} debug Debug
- * @property {Object} lfu LFU cache constructor argument
- */
+  // Matching subscribed events
+  subEvents?: string[];
 
+  // Function to stop the pipeline
+  end?: IEnd;
 
-/**
- * Subscribe function
- * @callback Subscribe
- * @param {String} event subscription event
- * @param {...Handler} handlers list of handlers
- *
- * @returns {{unsubscribe: function, subscribe: Subscribe}}
- */
+  [newProp: string]: any;
+}
 
+type IEnd = (data: any) => any;
+
+type IMiddleware = (ctx: IContext) => void;
+
+interface IOptions {
+  debug?: boolean;
+  lfu?: object;
+}
+
+interface ISupervisedEmitter {
+  displayName: string;
+
+  state: IState;
+  initialize(middlewares?: IMiddleware[], options?: IOptions): void;
+
+  // Resets the Singleton
+  reset(): void;
+
+  publish(pubEvent: string, data: any): Promise<any>;
+  subscribe(event: string, ...handlers: IHandler[]): ISubscription;
+  getScope(): IGetScope;
+  unScope(event: string): string;
+}
+
+interface ISubscription {
+  unsubscribe(): void; // for unsubscribing from the event
+  subscribe(event: string, ...handlers: IHandler[]): ISubscription; // for chaining multiple subscriptions
+}
+
+interface IState {
+  debug: boolean;
+
+  // List of middlewares
+  middlewares: IMiddleware;
+
+  // map of event vs pipelines (DLL)
+  subscribers: Map<string, DLL>;
+
+  // list of pattern events
+  patternEvents: string[];
+
+  // cache for maintaining pubEvents vs matching subEvents
+  subEventsCache: any;
+
+  // use to generate a new scope part
+  scopeId: number;
+}
+
+type IGetScope = (event: string) => string;
 
 /**
  * SupervisedEmitter
@@ -48,17 +84,18 @@ import ThreadRunner from './threadRunner';
  * State management (React, Vue etc)
  * and nodejs for worker model
  */
-const SupervisedEmitter = (() => {
-  const logger = Logger(Logger.LEVEL.DEBUG, false);
-  logger.setPrefix('[SE]:');
+const SupervisedEmitter: ISupervisedEmitter = ((): ISupervisedEmitter => {
+  const logger = new Logger(Logger.LEVEL.DEBUG, false);
 
   // Flag used to check for singleton
-  let initialized = false;
+  let initialized: boolean = false;
 
   // This is used to maintain the context
   // throughout the singleton
   let state = getFreshState();
 
+  // ThreadRunner to run publish pipelines from task queue
+  const threadRunner: IRunTask = ThreadRunner(publisher, { maxRunners: 100 });
 
   /**
    * Initializes a singleton of SupervisedEmitter
@@ -66,23 +103,23 @@ const SupervisedEmitter = (() => {
    * @param {Handler[]} middlewares array of middlewares
    * @param {Options} options
    */
-  function initialize(middlewares = [], options = {}) {
+  function initialize(middlewares?: IMiddleware[], options?: IOptions): void {
     if (initialized) {
       throw new SingletonError();
     }
     initialized = true;
 
-    const { debug = false, lfu = { max: 100 } } = options;
-    state.debug = debug;
+    const { debug = false, lfu = { max: 100 } } = options || {};
     logger[debug ? 'enable' : 'disable']();
 
-    state.middlewares = pipe(...middlewares);
+    state.debug = debug;
+    state.middlewares = middlewares
+      ? pipe(...middlewares)
+      : ({ data }) => data;
     state.subEventsCache = new LFU(lfu);
-
 
     logger.debug('INITIALIZED');
   }
-
 
   /**
    * Should be used only for testing purposes!!!
@@ -96,23 +133,20 @@ const SupervisedEmitter = (() => {
     state = getFreshState();
   }
 
-
   /**
    * Returns a fresh / new checkout of
    * state
    */
-  function getFreshState() {
+  function getFreshState(): IState {
     return {
-      debug          : false,
-      middlewares    : ({ data }) => data,
-      subscribers    : new Map(), // map of event vs pipelines (DLL)
-      patternEvents  : [], // list of pattern events
-      subEventsCache : new LFU({}), // cache for maintaining pubEvents vs matching subEvents
-      scopeId        : 0, // use to generate a new scope part
-      threadRunner   : ThreadRunner(publisher, { maxRunners: 100 }),
+      debug: false,
+      middlewares: ({ data }: IContext) => data,
+      subscribers: new Map(), // map of event vs pipelines (DLL)
+      patternEvents: [], // list of pattern events
+      subEventsCache: new LFU({}), // cache for maintaining pubEvents vs matching subEvents
+      scopeId: 0, // use to generate a new scope part
     };
   }
-
 
   /**
    * Goes through every publish event in cache
@@ -120,11 +154,11 @@ const SupervisedEmitter = (() => {
    * and if match found, then add this pattern
    * to cached events
    *
-   * @param {String} patternEvent Pattern event
+   * @param patternEvent Pattern event
    */
-  const addPatternEventToCache = patternEvent => {
-    state.subEventsCache.forEach((cachedEvents, pubEvent) => {
-      if (doesPatternMatch(pubEvent, patternEvent)) cachedEvents.set(patternEvent, true);
+  const addPatternEventToCache = (patternEvent: string) => {
+    state.subEventsCache.forEach((cachedEvents: Map<string, boolean>, pubEvent: string) => {
+      if (doesPatternMatch(pubEvent, patternEvent)) { cachedEvents.set(patternEvent, true); }
     });
   };
 
@@ -132,15 +166,15 @@ const SupervisedEmitter = (() => {
    * Checks if the matching pubEvent is present
    * in the cache, if so then it adds this event
    *
-   * @param {String} event Normal event (w/o pattern)
+   * @param event Normal event (w/o pattern)
    */
-  const addNormalEventToCache = event => {
-    const matchingEvents = state.subEventsCache.peek(event);
-    if (matchingEvents) {
+  const addNormalEventToCache = (event: string) => {
+    const matchingEvents: Map<string, boolean> | null = state.subEventsCache.peek(event);
+
+    if (matchingEvents instanceof Map) {
       matchingEvents.set(event, true);
     }
   };
-
 
   /**
    * Subscribes to given event and pipes all the
@@ -156,13 +190,11 @@ const SupervisedEmitter = (() => {
    * @param {String} event Subscription event
    * @param  {...Handler} handlers List of handlers
    *
-   * @returns {{unsubscribe: function, subscribe: Subscribe}}
-   *    `unsubscribe` for unsubscribing from the event and
-   *    `subscribe` for chaining multiple subscriptions
+   * @returns Subscription for chaining more subscriptions or
+   *    for unsubscribing from all the subscriptions
    */
-  const subscribe = (event, ...handlers) => {
-    event = sanitizeEvent(event);
-
+  const subscribe = (event: string, ...handlers: IHandler[]): ISubscription => {
+    event = sanitizeEvent(event) as string;
 
     // Check if this is a new or existing event
     if (!state.subscribers.get(event)) {
@@ -184,7 +216,7 @@ const SupervisedEmitter = (() => {
     // handlers during unsubscription without
     // having to create a new array each time
     // by means of splicing
-    const eventHandler = state.subscribers.get(event).append({
+    const eventHandler = (state.subscribers.get(event) as DLL).append({
       // Compose all the subscribers passed at once.
       // Users can use this feature if needed, else
       // can choose to go with the classical approach
@@ -206,15 +238,14 @@ const SupervisedEmitter = (() => {
        * This method allows chaining subscription to
        * multiple events via the same subscription
        *
-       * @param {String} event Subscription event
-       * @param  {...Handler} handlers List of handlers
+       * @param cEvent Subscription event
+       * @param cHandlers List of handlers
        *
-       * @returns {{unsubscribe: function, subscribe: Subscribe}}
-       *    `unsubscribe` for unsubscribing from the event and
-       *    `subscribe` for chaining multiple subscriptions
+       * @returns Subscription for subscribing and unsubscribing fron
+       *  the chained subscriptions
        */
-      subscribe(event, ...handlers) { // eslint-disable-line
-        const subscription = subscribe(event, ...handlers);
+      subscribe(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
+        const subscription = subscribe(cEvent, ...cHandlers);
         const self = this;
 
         return {
@@ -228,14 +259,13 @@ const SupervisedEmitter = (() => {
     };
   };
 
-
   /**
    * Unsubscribes the event handlers from the event
    *
-   * @param {String} subEvent Subscribed Event
-   * @param {Handler} eventHandler Handler pipeline
+   * @param subEvent Subscribed Event
+   * @param eventHandler Handler pipeline
    */
-  const unsubscribe = (subEvent, eventHandler) => {
+  const unsubscribe = (subEvent: string, eventHandler: DLLItem) => {
     const subscribers = state.subscribers.get(subEvent);
     // remove the handler from DLL
     if (subscribers) {
@@ -252,7 +282,6 @@ const SupervisedEmitter = (() => {
     logger.debug(`UNSUBSCRIBED => ${subEvent}`);
   };
 
-
   /**
    * Returns all the matching subscribed events
    * given publish event (including glob pattern)
@@ -260,47 +289,51 @@ const SupervisedEmitter = (() => {
    * This is the place where you can optimize the
    * matching logic by caching the matched events.
    *
-   * @param {String} pubEvent Publish event
+   * @param pubEvent Publish event
    *
-   * @returns {Map} map of matching patterns vs state
+   * @returns map of matching patterns vs state
    */
-  const getSubEvents = pubEvent => {
+  const getSubEvents = (pubEvent: string): Map<string, boolean> => {
     let subEvents = state.subEventsCache.get(pubEvent);
 
     if (!subEvents) {
-      let matchingEvents = new Map();
+      const matchingEvents: Map<string, boolean> = new Map();
 
       // if normal event subscribers are present
       // then add it as well
-      state.subscribers.get(pubEvent) && matchingEvents.set(pubEvent, true);
+      if (state.subscribers.get(pubEvent)) {
+        matchingEvents.set(pubEvent, true);
+      }
 
       // Check if any pattern matches pubEvent
-      state.patternEvents.forEach(pattern => {
-        if (doesPatternMatch(pubEvent, pattern)) matchingEvents.set(pattern, true);
+      state.patternEvents.forEach((pattern) => {
+        if (doesPatternMatch(pubEvent, pattern)) { matchingEvents.set(pattern, true); }
       });
 
       state.subEventsCache.set(pubEvent, matchingEvents);
 
       subEvents = matchingEvents;
-
-      // avoid memory leakage
-      matchingEvents = null;
     }
 
     return subEvents;
   };
 
-
   /**
    * Adds the publish task to publisher queue
    *
-   * @param {String} pubEvent Event to publish the given data
-   * @param {Object} data Any data that need to be published
+   * @param pubEvent Event to publish the given data
+   * @param data Any data that need to be published
    *
-   * @returns {Promise}
+   * @returns awaitable publish
    */
-  const publish = (pubEvent, data) => state.threadRunner(pubEvent, data);
-
+  const publish = async (pubEvent: string, data: any): Promise<any> => {
+    try {
+      const result = await threadRunner(pubEvent, data);
+      return result;
+    } catch (error) {
+      logger.error('Error while publishing event:', pubEvent, data);
+    }
+  };
 
   /**
    * Publishes the given data to all the subscribers
@@ -313,13 +346,13 @@ const SupervisedEmitter = (() => {
    * able to maintain a standard function signature,
    * if we allow more than one param to be passed to subscribers.
    *
-   * @param {String} pubEvent Event to publish the given data
-   * @param {Object} data Any data that need to be published
+   * @param pubEvent Event to publish the given data
+   * @param data Any data that need to be published
    *
-   * @returns {Promise}
+   * @returns Promise that resolves after publish pipeline completion
    */
-  const publisher = async (pubEvent, data) => {
-    pubEvent = sanitizeEvent(pubEvent);
+  async function publisher(pubEvent: string, data: any): Promise<any> {
+    pubEvent = sanitizeEvent(pubEvent) as string;
 
     const subEvents = getSubEvents(pubEvent);
     const subEventsArr = getKeys(subEvents);
@@ -332,16 +365,15 @@ const SupervisedEmitter = (() => {
 
     ctx.data = await state.middlewares(ctx);
 
-    return Promise.all(subEventsArr.map(async subEvent => {
+    return Promise.all(subEventsArr.map(async (subEvent: string) => {
       const eventHandlers = state.subscribers.get(subEvent);
-
 
       if (!eventHandlers) {
         subEvents.delete(subEvent);
         return null;
       }
 
-      const handlingSubscribers = [];
+      const handlingSubscribers: Array<Promise<any>> = [];
 
       eventHandlers.forEach(({ handlers }) => {
         // use new ctx for every pipeline because
@@ -353,8 +385,7 @@ const SupervisedEmitter = (() => {
 
       return Promise.all(handlingSubscribers);
     }));
-  };
-
+  }
 
   /**
    * Adds scope to a event by prefixing
@@ -377,11 +408,11 @@ const SupervisedEmitter = (() => {
    * /// In ChildComponent.jsx
    * SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
    *
-   * @returns {function} that can add scope to events
+   * @returns function that can add scope to events
    */
-  function getScope() {
+  function getScope(): IGetScope {
     const rand = state.scopeId++;
-    return event => `__scope_${rand}_/${event}`;
+    return (event: string) => `__scope_${rand}_/${event}`;
   }
 
   // Pre-compiling regex for efficiency
@@ -394,11 +425,11 @@ const SupervisedEmitter = (() => {
    * This method can be used in your middlewares
    * to unshell the scope part in the topic
    *
-   * @param {String} event Scoped event
+   * @param event Scoped event
    *
-   * @returns {String} event without scope
+   * @returns event without scope
    */
-  function unScope(event) {
+  function unScope(event: string): string {
     const match = event.match(scopeReg);
 
     // return match ? match.groups.event : event;
@@ -413,9 +444,9 @@ const SupervisedEmitter = (() => {
     getScope,
     unScope,
     displayName: 'SupervisedEmitter',
+    state,
   };
 })();
-
 
 export {
   pipe,
@@ -423,5 +454,3 @@ export {
 };
 
 export default SupervisedEmitter;
-
-module.exports = SupervisedEmitter;

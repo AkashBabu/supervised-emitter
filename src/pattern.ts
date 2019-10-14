@@ -1,5 +1,3 @@
-/* eslint complexity: [error, 12] */
-
 import { InvalidPatternError } from './errors';
 
 const SEPERATOR = '/';
@@ -8,11 +6,11 @@ const SEPERATOR = '/';
  * Predicate that checks if the given
  * part is a wildcard part or not
  *
- * @param {String} part Part of the event to check
+ * @param part Part of the event to check
  *
  * @returns {Boolean}
  */
-function isWildcard(part) {
+function isWildcard(part: string) {
   return part === '*' || part === '**';
 }
 
@@ -22,108 +20,112 @@ function isWildcard(part) {
  * based on a seperator '/' and removes
  * the empty parts
  *
- * @param {String} event Event
+ * @param event Event
  *
- * @returns {String[]} list of event parts
+ * @returns list of event parts
  */
-const getEventParts = event => sanitizeEvent(event, true);
-
+const getEventParts = (event: string): string[] => sanitizeEvent(event, true) as string[];
 
 /**
  * Predicate that checks if any part of the
  * event is a wildcard or not
  *
- * @param {String} event Event to check for wildcard
+ * @param event Event to check for wildcard
  *
- * @returns {Boolean}
+ * @returns true if the given event contains
+ *    wildcards
  */
-export function isPatternEvent(event) {
-  return getEventParts(event).find(isWildcard);
+export function isPatternEvent(event: string): boolean {
+  return !!getEventParts(event).find(isWildcard);
 }
-
 
 /**
  * Checks if the given event is valid
  *
- * @param {String} event event to check
+ * @param event event to check
  *
  * @returns {Boolean}
  */
-export function isValidEvent(event) {
+export function isValidEvent(event: string) {
   const eventParts = getEventParts(event);
 
-  let prevPart = eventParts[0];
-  let valid = true;
+  // let prevPart = eventParts[0];
+  let prevPart = '';
 
-  for (let i = 1; i < eventParts.length; i++) {
-    const eventPart = eventParts[i];
-
-    if (isWildcard(eventPart) && isWildcard(prevPart)) {
+  return !eventParts.some((eventPart) => {
+    if (isWildcard(prevPart) && isWildcard(eventPart)) {
       // This essentially checks for */** or **/* or **/**
-      if ((eventPart + prevPart).length > 2) {
-        valid = false;
-        break;
-      }
+      if ((eventPart + prevPart).length > 2) return true;
     }
 
     prevPart = eventPart;
-  }
+  });
+  // for (let i = 1; i < eventParts.length; i++) {
+  //   const eventPart = eventParts[i];
 
-  return valid;
+  //   if (isWildcard(eventPart) && isWildcard(prevPart)) {
+  //     // This essentially checks for */** or **/* or **/**
+  //     if ((eventPart + prevPart).length > 2) {
+  //       valid = false;
+  //       break;
+  //     }
+  //   }
+
+  //   prevPart = eventPart;
+  // }
+
+  // return valid;
 }
 
+/**
+ * Closure that returns the next patterPart in the array
+ *
+ */
+function arrayIterator(arr: any[]) {
+  let index = -1;
+
+  return (i?: number): [any, number] => {
+    if (i) index = i + 1;
+    else index++;
+
+    return [arr[index], index];
+  };
+}
 
 /**
  * Checks if the pubEvent matches the pattern event
  *
- * @param {String} pubEvent Event to check for match
- * @param {String} subEvent pattern subEvent
+ * @param pubEvent Event to check for match
+ * @param subEvent pattern subEvent
  *
- * @returns {Boolean} true if it matches
+ * @returns true if it matches
  *
  * @throws Invalid Pattern if it violates wildcard
  *     policies
  */
-export function doesPatternMatch(pubEvent, subEvent) {
+export function doesPatternMatch(pubEvent: string, subEvent: string): boolean {
   if (!isValidEvent(subEvent)) throw new InvalidPatternError();
 
   // Publish event parts
   const pubParts = getEventParts(pubEvent);
+  const getNextPubPart = arrayIterator(pubParts);
 
   // Subscribe event parts
   const subParts = getEventParts(subEvent);
-
-
-  // Closure that returns the next patterPart in the array
-  const getNextSubPart = (patternIndex => i => {
-    if (i) patternIndex = i + 1;
-    else patternIndex++;
-
-    return [subParts[patternIndex], patternIndex];
-  })(-1);
-
-
-  // Closure that returns the next eventPart in the array
-  const getNextPubPart = (eventPartIndex => i => {
-    if (i) eventPartIndex = i + 1;
-    else eventPartIndex++;
-
-    return [pubParts[eventPartIndex], eventPartIndex];
-  })(-1);
-
+  const getNextSubPart = arrayIterator(subParts);
 
   /**
    * Checks if the parts matches post a '**'
    * if not then, checks for match from
    * the next eventPart index
    *
-   * @param {[String, Number]} eventPart Event part in the form of
+   * @param eventPart Event part in the form of
    *       [eventPart, eventIndex]
-   * @param {Number} nextPatternIndex Next Pattern index
+   * @param nextPatternIndex Next Pattern index
    *
-   * @returns {Boolean} true if parts match after '**'
+   * @returns true if parts match after '**'
    */
-  function checkMulti([eventPart, eventIndex], nextPatternIndex) {
+  function checkMulti([eventPart, eventIndex]: [string, number], nextPatternIndex: number): boolean {
     if (!eventPart) return false;
 
     const isMatch = match([eventPart, eventIndex], getNextSubPart(nextPatternIndex - 1));
@@ -131,7 +133,10 @@ export function doesPatternMatch(pubEvent, subEvent) {
     return !isMatch ? checkMulti(getNextPubPart(eventIndex), nextPatternIndex) : true;
   }
 
-  function match([eventPart, eventIndex] = getNextPubPart(), [patternPart] = getNextSubPart()) {
+  function match(
+    [eventPart, eventIndex]: [string, number] = getNextPubPart(),
+    [patternPart]: [string, number] = getNextSubPart(),
+  ): boolean {
     // if eventPart is present but not patternPart
     // or vice-versa then it's not a match
     if ((!eventPart && patternPart && patternPart !== '**') || (!patternPart && eventPart)) return false;
@@ -139,7 +144,6 @@ export function doesPatternMatch(pubEvent, subEvent) {
     // if both parts are not present then
     // it's a match
     if (!eventPart && !patternPart) return true;
-
 
     // if it's not a pattern (*, **) then perform
     // a direct string match
@@ -158,19 +162,18 @@ export function doesPatternMatch(pubEvent, subEvent) {
   return match();
 }
 
-
 /**
  * Sanitizes the given event by removing all
  * empty parts. If `getParts` is true, then it
  * returns all the non-empty parts as a list else
  * string
  *
- * @param {String} event Event
- * @param {Boolean} getParts If true, then returns non-empty parts list
+ * @param event Event
+ * @param getParts If true, then returns non-empty parts list
  *
- * @returns {String|String[]} sanitized-event
+ * @returns sanitized-event
  */
-export function sanitizeEvent(event, getParts = false) {
+export function sanitizeEvent(event: string, getParts: boolean = false): string | string[] {
   let sanitizedEvent = getParts ? [] : '';
   let part = '';
   for (let i = 0, len = event.length; i < len; i++) {
@@ -178,7 +181,7 @@ export function sanitizeEvent(event, getParts = false) {
 
     if (char === SEPERATOR) {
       if (part) {
-        if (getParts) sanitizedEvent.push(part);
+        if (getParts) (sanitizedEvent as string[]).push(part);
         else if (i === len - 1) sanitizedEvent += part;
         else sanitizedEvent += `${part}/`;
       }
@@ -191,7 +194,7 @@ export function sanitizeEvent(event, getParts = false) {
 
   if (part) {
     getParts
-      ? sanitizedEvent.push(part)
+      ? (sanitizedEvent as string[]).push(part)
       : sanitizedEvent += part;
   }
 

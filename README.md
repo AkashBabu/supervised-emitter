@@ -1,12 +1,23 @@
 # Supervised-Emitter (SE) [![Coverage Status](https://coveralls.io/repos/github/AkashBabu/supervised-emitter/badge.svg?branch=master)](https://coveralls.io/github/AkashBabu/supervised-emitter?branch=master) [![Build Status](https://travis-ci.com/AkashBabu/supervised-emitter.svg?branch=master)](https://travis-ci.com/AkashBabu/supervised-emitter) [![Maintainability](https://api.codeclimate.com/v1/badges/c9b43dc6dabc74c8861f/maintainability)](https://codeclimate.com/github/AkashBabu/supervised-emitter/maintainability)
+LICENSE and PR WELCOME
 
 ## Table of contents
 * [Introduction](#introduction)
-* [Usage](#usage)
+* [Installation](#installation)
+* [Usage](#usage-in-reactjs)
 * [Feature list](#feature-list)
+  * [Why we chose wildcard subscription ?](#why-we-chose-wildcard-subscription)
+* [Performance](#performance)
 * [Architecture](#architecture)
-
-
+* [Algorithm](#algorithm)
+* [API Documentation](#api-documentation)
+* [Create custom middlewares](#create-custom-middlewares)
+* [Caveats](#caveats)
+* [Pattern matches](#pattern-matches)
+* [Major differences between this library and redux](#for-those-who-are-keen-on-knowing-the-major-differences-between-this-library-and-redux)
+* [Why don't we just use the native event emitter library ?](#why-dont-we-just-use-the-native-event-emitter-library)
+* [For the curious ones](#for-the-curious-ones)
+* [FAQs](#faqs)
 
 ## Introduction
 Another pub-sub library!!! Hey hold on... there's a lot more features like middleware capability, chaining subscriptions, pattern subscription and more.
@@ -69,6 +80,7 @@ For a sample ReactJS application visit.
 
 
 ## Feature list:
+- Written in typescript for robust APIs
 - Support for middlewares
   - Now you can listen to all the published events and modify the content or even stop the flow of data in the pipeline.
 - Composibility
@@ -225,7 +237,6 @@ So what happens if we `publish` before `initialize` ? It's the same just that th
 But always remember this will be a singleton no matter what!
 
 
-
 #### Handler Function
 **function middleware(ctx: {data, pubEvent, subEvents, end}) => data**
 Argument        | Description
@@ -238,9 +249,18 @@ ctx.subEvents   | List of matching subscribed events (w/ or w/o wildcards).
 The idea behind using individual context(ctx) for each pipeline is that, the source of change in the context can be easily debugged and reasoned about if some anonymous subscription pipeline is NOT allowed to change the context in this pipeline.
 
 
+#### Errors
+- Invalid pattern  
+  All the below patterns are invalid and are easily justifiable:
+  - /foo/*/**
+  - /foo/**/*
+  - /foo/\**/**
+
+
 
 ## Create custom middlewares
 ```JS
+/// middleware.js
 export default function EventTrace({ traceLength = 10 } = {}) {
   const eventTrace = [];
   return ctx => {
@@ -254,6 +274,9 @@ export default function EventTrace({ traceLength = 10 } = {}) {
     };
   };
 }
+
+/// index.js
+SE.initialize([EventTrace]);
 ```
 
 
@@ -265,7 +288,9 @@ export default function EventTrace({ traceLength = 10 } = {}) {
 Order of subscription is not the order of execution for pattern subscribers
 CANNOT use patterns for publishing. If used then, it'll be treated as normal strings
 
-## Pattern matching algorithm
+
+
+## Pattern matches
 
 asdf/* -> asdf/hjkl/ | asdf/qweroiu | asdf/iu1234uiqwer
 asdf/** -> adsf/asdf/asdf/ | asdf/qwer | adsf/
@@ -290,7 +315,7 @@ So the below comparison is mostly with reducers.
 
 
 
-## Why don't we just use the native event emitter library ?
+## Why don't we just use the native event emitter library?
 Because of the below features
 * Middleware support
 * Subscription chaining
@@ -299,7 +324,7 @@ Because of the below features
 
 
 ## Battle tested
-You may find the related test-cases in "test/load.test.js", it also includes test case for memory leakage
+You may find the related test-cases in "load/load-test.ts", it also includes test case for memory leakage
 
 
 ## For the curious ones
@@ -325,12 +350,6 @@ You may find the related test-cases in "test/load.test.js", it also includes tes
 
 
 
-## Errors
-- Invalid pattern  
-  All the below patterns are invalid and are easily justifiable:
-  - /foo/*/**
-  - /foo/**/*
-  - /foo/\**/**
 
 ## FAQs
 **Why am I getting `undefined` for data in the handlers ?**
@@ -340,11 +359,9 @@ You may find the related test-cases in "test/load.test.js", it also includes tes
 
 
 ## Benchmarking stats
-Node: 10.1.1
-Machine: Mac Book Pro, 16GB RAM
-OS: Mojave
+
 
 
 ## Contribution
-Please read the contribution guidelines before raising a PR
-For discussion related to a new feature or modifications please raise an issue [here].
+Please read the [contribution guidelines](https://github.com/AkashBabu/supervised-emitter/blob/master/CONTRIBUTING.md) before raising a PR
+For discussion related to a new feature or modifications please raise an issue.

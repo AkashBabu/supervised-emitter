@@ -1,3 +1,6 @@
+/* tslint:disable no-unused-expression */
+
+import 'mocha';
 import { expect } from 'chai';
 import delay from 'delay';
 import { pipe, compose } from '../src/utils';
@@ -41,7 +44,7 @@ describe('#utils', () => {
     });
   });
 
-  describe('pipe', () => {
+  describe('pipe()', () => {
     it('should pipe all the handlers', () => {
       let processedId = 0;
 
@@ -118,11 +121,10 @@ describe('#utils', () => {
         calls++;
       }, ({ end }) => {
         calls++;
-        return end('test');
+        return (end as Function)('test');
       }, () => {
         calls++;
       })({ data: null });
-
 
       expect(calls).to.be.eql(2);
       expect(data).to.be.eql('test');

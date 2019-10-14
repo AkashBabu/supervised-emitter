@@ -1,12 +1,8 @@
-/* eslint no-await-in-loop: off */
-/* eslint complexity: off */
-
 import { expect } from 'chai';
 import delay from 'delay';
 import cliProgress from 'cli-progress';
 
 import SE from '../src';
-
 
 let calls = 0;
 function resetCount() {
@@ -21,9 +17,9 @@ async function asyncIncrementCount() {
   calls++;
 }
 
-const rand = (n, m = 0) => Math.floor((Math.random() * n) - 0.01) + m;
+const rand = (n: number, m: number = 0) => Math.floor((Math.random() * n) - 0.01) + m;
 const predicate = () => Math.round(Math.random()) === 0;
-const range = n => new Array(n).fill(0);
+const range = (n: number) => new Array(n).fill(0);
 
 const words = [
   ['request', 'save'],
@@ -63,8 +59,7 @@ function getHandlers() {
     : incrementCount));
 }
 
-
-describe('#load-test', function() { // eslint-disable-line
+describe('#load-test', function () {
   this.timeout(150 * 1000);
 
   beforeEach(() => {
@@ -81,13 +76,22 @@ describe('#load-test', function() { // eslint-disable-line
     expect(calls).to.be.eql(N);
   }))(100000);
 
-  (N => it(`should be able to publish ${N} times`, () => {
+  (N => it(`should be able to publish ${N} times w/o any subscribers`, async () => {
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(N, 0);
+
     for (let i = 0; i < N; i++) {
-      SE.publish(`/hello/world/${i}`, 'test');
+      await SE.publish(`/hello/world/${i}`, 'test');
+      progressBar.update(i);
     }
+
+    progressBar.stop();
   }))(100000);
 
-  (N => it(`should be able to publish ${N} times`, async () => {
+  (N => it(`should be able to publish ${N} times w/o all types of subscribers`, async () => {
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(N, 0);
+
     for (let i = 0; i < 2; i++) {
       SE.subscribe('/hello/world', incrementCount);
     }
@@ -96,11 +100,12 @@ describe('#load-test', function() { // eslint-disable-line
 
     for (let i = 0; i < N; i++) {
       await SE.publish('hello/world', 'test');
+      progressBar.update(i);
     }
+    progressBar.stop();
 
     expect(calls).to.be.eql(N * 4);
   }))(1000000);
-
 
   (N => it(`should be able to process ${N} publish pipelines simultaneously`, async () => {
     async function asyncFn() {
@@ -122,6 +127,9 @@ describe('#load-test', function() { // eslint-disable-line
   }))(100000);
 
   ((N, M) => it(`should be able to subscribe ${M} times on each of ${N} different events`, async () => {
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(N, 0);
+
     for (let i = 0; i < M; i++) {
       await SE.publish(`/hello/world/${i}`, 'test');
     }
@@ -134,7 +142,9 @@ describe('#load-test', function() { // eslint-disable-line
 
     for (let i = 0; i < M; i++) {
       await SE.publish(`/hello/world/${i}`, 'test');
+      progressBar.update(i);
     }
+    progressBar.stop();
 
     expect(calls).to.be.eql(N * M);
   }))(10000, 50);
@@ -162,11 +172,14 @@ describe('#load-test', function() { // eslint-disable-line
     expect(calls).to.be.eql(N);
   }))(100000);
 
-  ((N, M, X) => it(`should be able to subscribe ${X} handlers pipeline, ${M} times each on ${N} different glob events`, async () => {
+  ((N, M, X) => it(`should be able to subscribe ${X} handlers pipeline,
+      ${M} times each on ${N} different glob events`, async () => {
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(N, 0);
+
     for (let i = 0; i < N; i++) {
       await SE.publish(`hello/world/${i}/any/times`, 'test');
     }
-
 
     const handlers = [];
     for (let i = 0; i < X; i++) {
@@ -179,11 +192,11 @@ describe('#load-test', function() { // eslint-disable-line
       }
     }
 
-    const promises = [];
     for (let i = 0; i < N; i++) {
-      promises.push(SE.publish(`hello/world/${i}/any/times`, 'test'));
+      await SE.publish(`hello/world/${i}/any/times`, 'test');
+      progressBar.update(i);
     }
-    await Promise.all(promises);
+    progressBar.stop();
 
     expect(calls).to.be.eql(N * M * X);
   }))(1000, 50, 50);
@@ -212,10 +225,9 @@ describe('#load-test', function() { // eslint-disable-line
     expect(calls).to.be.eql(N);
   }))(10000);
 
-
   (N => it(`should ensure there is no memory leakage.
-        So subscribing ${1000 * 2} times and unsubscribing the same 
-        and repeating this process for ${N} times 
+        So subscribing ${1000 * 2} times and unsubscribing the same
+        and repeating this process for ${N} times
         MUST NOT throw Out of Memory error`, async () => {
     const promises = [];
     for (let i = 0; i < 1000; i++) {
@@ -237,8 +249,8 @@ describe('#load-test', function() { // eslint-disable-line
         subscriptions.push(subscription);
       }
 
-      for (let i = 0; i < subscriptions.length; i++) {
-        subscriptions[i].unsubscribe();
+      for (const subscription of subscriptions) {
+        subscription.unsubscribe();
       }
 
       // update the current value in your application..
@@ -249,7 +261,6 @@ describe('#load-test', function() { // eslint-disable-line
     progressBar.stop();
   }))(5000);
 
-
   (() => it(`should push its limits for survival (real-world scenario) =>
       - LFU cache full
       - 1000 normal subscribe
@@ -257,27 +268,32 @@ describe('#load-test', function() { // eslint-disable-line
       - 1000 times 50 chained subscriptions
       - 1500 random events(pub, sub-n, sub-g)
       ALL AT THE SAME TIME ON THE SAME INSTANCE`, async () => {
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(7, 0);
+
     // For filling up the LFU cache
     for (let i = 0; i < 1000; i++) {
       await SE.publish(`hello/world/${i}/any/times`, 'test');
     }
+    progressBar.update(1);
     expect(calls).to.be.eql(0);
-
 
     for (let i = 0; i < 1000; i++) {
       SE.subscribe(getEvent(), ...getHandlers());
     }
+    progressBar.update(2);
 
     for (let i = 0; i < 1000; i++) {
       SE.subscribe(getGlobEvent(), ...getHandlers());
     }
+    progressBar.update(3);
 
     let promises = [];
     for (let i = 0; i < 1000; i++) {
       promises.push(SE.publish(getEvent(), 'test'));
     }
     await Promise.all(promises);
-
+    progressBar.update(4);
 
     let subscriptions = [];
     for (let i = 0; i < 100; i++) {
@@ -289,30 +305,33 @@ describe('#load-test', function() { // eslint-disable-line
 
       subscriptions.push(subscription);
     }
+    progressBar.update(5);
 
-
-    const actions = {
-      0() {
-        SE.publish(getEvent(), 'test');
-      },
-      1() {
-        SE.subscribe(getEvent(), ...getHandlers());
-      },
-      2() {
-        SE.subscribe(getGlobEvent(), ...getHandlers());
-      },
-    };
+    const actions: Map<number, () => void> = new Map();
+    actions.set(0, () => {
+      SE.publish(getEvent(), 'test');
+    });
+    actions.set(1, () => {
+      SE.subscribe(getEvent(), ...getHandlers());
+    });
+    actions.set(2, () => {
+      SE.subscribe(getGlobEvent(), ...getHandlers());
+    });
 
     promises = [];
     for (let i = 0; i < 1500; i++) {
       const randAction = rand(3);
-      actions[randAction] && promises.push(actions[randAction]());
+      const action = actions.get(randAction);
+      if (action instanceof Function) {
+        promises.push(action());
+      }
     }
     await Promise.all(promises);
 
-    for (let i = 0; i < subscriptions.length; i++) {
-      subscriptions[i].unsubscribe();
+    for (const subscription of subscriptions) {
+      subscription.unsubscribe();
     }
+    progressBar.update(6);
 
     SE.reset();
 
@@ -328,8 +347,11 @@ describe('#load-test', function() { // eslint-disable-line
       subscriptions.push(subscription);
     }
 
-    for (let i = 0; i < subscriptions.length; i++) {
-      subscriptions[i].unsubscribe();
+    for (const subscription of subscriptions) {
+      subscription.unsubscribe();
     }
+    progressBar.update(7);
+
+    progressBar.stop();
   }))();
 });

@@ -2,126 +2,82 @@
   "data": [
     [
       {
-        "avg": 48681605,
-        "label": "pub_same_topic",
-        "max": 104742724,
-        "min": 19288401
-      },
-      {
-        "avg": 33890566,
-        "label": "pub_different_topics",
-        "max": 96880318,
-        "min": 20274059
-      },
-      {
-        "avg": 24273355,
-        "label": "pub_normal_subscribers_same_topic",
-        "max": 44391617,
-        "min": 17651745
-      },
-      {
-        "avg": 64317532,
-        "label": "pub_normal_subscribers_different_topics",
-        "max": 213413155,
-        "min": 39137774
-      },
-      {
-        "avg": 21288536,
-        "label": "pub_same_topic_single_glob_subscriber",
-        "max": 25966490,
-        "min": 18591460
-      },
-      {
-        "avg": 45909975,
-        "label": "pub_different_topic_single_glob_subscriber",
-        "max": 196003156,
-        "min": 20094192
-      },
-      {
-        "avg": 1649998098,
-        "label": "pub_glob_subscribers_different_topics",
-        "max": 2467314072,
-        "min": 1221033947
-      }
-    ],
-    [
-      {
-        "avg": 18838745,
+        "avg": 16676580,
         "label": "gsub_same_topic",
-        "max": 32896062,
-        "min": 9719202
+        "max": 32739051,
+        "min": 5099309
       },
       {
-        "avg": 25892822,
+        "avg": 20136710,
         "label": "gsub_different_topics",
-        "max": 36765494,
-        "min": 20692126
+        "max": 31148597,
+        "min": 15073755
       }
     ],
     [
       {
-        "avg": 21053045,
+        "avg": 14424120,
         "label": "sub_same_topic",
-        "max": 39544297,
-        "min": 11001843
+        "max": 26630923,
+        "min": 6573480
       },
       {
-        "avg": 27105313,
+        "avg": 19950192,
         "label": "sub_different_topics",
-        "max": 41770991,
-        "min": 21613869
+        "max": 32486775,
+        "min": 14364796
       }
     ],
     [
       {
-        "avg": 20091413,
+        "avg": 14065344,
         "label": "gunsub_same_topic",
-        "max": 40385498,
-        "min": 9085906
+        "max": 31497222,
+        "min": 6669962
       },
       {
-        "avg": 27689505,
+        "avg": 25211794,
         "label": "gunsub_different_topics",
-        "max": 37064862,
-        "min": 17324601
+        "max": 38885533,
+        "min": 18437036
       },
       {
-        "avg": 21276330,
+        "avg": 16104733,
         "label": "chained_gunsub_same_topics",
-        "max": 29864088,
-        "min": 15733358
+        "max": 30436464,
+        "min": 10292773
       },
       {
-        "avg": 32373209,
+        "avg": 25581294,
         "label": "chained_gunsub_different_topics",
-        "max": 39497680,
-        "min": 25882465
+        "max": 36787212,
+        "min": 16939535
       }
     ],
     [
       {
-        "avg": 21460401,
+        "avg": 11561383,
         "label": "unsub_same_topic",
-        "max": 38742515,
-        "min": 7079797
+        "max": 28015120,
+        "min": 4838484
       },
       {
-        "avg": 28531015,
+        "avg": 22063218,
         "label": "unsub_different_topics",
-        "max": 41164921,
-        "min": 22601971
+        "max": 42269463,
+        "min": 15663356
       },
       {
-        "avg": 24451476,
+        "avg": 15709306,
         "label": "chained_unsub_same_topic",
-        "max": 38235828,
-        "min": 16499797
+        "max": 27543364,
+        "min": 9015036
       },
       {
-        "avg": 18275217,
+        "avg": 12913896,
         "label": "chained_unsub_different_topics",
-        "max": 29073464,
-        "min": 11363322
+        "max": 18648894,
+        "min": 7202866
       }
     ]
   ]

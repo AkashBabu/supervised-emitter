@@ -1,23 +1,27 @@
-import DLL from './dll';
+interface IOptions {
+  maxRunners?: number;
+}
+
+export type IRunTask = (...args: any[]) => Promise<any>;
 
 /**
  * Thread Runner runs only the
  * controlled number of threads at any given
  * instance of time.
  *
- * @param {Function} worker function to be called for executing the task
- * @param {{maxRunners: Number}} options
+ * @param worker function to be called for executing the task
+ * @param options
  *
- * @returns {Function} Task adder function
+ * @returns Task adder function
  */
-export default function ThreadRunner(worker, { maxRunners = 10 }) {
+export default function ThreadRunner(worker: (...args: any[]) => any, { maxRunners = 10 }: IOptions = {}): IRunTask {
   // Tasks are maintained in a DLL such
   // that it is easier during removal of task
   // as DLLs don't need splicing of Array
-  const tasks = new DLL();
+  const tasks: any[] = [];
 
   // number of currently running threads
-  let running = 0;
+  let running: number = 0;
 
   /**
    * This is responsible for running the tasks
@@ -52,9 +56,9 @@ export default function ThreadRunner(worker, { maxRunners = 10 }) {
   }
   runner();
 
-  return async (...args) => new Promise((resolve, reject) => {
+  return async (...args: any[]) => new Promise((resolve, reject) => {
     // add task to DLL
-    tasks.append({
+    tasks.push({
       args,
       resolve,
       reject,

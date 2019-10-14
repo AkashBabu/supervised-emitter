@@ -1,3 +1,12 @@
+# 0.5.0
+* Removal of support Node: 7
+* Migration to TS(Typescript)
+* Load testing progress indicators
+* Usage of Array instead of DLL for Thread Runner to improve efficiency
+* Handles errors during publish
+* Improved documentation
+* Removes publish benchmark as async benchmarking is not supported by radargun
+
 # v0.4.0
 * Bug Fix: wasn't ignoring leading & trailing '/' in normal event subscription
 * Improved documentation

@@ -1,24 +1,26 @@
 {
     "name": "supervised-emitter",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "A event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.",
-    "main": "dist/index.js",
+    "main": "built/src/index",
+    "typings": "types/src/index",
     "scripts": {
-        "_test": "mocha --require @babel/register --require babel-polyfill test/**/*.js",
+        "_test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register test/**/*",
         "_test:exit": "npm run _test -- --exit",
         "test": "cross-env NODE_ENV=test npm run _test:exit",
         "test:dev": "cross-env NODE_ENV=test npm run _test -- -w",
         "test:grep": "cross-env NODE_ENV=test npm run _test -- -g ",
-        "coverage": "cross-env NODE_ENV=test nyc npm run _test:exit",
-        "build": "rimraf dist/ && babel src --out-dir dist",
-        "lint:fix": "eslint --fix --config .eslintrc src/index.js",
-        "lint": "eslint --config .eslintrc src/index.js",
+        "coverage": "nyc npm run test",
+        "build": "tsc",
+        "lint:fix": "tslint --fix --config tslint.json src/index.ts",
+        "lint": "tslint --config tslint.json src/index.ts",
         "benchmark:clean": "node benchmark/clean.js",
         "benchmark:report": "radargun benchmark/**/*.bench.js",
         "benchmark:template": "node benchmark/template.js",
         "benchmark": "npm run build && npm run benchmark:clean && npm run benchmark:report && npm run benchmark:template",
         "status": "git status",
-        "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls"
+        "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls",
+        "load-test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register load/**/*"
     },
     "engines": {
         "node": ">=8"
@@ -44,43 +46,43 @@
         "lint:fix",
         "lint",
         "coverage",
+        "load-test",
         "build",
         "benchmark",
         "status"
     ],
+    "nyc": {
+        "extension": [
+            ".ts"
+        ],
+        "exclude": [
+            "**/*.d.ts"
+        ],
+        "include": [
+            "src/**/*"
+        ]
+    },
     "devDependencies": {
-        "@babel/cli": "^7.6.2",
-        "@babel/core": "^7.6.2",
-        "@babel/plugin-proposal-optional-chaining": "^7.6.0",
-        "@babel/plugin-transform-runtime": "^7.6.2",
-        "@babel/preset-env": "^7.6.2",
-        "@babel/register": "^7.6.2",
-        "@babel/runtime": "^7.6.2",
-        "babel-eslint": "^10.0.3",
+        "@types/chai": "^4.2.3",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.7.12",
         "chai": "^4.1.2",
         "cli-progress": "^3.3.1",
         "coveralls": "^3.0.6",
         "cross-env": "^6.0.0",
         "delay": "^4.3.0",
-        "eslint": "^6.5.0",
-        "eslint-config-airbnb": "^18.0.1",
-        "eslint-plugin-babel": "^5.3.0",
-        "eslint-plugin-class-property": "^1.1.0",
-        "eslint-plugin-import": "^2.18.2",
-        "eslint-plugin-jsx-a11y": "^6.2.3",
-        "eslint-plugin-mocha": "^6.1.1",
-        "eslint-plugin-node": "^10.0.0",
-        "eslint-plugin-react": "^7.15.1",
         "mocha": "^5.2.0",
         "nodemon": "^1.19.3",
         "nyc": "^12.0.2",
         "pre-commit": "^1.2.2",
         "radargun": "^1.0.1",
-        "rimraf": "^2.6.2"
+        "rimraf": "^2.6.2",
+        "source-map-support": "^0.5.13",
+        "ts-node": "^8.0.2",
+        "tslint": "^5.20.0",
+        "typescript": "^3.6.4"
     },
     "dependencies": {
-        "babel-polyfill": "^6.26.0",
-        "babel-runtime": "^6.26.0",
         "node-lfu-cache": "^5.0.0"
     }
 }
