@@ -17,7 +17,12 @@
             3
         ],
         "object-literal-sort-keys": false,
-        "ordered-imports": false
+        "ordered-imports": false,
+        "cyclomatic-complexity": [
+            true,
+            6
+        ],
+        "no-bitwise": false
     },
     "rulesDirectory": []
 }

@@ -4,3 +4,4 @@ exclude_patterns:
   - "benchmark/**/*"
   - "built/**/*"
   - "load/**/*"
+  - "types/**/*"

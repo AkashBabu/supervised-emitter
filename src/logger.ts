@@ -72,13 +72,11 @@ export default class Logger {
 
   private log(logLevel: LEVEL, ...args: any[]): void {
     if ((logLevel < this.level) && this.printMsg) {
-      let print;
+      let print = console.log;
       if (this.level === LEVEL.WARN) {
-        print = console.warn; // tslint-disable-line
+        print = console.warn;
       } else if (this.level === LEVEL.ERROR) {
         print = console.error;
-      } else {
-        print = console.log;
       }
 
       print(this.prefix, ...args);

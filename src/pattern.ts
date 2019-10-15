@@ -60,21 +60,6 @@ export function isValidEvent(event: string) {
 
     prevPart = eventPart;
   });
-  // for (let i = 1; i < eventParts.length; i++) {
-  //   const eventPart = eventParts[i];
-
-  //   if (isWildcard(eventPart) && isWildcard(prevPart)) {
-  //     // This essentially checks for */** or **/* or **/**
-  //     if ((eventPart + prevPart).length > 2) {
-  //       valid = false;
-  //       break;
-  //     }
-  //   }
-
-  //   prevPart = eventPart;
-  // }
-
-  // return valid;
 }
 
 /**
@@ -136,7 +121,7 @@ export function doesPatternMatch(pubEvent: string, subEvent: string): boolean {
   function match(
     [eventPart, eventIndex]: [string, number] = getNextPubPart(),
     [patternPart]: [string, number] = getNextSubPart(),
-  ): boolean {
+  ): boolean { // tslint:disable cyclomatic-complexity
     // if eventPart is present but not patternPart
     // or vice-versa then it's not a match
     if ((!eventPart && patternPart && patternPart !== '**') || (!patternPart && eventPart)) return false;
@@ -173,30 +158,26 @@ export function doesPatternMatch(pubEvent: string, subEvent: string): boolean {
  *
  * @returns sanitized-event
  */
-export function sanitizeEvent(event: string, getParts: boolean = false): string | string[] {
-  let sanitizedEvent = getParts ? [] : '';
+export function sanitizeEvent(event: string, getParts?: boolean): string | string[] {
+  const sanitizedEvent: string[] = [];
   let part = '';
-  for (let i = 0, len = event.length; i < len; i++) {
-    const char = event[i];
 
+  for (const char of event) {
     if (char === SEPERATOR) {
       if (part) {
-        if (getParts) (sanitizedEvent as string[]).push(part);
-        else if (i === len - 1) sanitizedEvent += part;
-        else sanitizedEvent += `${part}/`;
+        sanitizedEvent.push(part);
+        part = '';
       }
-
-      part = '';
     } else {
       part += char;
     }
   }
 
+  // Check if there are any remaining characters
+  // in `part`, if so then add them up
   if (part) {
-    getParts
-      ? (sanitizedEvent as string[]).push(part)
-      : sanitizedEvent += part;
+    sanitizedEvent.push(part);
   }
 
-  return sanitizedEvent;
+  return getParts ? sanitizedEvent : sanitizedEvent.join(SEPERATOR);
 }
