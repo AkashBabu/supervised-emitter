@@ -7,6 +7,7 @@ Machine: Mac Book Pro, 16GB RAM
 OS: Mojave  
 
 **Stats**
+
 Name            |  Avg (ms)     |   Min (ms)      |   Max (ms)
 :---------------|:--------------|:----------------|:-------------
 gsub_same_topic  |  18.24  |  6.55  |  40.41  

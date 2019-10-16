@@ -11,6 +11,7 @@ Machine: Mac Book Pro, 16GB RAM
 OS: Mojave  
 
 **Stats**
+
 Name            |  Avg (ms)     |   Min (ms)      |   Max (ms)
 :---------------|:--------------|:----------------|:-------------
 ${metrics.map(p => ({
