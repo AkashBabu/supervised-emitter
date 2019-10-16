@@ -1,12 +1,13 @@
 
 # Benchmark report for Supervised-Emitter
 
-**Environment**
+### Environment 
+
 Node: 10.1.1  
 Machine: Mac Book Pro, 16GB RAM  
 OS: Mojave  
 
-**Stats**
+### Stats
 
 Name            |  Avg (ms)     |   Min (ms)      |   Max (ms)
 :---------------|:--------------|:----------------|:-------------
