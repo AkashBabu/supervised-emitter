@@ -5,7 +5,7 @@
 * [Installation](#installation)
 * [Usage](#usage-in-reactjs)
 * [Feature list](#feature-list)
-  * [Why we chose wildcard subscription ?](#why-we-chose-wildcard-subscription)
+  * [Why we chose wildcard subscription?](#why-we-chose-wildcard-subscription)
 * [Performance](#performance)
 * [Architecture](#architecture)
 * [Algorithm](#algorithm)
@@ -14,7 +14,7 @@
 * [Caveats](#caveats)
 * [Pattern matches](#pattern-matches)
 * [Major differences between this library and redux](#for-those-who-are-keen-on-knowing-the-major-differences-between-this-library-and-redux)
-* [Why don't we just use the native event emitter library ?](#why-dont-we-just-use-the-native-event-emitter-library)
+* [Why don't we just use the native event emitter library?](#why-dont-we-just-use-the-native-event-emitter-library)
 * [For the curious ones](#for-the-curious-ones)
 * [FAQs](#faqs)
 
@@ -131,7 +131,7 @@ For a sample ReactJS application visit.
 - TCO subscription chain
 - TCO pipelines
 
-#### Why we chose wildcard subscription ?
+#### Why we chose wildcard subscription?
 Primarily there are two types of event subscriptions: Normal event subscriptions & Wildcard event subscriptions.  
 Normal event subscriptions are very easy to match with the pubEvent, as it is a direct string comparison and we could use hashmap for the purpose.  
 Where as Wildcard event subscriptions needs some pattern matching algorithm.
@@ -362,7 +362,7 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 
 
 ## Benchmarking stats
-
+Please find the benchmarks at [BENCHMARK.md](https://github.com/AkashBabu/supervised-emitter/blob/master/BENCHMARK.md)
 
 
 ## Contribution
