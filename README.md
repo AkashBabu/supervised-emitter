@@ -212,6 +212,7 @@ Every decision taken during design was with an intensive care for performance. P
 ## API Documentation
 
 **SE.initialize(middlewares, {debug = false, lfu = {max: 100}})**
+
 Param           | Description
 :---------------|:-----------
 middlewares     | Array of middlewares. Please check [this](#handler-function) for middleware function signature
@@ -220,12 +221,14 @@ options.debug   | When *true*, would print some useful logs for debugging issues
 options.lfu     | Under the hood we use [lru-cache](https://www.npmjs.com/package/node-lfu-cache) and this option will be passed directly to its constructor. So please read its doc for more information. *Defaults to {max: 100}*
 
 **SE.subscribe(event, ...handlers)**
+
 Param           | Description
 :---------------|:-----------
 event           | Event to be subscribed (w/ or w/o wildcards).
 handlers        | List of handlers. Please read [this](#hanndler-function) for details on handler function signature
 
 **SE.publish(event, data)**
+
 Param           | Description
 :---------------|:-----------
 event           | Event channel to publish this data.
@@ -238,6 +241,7 @@ But always remember this will be a singleton no matter what!
 
 #### Handler Function
 **function middleware(ctx: {data, pubEvent, subEvents, end}) => data**
+
 Argument        | Description
 :---------------|:--------------
 ctx             | Context object. This holds the context of the pipeline. If you wanna add methods to be shared by other handlers, then you are free to do so.
