@@ -63,6 +63,8 @@ package-lock.json
 # VSCode 
 sample.launch.json
 .vscode/
-built/
+
+# TODO : uncomment the below line after example app is complete
+# built/
 
 .DS_Store

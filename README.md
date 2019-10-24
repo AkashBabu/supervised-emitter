@@ -128,8 +128,8 @@ For a sample ReactJS application visit.
 - Use it everywhere, irrespective of whether you use React / Vue / Angular / Vanilla JS
 - Controlled rate of publishes at a time
   - This ensures that we don't run out of Memory causing page crashes.
-- TCO subscription chain
-- TCO pipelines
+- TCO([Tail control optimized](https://stackoverflow.com/a/310980)) subscription chain
+- TCO([Tail control optimized](https://stackoverflow.com/a/310980)) pipelines
 
 #### Why we chose wildcard subscription?
 Primarily there are two types of event subscriptions: Normal event subscriptions & Wildcard event subscriptions.  
