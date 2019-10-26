@@ -71,7 +71,7 @@ export default class Logger {
   }
 
   private log(logLevel: LEVEL, ...args: any[]): void {
-    if ((logLevel < this.level) && this.printMsg) {
+    if ((logLevel <= this.level) && this.printMsg) {
       let print = console.log;
       if (this.level === LEVEL.WARN) {
         print = console.warn;
