@@ -329,6 +329,8 @@ const SupervisedEmitter: ISupervisedEmitter = ((): ISupervisedEmitter => {
   const publish = async (pubEvent: string, data: any): Promise<any> => {
     try {
       const result = await threadRunner(pubEvent, data);
+
+      logger.debug(`PUBLISHED => ${pubEvent}`, data)
       return result;
     } catch (error) {
       logger.error('Error while publishing event:', pubEvent, data);

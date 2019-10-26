@@ -248,6 +248,7 @@ const SupervisedEmitter = (() => {
     const publish = (pubEvent, data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const result = yield threadRunner(pubEvent, data);
+            logger.debug(`PUBLISHED => ${pubEvent}`, data);
             return result;
         }
         catch (error) {
