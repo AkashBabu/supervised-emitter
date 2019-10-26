@@ -69,7 +69,7 @@ class Logger {
         this.prefix = prefix;
     }
     log(logLevel, ...args) {
-        if ((logLevel < this.level) && this.printMsg) {
+        if ((logLevel <= this.level) && this.printMsg) {
             let print = console.log;
             if (this.level === LEVEL.WARN) {
                 print = console.warn;
