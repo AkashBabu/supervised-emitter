@@ -88,7 +88,7 @@ describe('#load-test', function () {
     progressBar.stop();
   }))(100000);
 
-  (N => it(`should be able to publish ${N} times w/o all types of subscribers`, async () => {
+  (N => it(`should be able to publish ${N} times to all types of subscribers`, async () => {
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(N, 0);
 

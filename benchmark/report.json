@@ -2,82 +2,82 @@
   "data": [
     [
       {
-        "avg": 17123701,
+        "avg": 16963925,
         "label": "gsub_same_topic",
-        "max": 40230695,
-        "min": 5843714
+        "max": 36945497,
+        "min": 5796010
       },
       {
-        "avg": 21110699,
+        "avg": 21032642,
         "label": "gsub_different_topics",
-        "max": 30277968,
-        "min": 16575591
+        "max": 28847807,
+        "min": 16041839
       }
     ],
     [
       {
-        "avg": 17900804,
+        "avg": 17245922,
         "label": "sub_same_topic",
-        "max": 30715185,
-        "min": 9910760
+        "max": 28578604,
+        "min": 9595960
       },
       {
-        "avg": 18718076,
+        "avg": 20039826,
         "label": "sub_different_topics",
-        "max": 38231615,
-        "min": 14352813
+        "max": 38295478,
+        "min": 15683947
       }
     ],
     [
       {
-        "avg": 18001228,
+        "avg": 17653580,
         "label": "gunsub_same_topic",
-        "max": 38433974,
-        "min": 11716837
+        "max": 34301065,
+        "min": 12521839
       },
       {
-        "avg": 25728081,
+        "avg": 28022938,
         "label": "gunsub_different_topics",
-        "max": 49359921,
-        "min": 17033047
+        "max": 48054622,
+        "min": 19633418
       },
       {
-        "avg": 18403760,
+        "avg": 17512656,
         "label": "chained_gunsub_same_topics",
-        "max": 27973081,
-        "min": 12367334
+        "max": 32212430,
+        "min": 8022152
       },
       {
-        "avg": 27208207,
+        "avg": 27593596,
         "label": "chained_gunsub_different_topics",
-        "max": 35351948,
-        "min": 18407456
+        "max": 36676689,
+        "min": 18770179
       }
     ],
     [
       {
-        "avg": 16261829,
+        "avg": 16495233,
         "label": "unsub_same_topic",
-        "max": 35811483,
-        "min": 10725991
+        "max": 34524385,
+        "min": 10559684
       },
       {
-        "avg": 25723717,
+        "avg": 24528232,
         "label": "unsub_different_topics",
-        "max": 37949590,
-        "min": 19434720
+        "max": 40759346,
+        "min": 16861611
       },
       {
-        "avg": 17951337,
+        "avg": 17362050,
         "label": "chained_unsub_same_topic",
-        "max": 26983118,
-        "min": 10225227
+        "max": 37096910,
+        "min": 9275936
       },
       {
-        "avg": 12974254,
+        "avg": 14007638,
         "label": "chained_unsub_different_topics",
-        "max": 17769294,
-        "min": 8085083
+        "max": 26296620,
+        "min": 8982870
       }
     ]
   ]

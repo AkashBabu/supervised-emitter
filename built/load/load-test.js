@@ -85,7 +85,7 @@ describe('#load-test', function () {
         }
         progressBar.stop();
     })))(100000);
-    (N => it(`should be able to publish ${N} times w/o all types of subscribers`, () => __awaiter(this, void 0, void 0, function* () {
+    (N => it(`should be able to publish ${N} times to all types of subscribers`, () => __awaiter(this, void 0, void 0, function* () {
         const progressBar = new cli_progress_1.default.SingleBar({ clearOnComplete: true }, cli_progress_1.default.Presets.shades_classic);
         progressBar.start(N, 0);
         for (let i = 0; i < 2; i++) {

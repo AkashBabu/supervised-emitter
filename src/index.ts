@@ -330,7 +330,7 @@ const SupervisedEmitter: ISupervisedEmitter = ((): ISupervisedEmitter => {
     try {
       const result = await threadRunner(pubEvent, data);
 
-      logger.debug(`PUBLISHED => ${pubEvent}`, data)
+      logger.debug(`PUBLISHED => ${pubEvent}`, data);
       return result;
     } catch (error) {
       logger.error('Error while publishing event:', pubEvent, data);
