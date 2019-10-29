@@ -20,9 +20,9 @@
 - [ ] Testing
   - [ ] 100% coverage
   - [ ] ThreadRunner testing
+  - [x] Solid test cases on utils and the whole library
+    - [x] for ex: what if there are not items in DLL and you still run `shift()`
   - [x] Segregate test suite (method based)
-  - [ ] Solid test cases on utils and the whole library
-    - [ ] for ex: what if there are not items in DLL and you still run `shift()`
 
 - [ ] Support
   - [ ] Use a different library for benchmarking
