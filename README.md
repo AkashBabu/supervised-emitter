@@ -296,8 +296,8 @@ CANNOT use patterns for publishing. If used then, it'll be treated as normal str
 
 ## Pattern matches
 
-asdf/* -> asdf/hjkl/ | asdf/qweroiu | asdf/iu1234uiqwer
-asdf/** -> adsf/asdf/asdf/ | asdf/qwer | adsf/
+asdf/* -> `asdf/hjkl/` | `asdf/qweroiu` | `asdf/iu1234uiqwer`  
+asdf/** -> `adsf/asdf/asdf/` | `asdf/qwer` | `adsf/`  
 
 
 
@@ -353,9 +353,9 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 * Event scope
 
 ## Run example todo app
-> cd example/
-> npm i
-> npm start
+> cd example/  
+> npm i  
+> npm start  
 
 
 ## FAQs
