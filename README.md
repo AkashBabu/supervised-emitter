@@ -16,6 +16,7 @@
 * [Major differences between this library and redux](#for-those-who-are-keen-on-knowing-the-major-differences-between-this-library-and-redux)
 * [Why don't we just use the native event emitter library?](#why-dont-we-just-use-the-native-event-emitter-library)
 * [For the curious ones](#for-the-curious-ones)
+* [Run example todo app](#run-example-todo-app)
 * [FAQs](#faqs)
 
 ## Introduction
@@ -351,7 +352,10 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 * Subscription chaning (internally unsubscription happens in a recursive manner)
 * Event scope
 
-
+## Run example todo app
+> cd example/
+> npm i
+> npm start
 
 
 ## FAQs

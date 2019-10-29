@@ -1,0 +1,32 @@
+@import './index.scss';
+
+.app-container {
+  @extend .full-container;
+  // background-color: #fff7c3;
+  background-image: url('./assets/images/main_bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  // filter: blur(3px);
+
+  // .app-bg {
+  //   @extend .full-container;
+  //   z-index: -1;
+  //   position: absolute;
+  //   width: 100%;
+  //   min-width: 100%;
+  //   height: auto;
+  //   // bottom: 0;
+  //   // top: 0;
+  //   // left: 0;
+  //   // right: 0;
+  //   overflow: hidden;
+  // }
+
+
+  & > * {
+    margin: auto;
+    width: 50%;
+    min-width: 320px;
+    max-width: 768px;
+  }
+}

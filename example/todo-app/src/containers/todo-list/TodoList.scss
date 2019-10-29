@@ -1,0 +1,31 @@
+.container {
+  margin: 1em auto 2em auto;
+
+  .titlebar {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row nowrap;
+    
+    .todo-list_title {
+      color: #bf6a07;
+    }
+
+  }
+
+  
+  .todo-list {
+    background-color: rgba(255, 236, 213, 0.6);
+    box-shadow: 2px 2px 8px 1px grey;
+  }
+
+  .icon {
+    // background-color: white;
+    display: inline-block;
+    height: auto;
+    width: 2em;
+    
+    .fullscreen {
+      background-image: url('../../assets/images/icon_full-screen.svg');
+    }
+  }
+}
