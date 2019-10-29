@@ -5,3 +5,4 @@ exclude_patterns:
   - "built/**/*"
   - "load/**/*"
   - "types/**/*"
+  - "example/**/*"
