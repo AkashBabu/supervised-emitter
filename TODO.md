@@ -35,3 +35,7 @@
   - [ ] Improve code segregation (SRP)
     - [ ] for instance remove(event) -> must run all the clean up tasks, such as removing all the handlers, deleting dll, cache cleaning (maybe lazy), event removal etc
   - [ ] Add sample projects
+  - [ ] Explain todo example app
+
+- [ ] Explain the difference between redux and supervised-emitter in case of
+  - [ ] fetch data and sort it and only then the data must be displayed

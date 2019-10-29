@@ -1,0 +1,61 @@
+.todo-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  
+  .inputs {
+    flex: 1;
+    padding: 0.5em;
+    
+    .input-group {
+      display: flex;
+      margin-bottom: 0.5em;
+      
+      label, input {
+        width: 100%;
+      }
+
+      input {
+        outline: none;
+        border: none;
+        caret-color: orange;
+        padding: 0 0.5em;
+        transition: 300ms border ease-in-out;
+        background-color: transparent;
+      }
+      
+      .title {
+        font-size: 1em;
+      }
+    
+      .body {
+        font-size: 0.85em;
+        font-family: cursive;
+      }
+    }
+
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      padding: 0.25em 1.5em;
+      border: none;
+      border-radius: 2px;
+      font-weight: bold;
+      font-size: 1em;
+      color: green;
+
+
+      &.clear-btn {
+        background-color: rgba(200, 0, 0, 0.1);
+      }
+      
+      &.add-btn {
+        background-color: rgba(0, 200, 0, 0.1);
+      }
+    }
+  }
+}

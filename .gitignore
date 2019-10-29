@@ -66,3 +66,6 @@ sample.launch.json
 built/
 
 .DS_Store
+
+dist
+.cache

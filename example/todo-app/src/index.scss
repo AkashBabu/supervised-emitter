@@ -1,0 +1,16 @@
+.full-container {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+html, body, #app {
+  @extend .full-container;
+  font-family: sans-serif;
+}
+
+.txt-center {
+  text-align: center;
+}

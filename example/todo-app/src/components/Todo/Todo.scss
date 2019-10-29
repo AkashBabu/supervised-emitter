@@ -1,0 +1,147 @@
+.todo-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #ffb36d;
+  padding: 0.5em;
+
+  &.last {
+    border-bottom-width: 3px;
+  }
+
+  .todo-item_chbx {
+    margin-right: 0.5em;
+  }
+
+  .todo-item_main {
+    flex: 1;
+
+    .todo-item_title {
+      font-size: 1em;
+      display: block;
+      margin-bottom: 0.2em;
+
+      &.completed {
+        text-decoration: line-through;
+        color: #64656C;
+      }
+    }
+
+    .todo-item_body {
+      font-size: 0.85em;
+      font-family: cursive;
+
+      &.completed {
+        color: #64656C;
+      }
+    }
+  }
+
+  .todo-item_actions {
+    width: auto;
+    margin: 0.25em;
+    
+    button {
+      width: 2em;
+      height: 2em;
+      border-radius: 1em;
+      border: none;
+      background-color: #fbbc877f;
+      font-size: 1em;
+      padding: 0;
+      margin: 0;
+      color: red;
+      transition: 0.2s background-color ease-in-out;
+      margin-left: 0.25em;
+      will-change: background-color;
+
+      &.remove-btn {
+        background-color: #fbbc877f;
+        color: red;
+      }
+
+      &.plain-btn {
+        background-color: transparent;
+        color: black;
+
+        &:hover {
+          background-color: #fbbc877f;
+          color: red;
+        }
+      }
+
+      &.edit-btn {
+        background-color: #9bedff7f;
+        color: blue;
+      }
+    }
+
+  }
+}
+
+.todo-item_edit {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  
+  .inputs {
+    flex: 1;
+    
+    .input-group {
+      display: flex;
+      margin-bottom: 0.5em;
+      
+      label, input {
+        width: 100%;
+      }
+
+      input {
+        outline: none;
+        border: none;
+        caret-color: orange;
+        padding: 0 0.5em;
+        transition: 300ms border ease-in-out;
+        background-color: transparent;
+      }
+      
+      .title {
+        font-size: 1em;
+      }
+    
+      .body {
+        font-size: 0.85em;
+        font-family: cursive;
+      }
+    }
+
+  }
+
+  .buttons {
+    margin: 0.5em;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      width: 2em;
+      height: 2em;
+      border: none;
+      border-radius: 1em;
+      padding: 0;
+      font-weight: bold;
+      font-size: 1em;
+      margin-left: 0.5em;
+      
+      
+      &.cancel-btn {
+        background-color: rgba(200, 0, 0, 0.1);
+        color: red;
+      }
+      
+      &.accept-btn {
+        background-color: rgba(0, 200, 0, 0.1);
+        color: green;
+      }
+    }
+  }
+}
