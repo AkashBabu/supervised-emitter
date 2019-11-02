@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import SE from 'supervised-emitter';
+import SE from '../../lib/supervisedEmitter';
 
 import './TodoList.scss';
 import Todo from '../../components/Todo/Todo';
@@ -14,7 +14,12 @@ function sortTodos(todoA, todoB) {
 }
 
 function getPrevState() {
-  return JSON.parse(window.localStorage.getItem('todo-list') || '[]');
+  try {
+    const prevState = JSON.parse(window.localStorage.getItem('todo-list') || '[]');
+    return prevState;
+  } catch (err) {
+    return [];
+  }
 }
 
 function saveState(data) {

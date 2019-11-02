@@ -14,15 +14,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.6.0",
     "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "supervised-emitter": "git+https://github.com/AkashBabu/supervised-emitter.git"
+    "react-dom": "^16.11.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/plugin-transform-runtime": "^7.6.2",
-    "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-react": "^7.6.3",
     "@babel/runtime": "^7.6.3",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import SE from 'supervised-emitter';
+import SE from '../../lib/supervisedEmitter'
 
 import './TodoFooter.scss';
 
