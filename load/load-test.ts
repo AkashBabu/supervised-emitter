@@ -216,6 +216,37 @@ describe('#load-test', function() {
     expect(calls).to.be.eql(N * M * X);
   }))(1000, 50, 50);
 
+  (N => it(`should be able to subscribeOnce() ${N} times`, async () => {
+    const SE = new SupervisedEmitter();
+
+    const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
+    progressBar.start(N, 0);
+
+    for (let i = 0; i < N; i++) {
+      SE.subscribeOnce(`hello/world/${i}`, incrementCount);
+      progressBar.update(i / 2);
+    }
+
+    let promises = [];
+    for (let i = 0; i < N; i++) {
+      promises.push(SE.publish(`hello/world/${i}`, 'test'));
+    }
+    await Promise.all(promises);
+
+    expect(calls).to.be.eql(N);
+
+    resetCount();
+    promises = [];
+    for (let i = 0; i < N; i++) {
+      promises.push(SE.publish(`hello/world/${i}`, 'test'));
+      progressBar.update(N / 2 + i / 2);
+    }
+    await Promise.all(promises);
+    progressBar.stop();
+
+    expect(calls).to.be.eql(0);
+  }))(100000);
+
   (N => it(`should be able to pass ${N} handlers for the pipeline`, async () => {
     const SE = new SupervisedEmitter();
 
