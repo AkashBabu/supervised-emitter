@@ -5,7 +5,7 @@
   - [ ] skip() - it must skip all the middlewares
   - [ ] subscribeOnce
   - [ ] pattern subscription in middlewares
-  - [ ] ThreadRunner options
+  - [x] ThreadRunner options
 
 - [ ] Performance improvements
   - [ ] Use hashmaps to store the event names against id, then store only the ids in LFU cache for space optimization
