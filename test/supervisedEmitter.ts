@@ -78,7 +78,7 @@ describe('#supervised-emitter (SE)', () => {
   it('should pass any modifications to the context in the middlewares to all the subscription pipelines', async () => {
     let calls = 0;
 
-    function newMethod() {}
+    function newMethod() { }
 
     const SE = new SupervisedEmitter([
       (ctx) => {
@@ -340,6 +340,102 @@ describe('#supervised-emitter (SE)', () => {
     });
   });
 
+  describe('.subscribeOnce()', () => {
+    it('should listen to just the first event', async () => {
+      const SE = new SupervisedEmitter();
+
+      let calls = 0;
+      SE.subscribeOnce('foo/bar', () => {
+        calls++;
+      });
+
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('foo/bar', 'test');
+
+      expect(calls).to.be.eql(1);
+    });
+
+    it('should allow chaining of subscriptions', async () => {
+      const SE = new SupervisedEmitter();
+
+      let subOnceCalls = 0;
+      let subCalls = 0;
+      SE.subscribeOnce('foo/bar', () => {
+        subOnceCalls++;
+      }).subscribe('foo/bar', () => {
+        subCalls++;
+      });
+
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('foo/bar', 'test');
+
+      expect(subOnceCalls).to.be.eql(1);
+      expect(subCalls).to.be.eql(2);
+    });
+
+    it(`should not throw any error when subscription chain has been
+          unsubscribed after an after event has been published`, async () => {
+      const SE = new SupervisedEmitter();
+
+      let subOnceCalls = 0;
+      let subCalls = 0;
+      let helloCalls = 0;
+      const subscription = SE.subscribeOnce('foo/bar', () => {
+        subOnceCalls++;
+      }).subscribe('foo/bar', () => {
+        subCalls++;
+      }).subscribe('hello/*', () => {
+        helloCalls++;
+      });
+
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('hello/world', 'test');
+
+      expect(subOnceCalls).to.be.eql(1);
+      expect(subCalls).to.be.eql(2);
+      expect(helloCalls).to.be.eql(1);
+
+      subCalls = 0;
+      subOnceCalls = 0;
+      helloCalls = 0;
+      subscription.unsubscribe();
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('hello/world', 'test');
+
+      expect(subOnceCalls).to.be.eql(0);
+      expect(subCalls).to.be.eql(0);
+      expect(helloCalls).to.be.eql(0);
+    });
+
+    it('should allow multiple subscribeOnce in the same subscription chain', async () => {
+      const SE = new SupervisedEmitter();
+
+      const calls = [0, 0, 0, 0];
+      SE.subscribeOnce('foo/bar', () => {
+        calls[0]++;
+      }).subscribe('hello/world', () => {
+        calls[1]++;
+      }).subscribeOnce('bar/baz', () => {
+        calls[2]++;
+      }).subscribe('new/world', () => {
+        calls[3]++;
+      });
+
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('foo/bar', 'test');
+      await SE.publish('hello/world', 'test');
+      await SE.publish('bar/baz', 'test');
+      await SE.publish('bar/baz', 'test');
+      await SE.publish('new/world', 'test');
+
+      expect(calls[0]).to.be.eql(1);
+      expect(calls[1]).to.be.eql(1);
+      expect(calls[2]).to.be.eql(1);
+      expect(calls[3]).to.be.eql(1);
+    });
+  });
+
   describe('.publish()', () => {
     it('should be able to publish data to subscribers', done => {
       const test = 'testing';
@@ -549,7 +645,7 @@ describe('#supervised-emitter (SE)', () => {
     it('should allow subscription to be unsubscribed multiple times', async () => {
       const SE = new SupervisedEmitter();
 
-      const subscription = SE.subscribe('/hello/se/world', () => {});
+      const subscription = SE.subscribe('/hello/se/world', () => { });
 
       subscription.unsubscribe();
       expect(() => subscription.unsubscribe()).to.not.throw;
