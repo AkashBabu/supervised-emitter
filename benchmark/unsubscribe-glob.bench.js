@@ -1,4 +1,5 @@
-const SE = require('../').default;
+const SupervisedEmitter = require('../').default;
+const SE = new SupervisedEmitter();
 
 const N = 10000;
 bench([
