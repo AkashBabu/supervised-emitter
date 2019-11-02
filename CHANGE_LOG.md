@@ -1,3 +1,12 @@
+# 0.6.0
+* Usage of Classes instead of singleton
+  * This helped us overcome Security issues when a malicious library could listen to all the events in the application
+* Adds test cases for ThreadRunner
+* Adds `.map()` method to dll
+* Semantic renaming of variables in supervisedEmitter class
+* ThreadRunner gracefully handles the errors thrown in publish pipeline
+* Adds Typescript API doc in the build pipeline
+
 # 0.5.0
 * Removal of support Node: 7
 * Migration to TS(Typescript)
