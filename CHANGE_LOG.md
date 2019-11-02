@@ -1,3 +1,7 @@
+# 0.7.0
+* Adds `.subscribeOnce()` method, which subscribes to the event and unsubscribes itself after the first event has been handled
+* Adds linting and load testing stages to travis
+
 # 0.6.0
 * Usage of Classes instead of singleton
   * This helped us overcome Security issues when a malicious library could listen to all the events in the application
