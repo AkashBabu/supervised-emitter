@@ -2,8 +2,8 @@
     "name": "supervised-emitter",
     "version": "0.5.0",
     "description": "A event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.",
-    "main": "built/src/index",
-    "typings": "types/src/index",
+    "main": "build/src/supervisedEmitter",
+    "typings": "types/src/supervisedEmitter.d.ts",
     "scripts": {
         "_test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register test/**/*",
         "_test:exit": "npm run _test -- --exit",
@@ -12,15 +12,17 @@
         "test:grep": "cross-env NODE_ENV=test npm run _test -- -g ",
         "coverage": "nyc npm run test",
         "build": "tsc",
-        "lint:fix": "tslint --fix --config tslint.json src/index.ts",
-        "lint": "tslint --config tslint.json src/index.ts",
+        "lint:fix": "tslint --fix --config tslint.json src/supervisedEmitter.ts",
+        "lint": "tslint --config tslint.json src/supervisedEmitter.ts",
         "benchmark:clean": "node benchmark/clean.js",
         "benchmark:report": "radargun benchmark/**/*.bench.js",
         "benchmark:template": "node benchmark/template.js",
         "benchmark": "npm run build && npm run benchmark:clean && npm run benchmark:report && npm run benchmark:template",
         "status": "git status",
         "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls",
-        "load-test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register load/**/*"
+        "load": "cross-env TS_NODE_FILES=true mocha --require ts-node/register load/**/*",
+        "tsdoc": "typedoc --plugin typedoc-plugin-markdown --theme markdown --hideSources src/supervisedEmitter.ts typings/",
+        "clean": "rimraf types build coverage .nyc_output"
     },
     "engines": {
         "node": ">=8"
@@ -45,10 +47,12 @@
     "precommit": [
         "lint:fix",
         "lint",
+        "clean",
         "coverage",
-        "load-test",
+        "load",
         "build",
         "benchmark",
+        "tsdoc",
         "status"
     ],
     "nyc": {
@@ -80,6 +84,8 @@
         "source-map-support": "^0.5.13",
         "ts-node": "^8.0.2",
         "tslint": "^5.20.0",
+        "typedoc": "^0.15.0",
+        "typedoc-plugin-markdown": "^2.2.11",
         "typescript": "^3.6.4"
     },
     "dependencies": {
