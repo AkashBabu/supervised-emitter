@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import delay from 'delay';
 import cliProgress from 'cli-progress';
 
-import SE from '../src';
+import SupervisedEmitter from '../src/supervisedEmitter';
 
 let calls = 0;
 function resetCount() {
@@ -59,15 +59,16 @@ function getHandlers() {
     : incrementCount));
 }
 
-describe('#load-test', function () {
+describe('#load-test', function() {
   this.timeout(150 * 1000);
 
   beforeEach(() => {
-    SE.reset();
     resetCount();
   });
 
   (N => it(`should be able to subscribe ${N} times on the same event`, async () => {
+    const SE = new SupervisedEmitter();
+
     for (let i = 0; i < N; i++) {
       SE.subscribe('/hello/world', incrementCount);
     }
@@ -77,6 +78,8 @@ describe('#load-test', function () {
   }))(100000);
 
   (N => it(`should be able to publish ${N} times w/o any subscribers`, async () => {
+    const SE = new SupervisedEmitter();
+
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(N, 0);
 
@@ -89,6 +92,8 @@ describe('#load-test', function () {
   }))(100000);
 
   (N => it(`should be able to publish ${N} times to all types of subscribers`, async () => {
+    const SE = new SupervisedEmitter();
+
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(N, 0);
 
@@ -108,6 +113,8 @@ describe('#load-test', function () {
   }))(1000000);
 
   (N => it(`should be able to process ${N} publish pipelines simultaneously`, async () => {
+    const SE = new SupervisedEmitter();
+
     async function asyncFn() {
       await delay(10);
       incrementCount();
@@ -127,6 +134,8 @@ describe('#load-test', function () {
   }))(100000);
 
   ((N, M) => it(`should be able to subscribe ${M} times on each of ${N} different events`, async () => {
+    const SE = new SupervisedEmitter();
+
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(N, 0);
 
@@ -150,6 +159,8 @@ describe('#load-test', function () {
   }))(10000, 50);
 
   (N => it(`should be able to create a ${N} subscriptions chain and unsubscribe the same`, async () => {
+    const SE = new SupervisedEmitter();
+
     let subscription = SE.subscribe('/another/world/0', incrementCount);
     for (let i = 1; i < N; i++) {
       subscription = subscription.subscribe(`/another/world/${i}`, incrementCount);
@@ -164,6 +175,8 @@ describe('#load-test', function () {
   }))(10000);
 
   (N => it(`should be able to subscribe ${N} times on the same glob event`, async () => {
+    const SE = new SupervisedEmitter();
+
     for (let i = 0; i < N; i++) {
       SE.subscribe('/hello/world/*/times', incrementCount);
     }
@@ -174,6 +187,8 @@ describe('#load-test', function () {
 
   ((N, M, X) => it(`should be able to subscribe ${X} handlers pipeline,
       ${M} times each on ${N} different glob events`, async () => {
+    const SE = new SupervisedEmitter();
+
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(N, 0);
 
@@ -202,6 +217,8 @@ describe('#load-test', function () {
   }))(1000, 50, 50);
 
   (N => it(`should be able to pass ${N} handlers for the pipeline`, async () => {
+    const SE = new SupervisedEmitter();
+
     const handlers = [];
     for (let i = 0; i < N; i++) {
       handlers.push(incrementCount);
@@ -219,7 +236,7 @@ describe('#load-test', function () {
       middlewares.push(incrementCount);
     }
 
-    SE.initialize(middlewares);
+    const SE = new SupervisedEmitter(middlewares);
 
     await SE.publish('/hello/world', 'test');
     expect(calls).to.be.eql(N);
@@ -229,6 +246,8 @@ describe('#load-test', function () {
         So subscribing ${1000 * 2} times and unsubscribing the same
         and repeating this process for ${N} times
         MUST NOT throw Out of Memory error`, async () => {
+    const SE = new SupervisedEmitter();
+
     const promises = [];
     for (let i = 0; i < 1000; i++) {
       promises.push(SE.publish(getEvent(), 'test'));
@@ -267,7 +286,9 @@ describe('#load-test', function () {
       - 1000 glob subscribe
       - 1000 times 50 chained subscriptions
       - 1500 random events(pub, sub-n, sub-g)
-      ALL AT THE SAME TIME ON THE SAME INSTANCE`, async () => {
+      ALL AT THE SAME TIME ON THE SAME INSTANCE`, async () => { // tslint:disable cyclomatic-complexity
+    let SE = new SupervisedEmitter();
+
     const progressBar = new cliProgress.SingleBar({ clearOnComplete: true }, cliProgress.Presets.shades_classic);
     progressBar.start(7, 0);
 
@@ -333,7 +354,7 @@ describe('#load-test', function () {
     }
     progressBar.update(6);
 
-    SE.reset();
+    SE = new SupervisedEmitter();
 
     subscriptions = [];
     for (let i = 0; i < 1000; i++) {
