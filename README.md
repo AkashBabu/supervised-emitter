@@ -6,25 +6,30 @@
 * [Usage](#usage-in-reactjs)
 * [Feature list](#feature-list)
   * [Why we chose wildcard subscription?](#why-we-chose-wildcard-subscription)
+* [Terminologies](#before-reading-on)
 * [Performance](#performance)
 * [Architecture](#architecture)
-* [Algorithm](#algorithm)
-* [API Documentation](#api-documentation)
 * [Create custom middlewares](#create-custom-middlewares)
 * [Caveats](#caveats)
 * [Pattern matches](#pattern-matches)
-* [Major differences between this library and redux](#for-those-who-are-keen-on-knowing-the-major-differences-between-this-library-and-redux)
-* [Why don't we just use the native event emitter library?](#why-dont-we-just-use-the-native-event-emitter-library)
 * [For the curious ones](#for-the-curious-ones)
 * [Run example todo app](#run-example-todo-app)
-* [FAQs](#faqs)
+
 
 ## Introduction
-Another pub-sub library!!! Hey hold on... there's a lot more features like middleware capability, chaining subscriptions, pattern subscription and more.
+Another pub-sub library huh!!! Hey hold on... there's a lot more features like middleware capability, chaining subscriptions, pattern subscription and more.
 
-If this library is used in React for communication between containers/components, then it'll reduce a lots of boilerplate needed and also would make the usage / adoption very easy.
+This library has been built with a lot of focus on its application in React projects (hope it finds other applications as well). Please read on to find out more about it...
 
+Visit [this page](https://github.com/AkashBabu/supervised-emitter/blob/master/tsdocs/README.md) for API docs.
+Visit [wiki](https://github.com/AkashBabu/supervised-emitter/wiki) for more information on this project
 
+### Why don't we just use the native event emitter library?
+Because of the below features
+* Middleware support
+* Subscription chaining
+* Singleton
+* Glob pattern subscription
 
 ## Installation
 > npm i supervised-emitter --save
@@ -32,9 +37,16 @@ If this library is used in React for communication between containers/components
 
 
 ## Usage in ReactJS
+
 ```JSX
+/// index.jsx
+import SupervisedEmitter from 'supervised-emitter';
+
+const SE = new SupervisedEmitter();
+export default SE;
+
 /// componentA.jsx
-import SE from 'supervised-emitter';
+import SE from './index.jsx';
 import React from 'react'
 
 export default function ComponentA() {
@@ -47,7 +59,7 @@ export default function ComponentA() {
 
 
 /// componentB.jsx
-import SE from 'supervised-emitter';
+import SE from './index.jsx';
 import React, {useEffect, useState} from 'react'
 
 export default function ComponentB() {
@@ -121,7 +133,6 @@ For a sample ReactJS application visit.
   - Every handler in the pipeline is `await`ed
 - You can await on Publish action
 - Can stop the flow of data in between a pipeline
-- It's a singleton at its core, so you don't have to worry about managing your own singleton or passing the instance all around in your application.
 - Can publish scoped events!!!
   - This mean you can have multiple instances of the same component, but can still operate in isolation.
 - Don't have to worry about multiple slashes, leading slash(/) & trailing slash(/)
@@ -129,8 +140,8 @@ For a sample ReactJS application visit.
 - Use it everywhere, irrespective of whether you use React / Vue / Angular / Vanilla JS
 - Controlled rate of publishes at a time
   - This ensures that we don't run out of Memory causing page crashes.
-- TCO([Tail control optimized](https://stackoverflow.com/a/310980)) subscription chain
-- TCO([Tail control optimized](https://stackoverflow.com/a/310980)) pipelines
+<!-- - TCO([Tail call optimization](https://stackoverflow.com/a/310980)) subscription chain
+- TCO([Tail call optimization](https://stackoverflow.com/a/310980)) pipelines -->
 
 #### Why we chose wildcard subscription?
 Primarily there are two types of event subscriptions: Normal event subscriptions & Wildcard event subscriptions.  
@@ -145,6 +156,7 @@ So we chose to go with wildcards. It is not completely customizable, but covers 
 Please get yourself familiar with these terminologies before reading on...
 - *pubEvent* : Published Event
 - *subEvent* : Subscribed Event
+- *handler | subscription handler* : Function that will be executed when a match is found between the subscribed event and the published event. Essentially this is one of the functions that will be passed to the `.subscribe('foo/bar', ...handler)` method. 
 - *matching Events* : All the matching subscribed pattern events for the published event
 - *LFU cache* : Least Frequently used cache
 - *DLL* : Doubly linked list
@@ -171,86 +183,9 @@ Every decision taken during design was with an intensive care for performance. P
 ![Architecture diagram](https://github.com/AkashBabu/supervised-emitter/blob/master/docs/images/architecture.png)
 
 - Every event at first go through the registered middlewares pipeline
-- The output of the middleware pipeline is then feed to every subscription pipeline paralelly (in async manner)
+- The output of the middleware pipeline is then fed to every subscription pipeline parallelly (in async manner)
 - Any modifications to data in the middleware will be passed to all the subscribers, but any modifications thereafter either to data or the context will be reflected only in the same pipeline.  
 
-
-
-## Algorithm
-
-#### General Case (Subscribe first, then publish)
-- Supervised-Emitter (SE) is initialized with a bunch of middlewares and certain other options
-- A few subscriptions will occur. For this sequence lets assume the following events have been subscribed:
-  - `/foo/bar/baz`
-  - `/foo/*/baz`
-  - `/foo/**`
-  - `/foo/boo`
-  - `/hello/world`
-- Lets say a publish was made on event `/foo/bar/baz`
-- The is data is added to the context and the middleware pipeline is invoked
-- Now the decision point will check if the published event (pubEvent) is already present in LFU cache (why LFU ? is explain below)
-- If present, then the result is returned
-- If NOT present, then the decision point will run the match of pubEvent against all the wildcard subscription events and curate a list of matching subEvents and add it to the cache. In this case the following events are matched:
-  - `/foo/bar/baz`
-  - `/foo/*/baz`
-  - `/foo/**`
-- Then every matching subscription pipeline is run with the modified context (modified by middlewares)
-
-#### When a new subscription is made
-- Every time a new subscription is made, we check if there exists a subEvent with the exact string, if so, then we add this pipeline to the existing DLL (why DLL is explained [here](#design-challenges-faced-during-architecturing))
-- Cache is updated if necessary, i.e. if a pubEvent with the same string as subEvent exists.
-
-#### When a new wildcard subscription is made
-- In this scenario, the new subscription might match any of the cached pubEvent and hence the wildcard match is checked on all the cached pubEvent, if any match is found, then the corresponding matching subEvents are updated with the new subscription event
-- Also this new subscription event is added to wildcard subEvents array. This is done, so that next time if a new pubEvent (not in cache) is received, it shall be checked on all the wildcard events.
-
-#### When an event handler is unsubscribed
-- We just remove the handler pipeline from DLL.
-- Interesting thing to note here is that, this event is not removed from LFU cache, but it will be done later during publish cycle, if NO handlers are present for the cached event, then the same is removed from the cache and hence will not be available on the next publish cycle.
-
-
-
-## API Documentation
-
-**SE.initialize(middlewares, {debug = false, lfu = {max: 100}})**
-
-Param           | Description
-:---------------|:-----------
-middlewares     | Array of middlewares. Please check [this](#handler-function) for middleware function signature
-options         | Options object
-options.debug   | When *true*, would print some useful logs for debugging issues related to subscription, unsubscription & publish. *Defaults to false*
-options.lfu     | Under the hood we use [lru-cache](https://www.npmjs.com/package/node-lfu-cache) and this option will be passed directly to its constructor. So please read its doc for more information. *Defaults to {max: 100}*
-
-**SE.subscribe(event, ...handlers)**
-
-Param           | Description
-:---------------|:-----------
-event           | Event to be subscribed (w/ or w/o wildcards).
-handlers        | List of handlers. Please read [this](#hanndler-function) for details on handler function signature
-
-**SE.publish(event, data)**
-
-Param           | Description
-:---------------|:-----------
-event           | Event channel to publish this data.
-data            | Anything that you want the subscribers to receive.
-
-Note that it is absolutely possible to use `subscribe` & `publish` methods even before `initialize` is called. This is done to ensure we don't enforce the users to maintain the order. Anyways the order of execution is infact the users responsibility.   
-So what happens if we `publish` before `initialize` ? It's the same just that the middlewares would not be run.  
-But always remember this will be a singleton no matter what!
-
-
-#### Handler Function
-**function middleware(ctx: {data, pubEvent, subEvents, end}) => data**
-
-Argument        | Description
-:---------------|:--------------
-ctx             | Context object. This holds the context of the pipeline. If you wanna add methods to be shared by other handlers, then you are free to do so.
-ctx.data        | Data `return`ed by every handler will replace this and will be passed on to the next handler
-ctx.pubEvent    | Published event. Note that this will be sanitized (i.e. all the empty parts will be removed) hence if you publish on '/hello//world/' then ctx.pubEvent will hold 'hello/world' 
-ctx.subEvents   | List of matching subscribed events (w/ or w/o wildcards).
-
-The idea behind using individual context(ctx) for each pipeline is that, the source of change in the context can be easily debugged and reasoned about if some anonymous subscription pipeline is NOT allowed to change the context in this pipeline.
 
 
 #### Errors
@@ -265,22 +200,26 @@ The idea behind using individual context(ctx) for each pipeline is that, the sou
 ## Create custom middlewares
 ```JS
 /// middleware.js
-export default function EventTrace({ traceLength = 10 } = {}) {
+export default function EventTraceMiddleware({ traceLength = 10 } = {}) {
   const eventTrace = [];
   return ctx => {
-    eventTrace.push(ctx.pubEvent);
+    eventTrace.push({date: new Date(), pubEvent: ctx.pubEvent});
     if (eventTrace.length > traceLength) eventTrace.shift();
 
     ctx.printEventTrace = () => {
-      for (let i = eventTrace.length - 1; i > -1; i++) {
-        console.log(` -> ${eventTrace[i]}`);
+      for (let i = eventTrace.length - 1; i > -1; i--) {
+        console.log(` -> ${eventTrace[i].date.toISOString()} ${eventTrace[i].pubEvent}`);
       }
     };
+
+    // This is very very important. Only then shall the next 
+    // middleware receive data else nothing `data` will be undefined
+    return ctx.data;
   };
 }
 
 /// index.js
-SE.initialize([EventTrace]);
+SE.initialize([EventTraceMiddleware]);
 ```
 
 
@@ -301,30 +240,8 @@ asdf/** -> `adsf/asdf/asdf/` | `asdf/qwer` | `adsf/`
 
 
 
-## Known security vulnerability
-* Any malicious library can import 'Supervised-Emitter' and listen to all the events emitted by this library.
 
 
-
-## For those who are keen on knowing the major differences between this library and redux
-First and foremost important thing to note is that this library does NO STATE MANAGEMENT, but gives you the possiblity to do so. Please see [this recipe]() on how to implement one by yourself.
-
-So the below comparison is mostly with reducers.
-- Boilerplate for using redux in react is huge and also the injection mechanism is inevitable, but SE doesn't need any of it (even for code splitting!!).
-- In Redux, there is a risk of a wrong reducer modifying the state, whereas this library provides a `scope` option which will eliminate such risks.
-- Redux need to be connect to all the component participating in the communication which inturn needs a lots of boilerplate (more JS mean slower response and more bugs), where SE needs minimal code which makes it ideal to be used even in dumb components.
-- Everytime a new reducer is injected, the only way to make that happen is by rebuilding the composed function, but SE makes it relatively easy by just appending an item to DLL list (used internally).
-- In redux, none of the reducer can stop the flow of data, but SE provide the capability to do so.
-- In redux, every action will have to go through all the reducers irrespective of whether the reducer is really interested in that action or not, but SE target specific handlers.
-
-
-
-## Why don't we just use the native event emitter library?
-Because of the below features
-* Middleware support
-* Subscription chaining
-* Singleton
-* Glob pattern subscription
 
 
 ## Battle tested
@@ -338,11 +255,17 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
   * Cache the matched result
   * Which cache to use ? LRU ? LFU ?
     * Choose to use LFU based on heuristics that same events once used will be used more frequently (For instance onChange of input field, form Submit (retry) etc)
-* how to maintain scope of an event 
+* how to maintain scope of an event?
+  * By creating a closure that adds a random (never colliding) part as a suffix to the event and the same closure must be used by the publisher and subscriber
 * Chaining subscriptions / unsubscriptions
-* how to trace events
-* how to maintain state
-* how to run middlewares post subscribers
+  * How to unsubscribe from all the subscriptions at once ??
+    * Used scope (closure) and recursion methods to unsubscribe from all the chained subscriptions at once
+* how to trace events?
+  * Add a middleware that updates entries of all the published events and adds `.printEventTrace()` method to the context, so that it can be accessed in all handlers
+* how to maintain state?
+  * Create a subscriber that listens on a glob pattern like `save_state/**` and maintain a state tree, then publish the data to be saved on events like `save_state/login`
+* how to run middlewares post subscribers?
+  * You can't do that, but instead you can publish events post your logic. For instance you may publish event like `__only_middlewares/foo/bar` after executing your logic in any subscription handler.
 
 ### Design highlights
 * Singleton pattern
@@ -358,10 +281,14 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 > npm start  
 
 
+
+## API documentation
+Please visit [this page](https://github.com/AkashBabu/supervised-emitter/blob/master/tsdocs/README.md) for API documentation.
+
+
+
 ## FAQs
-**Why am I getting `undefined` for data in the handlers ?**
-- Please check the handler right before this handler (where data is `undefined`) if you're returing any data or not, if not then please return whatever needs to be passed to the next handler.
-- If this is the first handler in the pipeline, then check your middleware if it's returning any data or not.
+For FAQs please visit this [wiki](https://github.com/AkashBabu/supervised-emitter/wiki/FAQs)
 
 
 
