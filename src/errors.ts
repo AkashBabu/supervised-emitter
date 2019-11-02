@@ -9,14 +9,3 @@ export class InvalidPatternError extends Error {
     this.name = this.constructor.name;
   }
 }
-
-/**
- * Thrown if SupervisedEmitter is initialized more than once
- */
-export class SingletonError extends Error {
-  constructor() {
-    super('Can\'t initialize singleton => "SupervisedEmitter", more than once');
-
-    this.name = this.constructor.name;
-  }
-}

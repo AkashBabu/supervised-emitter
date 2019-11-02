@@ -1,3 +1,6 @@
+
+type IIteratorCb<T> = (data: any, i: number) => T;
+
 // Returns whether the given data is `undefined` or `null`
 const isUndefined = (d: any): boolean => d === undefined || d === null;
 
@@ -57,7 +60,7 @@ export default class DLL {
    *
    * @param cb
    */
-  public forEach(cb: (data: any, i: number) => void): void {
+  public forEach<T>(cb: IIteratorCb<T>): void {
     let dllItem = this.getHead();
     let i = 0;
 
@@ -66,6 +69,15 @@ export default class DLL {
 
       dllItem = dllItem.getNext();
     }
+  }
+
+  public map<T>(cb: IIteratorCb<T>): T[] {
+    const mapped: T[] = [];
+    this.forEach((data, i) => {
+      mapped.push(cb(data, i));
+    });
+
+    return mapped;
   }
 
   /**

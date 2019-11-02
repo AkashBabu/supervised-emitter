@@ -71,14 +71,16 @@ export default class Logger {
   }
 
   private log(logLevel: LEVEL, ...args: any[]): void {
-    if ((logLevel <= this.level) && this.printMsg) {
-      let print = console.log;
-      if (this.level === LEVEL.WARN) {
-        print = console.warn;
-      } else if (this.level === LEVEL.ERROR) {
-        print = console.error;
-      }
+    let print = console.log;
+    if (this.level === LEVEL.WARN) {
+      print = console.warn;
+    } else if (this.level === LEVEL.ERROR) {
+      print = console.error;
+    }
 
+    if ((logLevel <= this.level) && this.printMsg) {
+      print(this.prefix, ...args);
+    } else if (logLevel >= LEVEL.WARN) {
       print(this.prefix, ...args);
     }
   }

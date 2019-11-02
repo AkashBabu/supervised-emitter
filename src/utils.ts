@@ -1,4 +1,4 @@
-import { IHandler, IContext } from './index';
+import { IHandler, IContext } from './supervisedEmitter';
 
 /**
  * Composes the list of functions passed.
