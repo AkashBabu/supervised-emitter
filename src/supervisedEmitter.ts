@@ -4,7 +4,7 @@ import DLL, { DLLItem } from './dll';
 import Logger from './logger';
 import { doesPatternMatch, isPatternEvent, sanitizeEvent } from './pattern';
 import ThreadRunner, { IRunTask } from './threadRunner';
-import { compose, getKeys, pipe } from './utils';
+import { getKeys, pipe } from './utils';
 
 export type IHandler = (ctx: IContext, ...args: any[]) => any;
 
@@ -45,11 +45,24 @@ interface IOptions {
   publishConcurrency?: number;
 }
 
+/** `.subscribe()` & `.subscribeOnce()` method signature. */
+type ISubscribe = (event: string, ...handlers: IHandler[]) => ISubscription;
+
 /** SupervisedEmitter's interface */
 interface ISupervisedEmitter {
+  /** Subscribes to an event */
+  subscribe: ISubscribe;
+
+  /** Subscribes to an event only once */
+  subscribeOnce: ISubscribe;
+
+  /** Publishes data on the given pubEvent */
   publish(pubEvent: string, data: any): Promise<any>;
-  subscribe(event: string, ...handlers: IHandler[]): ISubscription;
+
+  /** Returns a Closure function that adds scope to an event */
   getScope(): IGetScope;
+
+  /** This strip the scope part in the given event */
   unScope(event: string): string;
 }
 
@@ -61,6 +74,7 @@ interface ISupervisedEmitter {
 interface ISubscription {
   unsubscribe(): void; // for unsubscribing from the event
   subscribe(event: string, ...handlers: IHandler[]): ISubscription; // for chaining multiple subscriptions
+  subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription; // for chaining multiple subscriptions
 }
 
 /**
@@ -142,6 +156,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
       lfu = { max: 100 },
       publishConcurrency = 100,
     } = options || {};
+
     this.logger[debug ? 'enable' : 'disable']();
 
     this.state.debug = debug;
@@ -232,31 +247,78 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     this.logger.debug(`SUBSCRIBED => ${event}`);
 
     const self = this;
-    return {
-      /**
-       * Unsubscribes from this subscription
-       */
-      unsubscribe() {
-        self.unsubscribe(event, eventHandler);
-      },
-
-      /**
-       * This method allows chaining subscription to
-       * multiple events via the same subscription
-       */
-      subscribe(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
-        const subscription = self.subscribe(cEvent, ...cHandlers);
-        const thisSubscription = this;
+    return (() => {
+      function chainSubscription(this: any, method: 'subscribe' | 'subscribeOnce',
+                                 cEvent: string, ...cHandlers: IHandler[]): ISubscription {
+        const subscription = self[method](cEvent, ...cHandlers);
+        const prevSubscription = this;
 
         return {
-          subscribe: subscription.subscribe,
+          ...subscription,
           unsubscribe() {
-            thisSubscription.unsubscribe();
+            prevSubscription.unsubscribe();
             subscription.unsubscribe();
           },
         };
-      },
-    };
+      }
+
+      return {
+        /**
+         * Unsubscribes from this subscription
+         */
+        unsubscribe() {
+          self.unsubscribe(event, eventHandler);
+        },
+
+        /**
+         * This method allows chaining subscription to
+         * multiple events via the same subscription
+         */
+        subscribe(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
+          return chainSubscription.call(this, 'subscribe', cEvent, ...cHandlers);
+        },
+
+        /**
+         * This method allows chaining subscription to
+         * multiple events via the same subscription
+         */
+        subscribeOnce(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
+          return chainSubscription.call(this, 'subscribeOnce', cEvent, ...cHandlers);
+        },
+      };
+    })();
+  }
+
+  /**
+   * Similar to [[subscribe]], but it listens only to
+   * the first event and unsubscribes itself thereafter.
+   *
+   * **Example**
+   *
+   * ```JS
+   * let calls = 0;
+   * const subscription = SE.subscribeOnce('foo/bar', () => calls++)
+   *
+   * await SE.publish('/foo/bar', 'test');
+   * await SE.publish('/foo/bar', 'test');
+   *
+   * console.log(calls) //=> 1
+   *
+   * subscription.unsubscribe();
+   * ```
+   *
+   * @param event Subscription event
+   * @param handlers List of handlers
+   *
+   * @returns Subscription for chaining more subscriptions or
+   *    for unsubscribing from all the subscriptions
+   */
+  public subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription {
+    const subscription = this.subscribe(event, ...handlers, () => {
+      subscription.unsubscribe();
+    });
+
+    return subscription;
   }
 
   /**
@@ -510,8 +572,3 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     }));
   }
 }
-
-export {
-  pipe,
-  compose,
-};
