@@ -9,9 +9,9 @@
 * [Terminologies](#before-reading-on)
 * [Performance](#performance)
 * [Architecture](#architecture)
+* [Pattern matches](#pattern-matches)
 * [Create custom middlewares](#create-custom-middlewares)
 * [Caveats](#caveats)
-* [Pattern matches](#pattern-matches)
 * [For the curious ones](#for-the-curious-ones)
 * [Run example todo app](#run-example-todo-app)
 
@@ -30,6 +30,8 @@ Because of the below features
 * Subscription chaining
 * Singleton
 * Glob pattern subscription
+
+
 
 ## Installation
 > npm i supervised-emitter --save
@@ -188,9 +190,16 @@ Every decision taken during design was with an intensive care for performance. P
 
 
 
-#### Errors
-- Invalid pattern  
-  All the below patterns are invalid and are easily justifiable:
+## Pattern matches
+
+Pattern     | Matching string
+:-----------|:---------------------------------------------------------------------
+foo/*       |  `foo/\<anything>`, `/foo/\<anything>`, `/foo/\<anything>/`
+foo/*/bar   | `foo/\<anything>/bar`, `/foo/\<anything>/bar`, `/foo/\<anything>/bar/`
+foo/**      | `foo/\<anything>/\<anything>/...`,  `/foo/\<anything>/\<anything>/...`
+foo/**/bar  | `foo/\<anything>/\<anything>/.../bar`,  `/foo/\<anything>/\<anything>/.../bar`
+
+However the below pattern are considered to be invalid and would result in error.  
   - /foo/*/**
   - /foo/**/*
   - /foo/\**/**
@@ -233,19 +242,11 @@ CANNOT use patterns for publishing. If used then, it'll be treated as normal str
 
 
 
-## Pattern matches
-
-asdf/* -> `asdf/hjkl/` | `asdf/qweroiu` | `asdf/iu1234uiqwer`  
-asdf/** -> `adsf/asdf/asdf/` | `asdf/qwer` | `adsf/`  
-
-
-
-
-
-
 
 ## Battle tested
-You may find the related test-cases in "load/load-test.ts", it also includes test case for memory leakage
+This library has rigorously tested to work in a battle environment (large scale apps with a huge number of events).  
+You may find the related test-cases in "load/load-test.ts", it also includes test case for memory leakage detection.
+
 
 
 ## For the curious ones
@@ -274,6 +275,8 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 * Glob like pattern matching algorithm
 * Subscription chaning (internally unsubscription happens in a recursive manner)
 * Event scope
+
+
 
 ## Run example todo app
 > cd example/  
