@@ -14,12 +14,12 @@
   - [ ] Events trace middleware
   - [ ] State management handler
 
-- [ ] Security
-  - [ ] Anonymous library can listen to all the events and their data
+- [x] Security
+  - [x] Anonymous library can listen to all the events and their data
   
 - [ ] Testing
   - [ ] 100% coverage
-  - [ ] ThreadRunner testing
+  - [x] ThreadRunner testing
   - [x] Solid test cases on utils and the whole library
     - [x] for ex: what if there are not items in DLL and you still run `shift()`
   - [x] Segregate test suite (method based)
