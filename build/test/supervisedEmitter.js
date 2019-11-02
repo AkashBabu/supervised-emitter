@@ -258,6 +258,84 @@ describe('#supervised-emitter (SE)', () => {
             chai_1.expect(calls).to.be.eql(2);
         }));
     });
+    describe('.subscribeOnce()', () => {
+        it('should listen to just the first event', () => __awaiter(void 0, void 0, void 0, function* () {
+            const SE = new supervisedEmitter_1.default();
+            let calls = 0;
+            SE.subscribeOnce('foo/bar', () => {
+                calls++;
+            });
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('foo/bar', 'test');
+            chai_1.expect(calls).to.be.eql(1);
+        }));
+        it('should allow chaining of subscriptions', () => __awaiter(void 0, void 0, void 0, function* () {
+            const SE = new supervisedEmitter_1.default();
+            let subOnceCalls = 0;
+            let subCalls = 0;
+            SE.subscribeOnce('foo/bar', () => {
+                subOnceCalls++;
+            }).subscribe('foo/bar', () => {
+                subCalls++;
+            });
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('foo/bar', 'test');
+            chai_1.expect(subOnceCalls).to.be.eql(1);
+            chai_1.expect(subCalls).to.be.eql(2);
+        }));
+        it(`should not throw any error when subscription chain has been
+          unsubscribed after an after event has been published`, () => __awaiter(void 0, void 0, void 0, function* () {
+            const SE = new supervisedEmitter_1.default();
+            let subOnceCalls = 0;
+            let subCalls = 0;
+            let helloCalls = 0;
+            const subscription = SE.subscribeOnce('foo/bar', () => {
+                subOnceCalls++;
+            }).subscribe('foo/bar', () => {
+                subCalls++;
+            }).subscribe('hello/*', () => {
+                helloCalls++;
+            });
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('hello/world', 'test');
+            chai_1.expect(subOnceCalls).to.be.eql(1);
+            chai_1.expect(subCalls).to.be.eql(2);
+            chai_1.expect(helloCalls).to.be.eql(1);
+            subCalls = 0;
+            subOnceCalls = 0;
+            helloCalls = 0;
+            subscription.unsubscribe();
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('hello/world', 'test');
+            chai_1.expect(subOnceCalls).to.be.eql(0);
+            chai_1.expect(subCalls).to.be.eql(0);
+            chai_1.expect(helloCalls).to.be.eql(0);
+        }));
+        it('should allow multiple subscribeOnce in the same subscription chain', () => __awaiter(void 0, void 0, void 0, function* () {
+            const SE = new supervisedEmitter_1.default();
+            const calls = [0, 0, 0, 0];
+            SE.subscribeOnce('foo/bar', () => {
+                calls[0]++;
+            }).subscribe('hello/world', () => {
+                calls[1]++;
+            }).subscribeOnce('bar/baz', () => {
+                calls[2]++;
+            }).subscribe('new/world', () => {
+                calls[3]++;
+            });
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('foo/bar', 'test');
+            yield SE.publish('hello/world', 'test');
+            yield SE.publish('bar/baz', 'test');
+            yield SE.publish('bar/baz', 'test');
+            yield SE.publish('new/world', 'test');
+            chai_1.expect(calls[0]).to.be.eql(1);
+            chai_1.expect(calls[1]).to.be.eql(1);
+            chai_1.expect(calls[2]).to.be.eql(1);
+            chai_1.expect(calls[3]).to.be.eql(1);
+        }));
+    });
     describe('.publish()', () => {
         it('should be able to publish data to subscribers', done => {
             const test = 'testing';

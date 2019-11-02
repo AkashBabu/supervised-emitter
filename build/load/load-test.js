@@ -183,6 +183,30 @@ describe('#load-test', function () {
         progressBar.stop();
         chai_1.expect(calls).to.be.eql(N * M * X);
     })))(1000, 50, 50);
+    (N => it(`should be able to subscribeOnce() ${N} times`, () => __awaiter(this, void 0, void 0, function* () {
+        const SE = new supervisedEmitter_1.default();
+        const progressBar = new cli_progress_1.default.SingleBar({ clearOnComplete: true }, cli_progress_1.default.Presets.shades_classic);
+        progressBar.start(N, 0);
+        for (let i = 0; i < N; i++) {
+            SE.subscribeOnce(`hello/world/${i}`, incrementCount);
+            progressBar.update(i / 2);
+        }
+        let promises = [];
+        for (let i = 0; i < N; i++) {
+            promises.push(SE.publish(`hello/world/${i}`, 'test'));
+        }
+        yield Promise.all(promises);
+        chai_1.expect(calls).to.be.eql(N);
+        resetCount();
+        promises = [];
+        for (let i = 0; i < N; i++) {
+            promises.push(SE.publish(`hello/world/${i}`, 'test'));
+            progressBar.update(N / 2 + i / 2);
+        }
+        yield Promise.all(promises);
+        progressBar.stop();
+        chai_1.expect(calls).to.be.eql(0);
+    })))(100000);
     (N => it(`should be able to pass ${N} handlers for the pipeline`, () => __awaiter(this, void 0, void 0, function* () {
         const SE = new supervisedEmitter_1.default();
         const handlers = [];

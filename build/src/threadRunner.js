@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Thread Runner runs only the
@@ -20,27 +29,31 @@ function ThreadRunner(worker, { maxRunners = 10 } = {}) {
      * limited number of concurrent threads
      */
     function runner() {
-        if (running < maxRunners) {
-            running++;
-            const task = tasks.shift();
-            if (task) {
-                const { args, resolve } = task;
-                worker(...args)
-                    .then((d) => resolve([null, d]))
-                    .catch((err) => resolve([err]))
-                    .finally(() => {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (running < maxRunners) {
+                running++;
+                const task = tasks.shift();
+                if (task) {
+                    const { args, resolve } = task;
+                    try {
+                        const data = yield worker(...args);
+                        resolve([null, data]);
+                    }
+                    catch (error) {
+                        resolve([error]);
+                    }
                     running--;
                     // assuming a new task might be present,
                     // we're calling the runner again.
                     runner();
-                });
+                }
+                else {
+                    // since no task has been found,
+                    // we'll exit the runner process
+                    running--;
+                }
             }
-            else {
-                // since no task has been found,
-                // we'll exit the runner process
-                running--;
-            }
-        }
+        });
     }
     runner();
     return (...args) => new Promise((resolve) => {

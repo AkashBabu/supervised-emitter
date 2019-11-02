@@ -18,8 +18,6 @@ const logger_1 = __importDefault(require("./logger"));
 const pattern_1 = require("./pattern");
 const threadRunner_1 = __importDefault(require("./threadRunner"));
 const utils_1 = require("./utils");
-exports.compose = utils_1.compose;
-exports.pipe = utils_1.pipe;
 /**
  * SupervisedEmitter is an event emitter library
  * which supports middlewares, event-tracing, glob subscriptions etc
@@ -139,29 +137,68 @@ class SupervisedEmitter {
         });
         this.logger.debug(`SUBSCRIBED => ${event}`);
         const self = this;
-        return {
-            /**
-             * Unsubscribes from this subscription
-             */
-            unsubscribe() {
-                self.unsubscribe(event, eventHandler);
-            },
-            /**
-             * This method allows chaining subscription to
-             * multiple events via the same subscription
-             */
-            subscribe(cEvent, ...cHandlers) {
-                const subscription = self.subscribe(cEvent, ...cHandlers);
-                const thisSubscription = this;
-                return {
-                    subscribe: subscription.subscribe,
-                    unsubscribe() {
-                        thisSubscription.unsubscribe();
+        return (() => {
+            function chainSubscription(method, cEvent, ...cHandlers) {
+                const subscription = self[method](cEvent, ...cHandlers);
+                const prevSubscription = this;
+                return Object.assign(Object.assign({}, subscription), { unsubscribe() {
+                        prevSubscription.unsubscribe();
                         subscription.unsubscribe();
-                    },
-                };
-            },
-        };
+                    } });
+            }
+            return {
+                /**
+                 * Unsubscribes from this subscription
+                 */
+                unsubscribe() {
+                    self.unsubscribe(event, eventHandler);
+                },
+                /**
+                 * This method allows chaining subscription to
+                 * multiple events via the same subscription
+                 */
+                subscribe(cEvent, ...cHandlers) {
+                    return chainSubscription.call(this, 'subscribe', cEvent, ...cHandlers);
+                },
+                /**
+                 * This method allows chaining subscription to
+                 * multiple events via the same subscription
+                 */
+                subscribeOnce(cEvent, ...cHandlers) {
+                    return chainSubscription.call(this, 'subscribeOnce', cEvent, ...cHandlers);
+                },
+            };
+        })();
+    }
+    /**
+     * Similar to [[subscribe]], but it listens only to
+     * the first event and unsubscribes itself thereafter.
+     *
+     * **Example**
+     *
+     * ```JS
+     * let calls = 0;
+     * const subscription = SE.subscribeOnce('foo/bar', () => calls++)
+     *
+     * await SE.publish('/foo/bar', 'test');
+     * await SE.publish('/foo/bar', 'test');
+     *
+     * console.log(calls) //=> 1
+     *
+     * subscription.unsubscribe();
+     * ```
+     *
+     * @param event Subscription event
+     * @param handlers List of handlers
+     *
+     * @returns Subscription for chaining more subscriptions or
+     *    for unsubscribing from all the subscriptions
+     */
+    subscribeOnce(event, ...handlers) {
+        const subscription = this.subscribe(event, ...handlers, () => {
+            subscription.unsubscribe();
+        });
+        return subscription;
     }
     /**
      * Publishes the given event to all the matching
