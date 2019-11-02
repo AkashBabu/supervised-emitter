@@ -1,5 +1,3 @@
-/* tslint:disable no-unused-expression */
-
 import { expect } from 'chai';
 import DLL, { DLLItem } from '../src/dll';
 
@@ -193,6 +191,25 @@ describe('#dll', () => {
 
       dll.shift();
       expect(dll.length).to.be.eql(1);
+    });
+  });
+
+  describe('.map()', () => {
+    it('should iterate through the entire chain and return an array of returned values from callback', () => {
+      const dll = new DLL();
+      new Array(10).fill(0).forEach((_, i) => {
+        dll.append({item: `item_${i}`});
+      });
+
+      const mapped = dll.map<string>(({item}, i) => {
+        expect(item).to.be.eql(`item_${i}`);
+
+        return item;
+      });
+
+      mapped.forEach((item, i) => {
+        expect(item).to.be.eql(`item_${i}`);
+      });
     });
   });
 });

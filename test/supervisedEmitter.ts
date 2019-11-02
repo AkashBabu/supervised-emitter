@@ -3,10 +3,9 @@
 import { expect } from 'chai';
 import delay from 'delay';
 
-import SE, { IContext } from '../src';
+import SupervisedEmitter, { IContext } from '../src/supervisedEmitter';
 
 describe('#supervised-emitter (SE)', () => {
-  beforeEach(() => SE.reset());
 
   it(`should include the following in the context(ctx) to the pipelines:
       - data
@@ -30,21 +29,23 @@ describe('#supervised-emitter (SE)', () => {
       return data;
     }
 
-    SE.initialize([testCtx]);
+    const SE = new SupervisedEmitter([testCtx]);
 
     SE
       .subscribe('/hello/se/world', testCtx)
       .subscribe('/hello/*/world', testCtx);
 
-    SE.publish('/hello/se/world', 'test');
+    await SE.publish('/hello/se/world', 'test');
 
     await delay(10);
 
     expect(calls).to.be.eql(3);
   });
 
-  it('should support publish and subscribe even w/o initialization', async () => {
+  it('should support publish and subscribe even w/o any middlewares', async () => {
     let calls = 0;
+    const SE = new SupervisedEmitter();
+
     SE.subscribe('foo/bar', () => calls++);
 
     await SE.publish('/foo/bar/', 'hello');
@@ -54,6 +55,8 @@ describe('#supervised-emitter (SE)', () => {
 
   it('should ignore leading and trailing seperators (/)', async () => {
     let calls = 0;
+    const SE = new SupervisedEmitter();
+
     SE.subscribe('foo/bar', () => calls++);
 
     await SE.publish('/foo/bar/', 'hello');
@@ -63,6 +66,8 @@ describe('#supervised-emitter (SE)', () => {
 
   it('must not consider empty parts in the event', async () => {
     let calls = 0;
+    const SE = new SupervisedEmitter();
+
     SE.subscribe('foo//bar', () => calls++);
 
     await SE.publish('/foo/bar/', 'hello');
@@ -70,97 +75,43 @@ describe('#supervised-emitter (SE)', () => {
     expect(calls).to.be.eql(1);
   });
 
-  describe('.initialize()', () => {
-    it('should be a singleton', () => {
-      SE.initialize();
+  it('should pass any modifications to the context in the middlewares to all the subscription pipelines', async () => {
+    let calls = 0;
 
-      expect(() => SE.initialize()).to.throw('Can\'t initialize singleton => "SupervisedEmitter", more than once');
+    function newMethod() {}
+
+    const SE = new SupervisedEmitter([
+      (ctx) => {
+        ctx.newMethod = newMethod;
+        ctx.newProperty = 'helloworld';
+
+        return ctx.data;
+      },
+    ]);
+
+    SE.subscribe('foo/bar', (ctx) => {
+      calls++;
+
+      expect(ctx.newMethod).to.be.eql(newMethod);
+      expect(ctx.newProperty).to.be.eql('helloworld');
     });
 
-    it('should support w/o async middlewares', async () => {
-      let calls = 0;
+    SE.subscribe('foo/*', (ctx) => {
+      calls++;
 
-      SE.initialize([
-        async ({ data, pubEvent }) => {
-          calls++;
-          expect(pubEvent).to.be.eql('foo/bar');
-
-          await delay(10);
-          return data + 10;
-        },
-        async ({ data, pubEvent }) => {
-          calls++;
-          expect(pubEvent).to.be.eql('foo/bar');
-          expect(data).to.be.eql(10);
-
-          await delay(10);
-          return data + 5;
-        },
-        ({ data, pubEvent }) => {
-          calls++;
-          expect(pubEvent).to.be.eql('foo/bar');
-          expect(data).to.be.eql(15);
-
-          return data + 100;
-        },
-      ]);
-
-      SE.subscribe('/foo/bar', ({ data }) => {
-        calls++;
-        expect(data).to.be.eql(115);
-      });
-
-      SE.publish('/foo/bar', 0);
-
-      await delay(50);
-      expect(calls).to.be.eql(4);
+      expect(ctx.newMethod).to.be.eql(newMethod);
+      expect(ctx.newProperty).to.be.eql('helloworld');
     });
 
-    it('should allow middlewares to stop / block the flow of events in the system', async () => {
-      let calls = 0;
+    await SE.publish('foo/bar', 'test');
 
-      SE.initialize([
-        async ({ data, pubEvent }) => {
-          calls++;
-          expect(data).to.be.eql(0);
-          expect(pubEvent).to.be.eql('test');
-
-          await delay(10);
-          return 1;
-        },
-        async ({ data, pubEvent, end }) => {
-          calls++;
-          expect(pubEvent).to.be.eql('test');
-          expect(data).to.be.eql(1);
-
-          await delay(10);
-          return (end as Function)(2);
-        },
-        ({ data, pubEvent }) => {
-          calls++;
-          expect(pubEvent).to.be.eql('test');
-          expect(data).to.be.eql(2);
-
-          return 3;
-        },
-      ]);
-
-      SE.subscribe('test', ({ data }) => {
-        calls++;
-        expect(data).to.be.eql(2);
-      });
-
-      SE.publish('test', 0);
-
-      await delay(50);
-
-      expect(calls).to.be.eql(3);
-    });
+    expect(calls).to.be.eql(2);
   });
 
   describe('.subscribe()', () => {
     it('should be able to subscribe to events / topics', done => {
       const test = 'testing';
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('foo/', ({ data }) => {
         expect(data).to.be.eql(test);
@@ -172,6 +123,7 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should pipe handlers when more than one handler is present', done => {
       const test = 0;
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('/foo/bar', ({ data }) => {
         expect(data).to.be.eql(test);
@@ -188,6 +140,8 @@ describe('#supervised-emitter (SE)', () => {
       const test = 'testing';
 
       let calls = 0;
+      const SE = new SupervisedEmitter();
+
       let subscription = SE.subscribe('foo/**', ({ data }) => {
         calls++;
         expect(data).to.be.eql(test);
@@ -213,6 +167,8 @@ describe('#supervised-emitter (SE)', () => {
       const orderOfExecution: number[] = [];
 
       const test = 0;
+      const SE = new SupervisedEmitter();
+
       SE.subscribe('/foo/bar', async ({ data }) => {
         orderOfExecution.push(0);
 
@@ -245,6 +201,8 @@ describe('#supervised-emitter (SE)', () => {
 
       let calls = 0;
       let processing = 0;
+      const SE = new SupervisedEmitter();
+
       SE.subscribe('/foo/bar', async ctx => {
         calls++;
         expect(processing).to.be.eql(0);
@@ -285,6 +243,7 @@ describe('#supervised-emitter (SE)', () => {
       const test = 'testing';
 
       let calls = 0;
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('/foo/bar', ctx => {
         calls++;
@@ -308,6 +267,8 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should allow chaining multiple subscriptions and return an unsubscribe object that unsubsribes from all the chained subscriptions', async () => {
       let calls = 0;
+      const SE = new SupervisedEmitter();
+
       const subscription = SE.subscribe('/another/world', ({ data }) => {
         calls++;
         expect(data).to.be.eql('ping');
@@ -340,6 +301,7 @@ describe('#supervised-emitter (SE)', () => {
     it('should allow any handler to stop the flow of data in the pipeline', async () => {
       let calls = 0;
       let completed = false;
+      const SE = new SupervisedEmitter();
 
       SE
         .subscribe('/hello/world',
@@ -383,6 +345,7 @@ describe('#supervised-emitter (SE)', () => {
       const test = 'testing';
 
       let receivedDataCount = 0;
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('foo/bar', ({ data }) => {
         receivedDataCount++;
@@ -407,6 +370,8 @@ describe('#supervised-emitter (SE)', () => {
       const test = 'testing';
 
       let processing = 0;
+      const SE = new SupervisedEmitter();
+
       SE.subscribe('test1', async ({ data }) => {
         processing++;
         await delay(50);
@@ -438,6 +403,8 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should publish events to normal event subscribers after a publish event has already occured', async () => {
       let calls = 0;
+      const SE = new SupervisedEmitter();
+
       SE.subscribe('/hello/*/world', ({ data }) => {
         calls++;
         expect(data).to.be.eql('test');
@@ -463,6 +430,7 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should publish events to pattern event after a publish event has already occured', async () => {
       let calls = 0;
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('/hello/se/world', () => {
         calls++;
@@ -489,8 +457,7 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should be possible to await on publish events', async () => {
       let calls = 0;
-
-      SE.initialize([
+      const SE = new SupervisedEmitter([
         async ({ data }) => {
           await delay(10);
           calls++;
@@ -529,6 +496,7 @@ describe('#supervised-emitter (SE)', () => {
 
     it('should gracefully handle errors in publish pipeline', async () => {
       let calls = 0;
+      const SE = new SupervisedEmitter();
 
       SE.subscribe('foo/bar',
         ({ data }) => {
@@ -553,7 +521,7 @@ describe('#supervised-emitter (SE)', () => {
       await SE.publish('foo/bar', 'test');
 
       expect(calls).to.be.eql(4);
-    })
+    });
   });
 
   describe('.unsubscribe()', () => {
@@ -561,6 +529,7 @@ describe('#supervised-emitter (SE)', () => {
       const test = 'testing';
 
       let calls = 0;
+      const SE = new SupervisedEmitter();
 
       const subscription = SE.subscribe('foo/bar', ({ data }) => {
         calls++;
@@ -578,7 +547,9 @@ describe('#supervised-emitter (SE)', () => {
     });
 
     it('should allow subscription to be unsubscribed multiple times', async () => {
-      const subscription = SE.subscribe('/hello/se/world', () => { });
+      const SE = new SupervisedEmitter();
+
+      const subscription = SE.subscribe('/hello/se/world', () => {});
 
       subscription.unsubscribe();
       expect(() => subscription.unsubscribe()).to.not.throw;
@@ -588,6 +559,8 @@ describe('#supervised-emitter (SE)', () => {
   describe('.scope()', () => {
     it('should be able to emit scoped events', async () => {
       let calls = 0;
+      const SE = new SupervisedEmitter();
+
       SE.subscribe('/hello/world', () => {
         expect(false).to.be.true;
       });
@@ -609,6 +582,8 @@ describe('#supervised-emitter (SE)', () => {
 
   describe('.unScope()', () => {
     it('should match the topic when unscoped', () => {
+      const SE = new SupervisedEmitter();
+
       const scope = SE.getScope();
 
       const topic = '/hello/world';

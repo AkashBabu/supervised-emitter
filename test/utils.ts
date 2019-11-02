@@ -1,9 +1,14 @@
-/* tslint:disable no-unused-expression */
-
 import 'mocha';
 import { expect } from 'chai';
 import delay from 'delay';
 import { pipe, compose } from '../src/utils';
+import { IEnd } from '../src/supervisedEmitter';
+
+const getCtx = () => ({
+  data: null,
+  pubEvent: 'foo/bar',
+  subEvents: ['foo/bar'],
+});
 
 describe('#utils', () => {
   describe('compose()', () => {
@@ -18,7 +23,7 @@ describe('#utils', () => {
       }, () => {
         expect(processedId).to.be.eql(0);
         processedId = 1;
-      })({ data: null });
+      })(getCtx());
     });
 
     it('should compose all async handlers', async () => {
@@ -40,7 +45,7 @@ describe('#utils', () => {
           processedId = 1;
           res();
         }, 10));
-      })({ data: null });
+      })(getCtx());
     });
   });
 
@@ -56,7 +61,7 @@ describe('#utils', () => {
         processedId = 2;
       }, () => {
         expect(processedId).to.be.eql(2);
-      })({ data: null });
+      })(getCtx());
     });
 
     it('should pipe all async handlers', () => {
@@ -78,7 +83,7 @@ describe('#utils', () => {
         }, 10));
       }, () => {
         expect(processedId).to.be.eql(2);
-      })({ data: null });
+      })(getCtx());
     });
 
     it('should pass on the results returned by intermediate handler to next handler', () => {
@@ -92,7 +97,7 @@ describe('#utils', () => {
         return 2;
       }, ({ data }) => {
         expect(data).to.be.eql(2);
-      })({ data: null });
+      })(getCtx());
     });
 
     it('should pass the second or the further args as is without any modifications to all the handlers', () => {
@@ -112,7 +117,7 @@ describe('#utils', () => {
       }, ({ data }, ev) => {
         expect(ev).to.be.eql('test');
         expect(data).to.be.eql(2);
-      })({ data: null }, 'test');
+      })(getCtx(), 'test');
     });
 
     it('should be able to stop the pipeline flow when "end()" is called', async () => {
@@ -121,10 +126,10 @@ describe('#utils', () => {
         calls++;
       }, ({ end }) => {
         calls++;
-        return (end as Function)('test');
+        return (end as IEnd)('test');
       }, () => {
         calls++;
-      })({ data: null });
+      })(getCtx());
 
       expect(calls).to.be.eql(2);
       expect(data).to.be.eql('test');
