@@ -1,3 +1,4 @@
+declare type IIteratorCb<T> = (data: any, i: number) => T;
 export declare class DLLItem {
     prev: DLLItem | null;
     next: DLLItem | null;
@@ -35,7 +36,8 @@ export default class DLL {
      *
      * @param cb
      */
-    forEach(cb: (data: any, i: number) => void): void;
+    forEach<T>(cb: IIteratorCb<T>): void;
+    map<T>(cb: IIteratorCb<T>): T[];
     /**
      * Adds the given item the tail of DLL
      *
@@ -55,3 +57,4 @@ export default class DLL {
      */
     remove(dllItem?: DLLItem): boolean;
 }
+export {};

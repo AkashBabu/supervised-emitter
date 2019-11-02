@@ -5,9 +5,3 @@
 export declare class InvalidPatternError extends Error {
     constructor();
 }
-/**
- * Thrown if SupervisedEmitter is initialized more than once
- */
-export declare class SingletonError extends Error {
-    constructor();
-}
