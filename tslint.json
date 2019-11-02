@@ -22,7 +22,8 @@
             true,
             6
         ],
-        "no-bitwise": false
+        "no-bitwise": false,
+        "no-unused-expression": false
     },
     "rulesDirectory": []
 }
