@@ -30,23 +30,26 @@ export default function ThreadRunner(worker: (...args: any[]) => any, { maxRunne
    * in parallel and to maintain only the
    * limited number of concurrent threads
    */
-  function runner() {
+  async function runner() {
     if (running < maxRunners) {
       running++;
 
       const task = tasks.shift();
       if (task) {
         const { args, resolve } = task;
-        worker(...args)
-          .then((d: any) => resolve([null, d]))
-          .catch((err: any) => resolve([err]))
-          .finally(() => {
-            running--;
 
-            // assuming a new task might be present,
-            // we're calling the runner again.
-            runner();
-          });
+        try {
+          const data = await worker(...args);
+          resolve([null, data]);
+        } catch (error) {
+          resolve([error]);
+        }
+
+        running--;
+
+        // assuming a new task might be present,
+        // we're calling the runner again.
+        runner();
       } else {
         // since no task has been found,
         // we'll exit the runner process
