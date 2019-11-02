@@ -45,16 +45,13 @@ interface IOptions {
   publishConcurrency?: number;
 }
 
-/** `.subscribe()` & `.subscribeOnce()` method signature. */
-type ISubscribe = (event: string, ...handlers: IHandler[]) => ISubscription;
-
 /** SupervisedEmitter's interface */
 interface ISupervisedEmitter {
   /** Subscribes to an event */
-  subscribe: ISubscribe;
+  subscribe(event: string, ...handlers: IHandler[]): ISubscription;
 
   /** Subscribes to an event only once */
-  subscribeOnce: ISubscribe;
+  subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
 
   /** Publishes data on the given pubEvent */
   publish(pubEvent: string, data: any): Promise<any>;
