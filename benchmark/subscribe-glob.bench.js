@@ -1,18 +1,17 @@
 const SupervisedEmitter = require('../').default;
-const SE = new SupervisedEmitter();
 
 const N = 10000;
 bench([
   function gsub_same_topic() {
-    SE.reset();
-
+    const SE = new SupervisedEmitter();
+    
     for (let i = 0; i < N / 2; i++) {
       SE.subscribe('/hello/world/*/big', () => { });
       SE.subscribe('/hello/world/**/big', () => { });
     }
   },
   function gsub_different_topics() {
-    SE.reset();
+    const SE = new SupervisedEmitter();
 
     for (let i = 0; i < N; i++) {
       SE.subscribe(`/hello/world/${i}/*/times`, () => { });

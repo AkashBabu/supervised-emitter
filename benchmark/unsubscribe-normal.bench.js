@@ -4,7 +4,7 @@ const SE = new SupervisedEmitter();
 const N = 10000;
 bench([
   function unsub_same_topic() {
-    SE.reset();
+    const SE = new SupervisedEmitter();
 
     const subscriptions = [];
     for (let i = 0; i < N; i++) {
@@ -15,7 +15,7 @@ bench([
   },
 
   function unsub_different_topics() {
-    SE.reset();
+    const SE = new SupervisedEmitter();
 
     const subscriptions = [];
     for (let i = 0; i < N; i++) {
@@ -26,7 +26,7 @@ bench([
   },
 
   function chained_unsub_same_topic() {
-    SE.reset();
+    const SE = new SupervisedEmitter();
 
     let subscription = SE.subscribe('/hello/world/', () => { });
     for (let i = 0; i < N; i++) {
@@ -37,7 +37,7 @@ bench([
   },
 
   function chained_unsub_different_topics() {
-    SE.reset();
+    const SE = new SupervisedEmitter();
 
     let subscription = SE.subscribe('/hello/world/0', () => { });
     for (let i = 1; i < N / 2; i++) {
