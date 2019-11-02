@@ -27,6 +27,7 @@ State management (React, Vue etc)
 * [getScope](supervisedemitter.md#getscope)
 * [publish](supervisedemitter.md#publish)
 * [subscribe](supervisedemitter.md#subscribe)
+* [subscribeOnce](supervisedemitter.md#subscribeonce)
 * [unScope](supervisedemitter.md#unscope)
 
 ## Constructors
@@ -190,6 +191,43 @@ const subscription = SE.subscribe('foo/bar',
 );
 
 await SE.publish('/foo/bar', 1);
+
+subscription.unsubscribe();
+```
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`event` | string | Subscription event |
+`...handlers` | [IHandler](../README.md#ihandler)[] | List of handlers  |
+
+**Returns:** *[ISubscription](../interfaces/isubscription.md)*
+
+Subscription for chaining more subscriptions or
+   for unsubscribing from all the subscriptions
+
+___
+
+###  subscribeOnce
+
+▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](../interfaces/isubscription.md)*
+
+*Implementation of [ISupervisedEmitter](../interfaces/isupervisedemitter.md)*
+
+Similar to [subscribe](supervisedemitter.md#subscribe), but it listens only to
+the first event and unsubscribes itself thereafter.
+
+**Example**
+
+```JS
+let calls = 0;
+const subscription = SE.subscribeOnce('foo/bar', () => calls++)
+
+await SE.publish('/foo/bar', 'test');
+await SE.publish('/foo/bar', 'test');
+
+console.log(calls) //=> 1
 
 subscription.unsubscribe();
 ```
