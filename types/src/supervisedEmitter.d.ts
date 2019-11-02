@@ -28,14 +28,12 @@ interface IOptions {
     lfu?: object;
     publishConcurrency?: number;
 }
-/** `.subscribe()` & `.subscribeOnce()` method signature. */
-declare type ISubscribe = (event: string, ...handlers: IHandler[]) => ISubscription;
 /** SupervisedEmitter's interface */
 interface ISupervisedEmitter {
     /** Subscribes to an event */
-    subscribe: ISubscribe;
+    subscribe(event: string, ...handlers: IHandler[]): ISubscription;
     /** Subscribes to an event only once */
-    subscribeOnce: ISubscribe;
+    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
     /** Publishes data on the given pubEvent */
     publish(pubEvent: string, data: any): Promise<any>;
     /** Returns a Closure function that adds scope to an event */
