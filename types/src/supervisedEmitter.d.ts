@@ -1,4 +1,3 @@
-import { compose, pipe } from './utils';
 export declare type IHandler = (ctx: IContext, ...args: any[]) => any;
 /**
  * Context object that will be passed as the seconds argument
@@ -29,11 +28,19 @@ interface IOptions {
     lfu?: object;
     publishConcurrency?: number;
 }
+/** `.subscribe()` & `.subscribeOnce()` method signature. */
+declare type ISubscribe = (event: string, ...handlers: IHandler[]) => ISubscription;
 /** SupervisedEmitter's interface */
 interface ISupervisedEmitter {
+    /** Subscribes to an event */
+    subscribe: ISubscribe;
+    /** Subscribes to an event only once */
+    subscribeOnce: ISubscribe;
+    /** Publishes data on the given pubEvent */
     publish(pubEvent: string, data: any): Promise<any>;
-    subscribe(event: string, ...handlers: IHandler[]): ISubscription;
+    /** Returns a Closure function that adds scope to an event */
     getScope(): IGetScope;
+    /** This strip the scope part in the given event */
     unScope(event: string): string;
 }
 /**
@@ -44,6 +51,7 @@ interface ISupervisedEmitter {
 interface ISubscription {
     unsubscribe(): void;
     subscribe(event: string, ...handlers: IHandler[]): ISubscription;
+    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
 }
 /**
  * Closure function that can add scope
@@ -132,6 +140,31 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      *    for unsubscribing from all the subscriptions
      */
     subscribe(event: string, ...handlers: IHandler[]): ISubscription;
+    /**
+     * Similar to [[subscribe]], but it listens only to
+     * the first event and unsubscribes itself thereafter.
+     *
+     * **Example**
+     *
+     * ```JS
+     * let calls = 0;
+     * const subscription = SE.subscribeOnce('foo/bar', () => calls++)
+     *
+     * await SE.publish('/foo/bar', 'test');
+     * await SE.publish('/foo/bar', 'test');
+     *
+     * console.log(calls) //=> 1
+     *
+     * subscription.unsubscribe();
+     * ```
+     *
+     * @param event Subscription event
+     * @param handlers List of handlers
+     *
+     * @returns Subscription for chaining more subscriptions or
+     *    for unsubscribing from all the subscriptions
+     */
+    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
     /**
      * Publishes the given event to all the matching
      * subscribers.
@@ -276,4 +309,4 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      */
     private publisher;
 }
-export { pipe, compose, };
+export {};
