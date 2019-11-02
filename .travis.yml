@@ -13,8 +13,10 @@ install:
   - npm i
 
 script:
-  - npm build
-  - npm test
+  - npm run lint
+  - npm run test
+  - npm run load
+  - npm run build
   - npm run coveralls
 
 notifications:
