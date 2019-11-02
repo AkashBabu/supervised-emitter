@@ -2,7 +2,7 @@ version: "2"
 exclude_patterns:
   - "test/**/*"
   - "benchmark/**/*"
-  - "built/**/*"
+  - "build/**/*"
   - "load/**/*"
   - "types/**/*"
   - "example/**/*"
