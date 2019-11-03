@@ -60,7 +60,7 @@ function getHandlers() {
 }
 
 describe('#load-test', function() {
-  this.timeout(150 * 1000);
+  this.timeout(300 * 1000);
 
   beforeEach(() => {
     resetCount();
