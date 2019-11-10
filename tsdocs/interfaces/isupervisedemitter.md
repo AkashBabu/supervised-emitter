@@ -1,20 +1,22 @@
-[Supervised-Emitter](../README.md) › [ISupervisedEmitter](isupervisedemitter.md)
+# isupervisedemitter
 
-# Interface: ISupervisedEmitter
+[Supervised-Emitter](../) › [ISupervisedEmitter](isupervisedemitter.md)
+
+## Interface: ISupervisedEmitter
 
 SupervisedEmitter's interface
 
-## Hierarchy
+### Hierarchy
 
 * **ISupervisedEmitter**
 
-## Implemented by
+### Implemented by
 
 * [SupervisedEmitter](../classes/supervisedemitter.md)
 
-## Index
+### Index
 
-### Methods
+#### Methods
 
 * [getScope](isupervisedemitter.md#getscope)
 * [publish](isupervisedemitter.md#publish)
@@ -22,79 +24,72 @@ SupervisedEmitter's interface
 * [subscribeOnce](isupervisedemitter.md#subscribeonce)
 * [unScope](isupervisedemitter.md#unscope)
 
-## Methods
+### Methods
 
-###  getScope
+#### getScope
 
-▸ **getScope**(): *[IGetScope](../README.md#igetscope)*
+▸ **getScope**\(\): [_IGetScope_](../#igetscope)
 
 Returns a Closure function that adds scope to an event
 
-**Returns:** *[IGetScope](../README.md#igetscope)*
+**Returns:** [_IGetScope_](../#igetscope)
 
-___
+#### publish
 
-###  publish
-
-▸ **publish**(`pubEvent`: string, `data`: any): *Promise‹any›*
+▸ **publish**\(`pubEvent`: string, `data`: any\): _Promise‹any›_
 
 Publishes data on the given pubEvent
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`pubEvent` | string |
-`data` | any |
+| Name | Type |
+| :--- | :--- |
+| `pubEvent` | string |
+| `data` | any |
 
-**Returns:** *Promise‹any›*
+**Returns:** _Promise‹any›_
 
-___
+#### subscribe
 
-###  subscribe
-
-▸ **subscribe**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
+▸ **subscribe**\(`event`: string, ...`handlers`: [IHandler](../#ihandler)\[\]\): [_ISubscription_](isubscription.md)
 
 Subscribes to an event
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`event` | string |
-`...handlers` | [IHandler](../README.md#ihandler)[] |
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
+| `...handlers` | [IHandler](../#ihandler)\[\] |
 
-**Returns:** *[ISubscription](isubscription.md)*
+**Returns:** [_ISubscription_](isubscription.md)
 
-___
+#### subscribeOnce
 
-###  subscribeOnce
-
-▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
+▸ **subscribeOnce**\(`event`: string, ...`handlers`: [IHandler](../#ihandler)\[\]\): [_ISubscription_](isubscription.md)
 
 Subscribes to an event only once
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`event` | string |
-`...handlers` | [IHandler](../README.md#ihandler)[] |
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
+| `...handlers` | [IHandler](../#ihandler)\[\] |
 
-**Returns:** *[ISubscription](isubscription.md)*
+**Returns:** [_ISubscription_](isubscription.md)
 
-___
+#### unScope
 
-###  unScope
-
-▸ **unScope**(`event`: string): *string*
+▸ **unScope**\(`event`: string\): _string_
 
 This strip the scope part in the given event
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`event` | string |
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
 
-**Returns:** *string*
+**Returns:** _string_
+

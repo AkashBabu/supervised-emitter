@@ -1,58 +1,53 @@
-[Supervised-Emitter](../README.md) › [IContext](icontext.md)
+# icontext
 
-# Interface: IContext
+[Supervised-Emitter](../) › [IContext](icontext.md)
 
-Context object that will be passed as the seconds argument
-to subscribers and first argument to middlewares
+## Interface: IContext
 
-## Hierarchy
+Context object that will be passed as the seconds argument to subscribers and first argument to middlewares
+
+### Hierarchy
 
 * **IContext**
 
-## Indexable
+### Indexable
 
-* \[ **newProp**: *string*\]: any
+* \[ **newProp**: _string_\]: any
 
-Any other properties that the middleware desires
-to add to context
+Any other properties that the middleware desires to add to context
 
-## Index
+### Index
 
-### Properties
+#### Properties
 
 * [data](icontext.md#data)
 * [end](icontext.md#optional-end)
 * [pubEvent](icontext.md#pubevent)
 * [subEvents](icontext.md#subevents)
 
-## Properties
+### Properties
 
-###  data
+#### data
 
-• **data**: *any*
+• **data**: _any_
 
 Published data
 
-___
+#### `Optional` end
 
-### `Optional` end
-
-• **end**? : *[IEnd](../README.md#iend)*
+• **end**? : [_IEnd_](../#iend)
 
 Function to stop the pipeline
 
-___
+#### pubEvent
 
-###  pubEvent
-
-• **pubEvent**: *string*
+• **pubEvent**: _string_
 
 Published event
 
-___
+#### subEvents
 
-###  subEvents
-
-• **subEvents**: *string[]*
+• **subEvents**: _string\[\]_
 
 Matching subscribed events
+

@@ -1,57 +1,54 @@
-[Supervised-Emitter](../README.md) › [ISubscription](isubscription.md)
+# isubscription
 
-# Interface: ISubscription
+[Supervised-Emitter](../) › [ISubscription](isubscription.md)
 
-`.subscribe()` method's interface.
-It's interesting to note that this indicates
-a possibility of chaining multiple subscriptions.
+## Interface: ISubscription
 
-## Hierarchy
+`.subscribe()` method's interface. It's interesting to note that this indicates a possibility of chaining multiple subscriptions.
+
+### Hierarchy
 
 * **ISubscription**
 
-## Index
+### Index
 
-### Methods
+#### Methods
 
 * [subscribe](isubscription.md#subscribe)
 * [subscribeOnce](isubscription.md#subscribeonce)
 * [unsubscribe](isubscription.md#unsubscribe)
 
-## Methods
+### Methods
 
-###  subscribe
+#### subscribe
 
-▸ **subscribe**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`event` | string |
-`...handlers` | [IHandler](../README.md#ihandler)[] |
-
-**Returns:** *[ISubscription](isubscription.md)*
-
-___
-
-###  subscribeOnce
-
-▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
+▸ **subscribe**\(`event`: string, ...`handlers`: [IHandler](../#ihandler)\[\]\): [_ISubscription_](isubscription.md)
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`event` | string |
-`...handlers` | [IHandler](../README.md#ihandler)[] |
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
+| `...handlers` | [IHandler](../#ihandler)\[\] |
 
-**Returns:** *[ISubscription](isubscription.md)*
+**Returns:** [_ISubscription_](isubscription.md)
 
-___
+#### subscribeOnce
 
-###  unsubscribe
+▸ **subscribeOnce**\(`event`: string, ...`handlers`: [IHandler](../#ihandler)\[\]\): [_ISubscription_](isubscription.md)
 
-▸ **unsubscribe**(): *void*
+**Parameters:**
 
-**Returns:** *void*
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
+| `...handlers` | [IHandler](../#ihandler)\[\] |
+
+**Returns:** [_ISubscription_](isubscription.md)
+
+#### unsubscribe
+
+▸ **unsubscribe**\(\): _void_
+
+**Returns:** _void_
+

@@ -1,35 +1,34 @@
-[Supervised-Emitter](../README.md) › [IOptions](ioptions.md)
+# ioptions
 
-# Interface: IOptions
+[Supervised-Emitter](../) › [IOptions](ioptions.md)
+
+## Interface: IOptions
 
 Options to be passed to the constructor
 
-## Hierarchy
+### Hierarchy
 
 * **IOptions**
 
-## Index
+### Index
 
-### Properties
+#### Properties
 
 * [debug](ioptions.md#optional-debug)
 * [lfu](ioptions.md#optional-lfu)
 * [publishConcurrency](ioptions.md#optional-publishconcurrency)
 
-## Properties
+### Properties
 
-### `Optional` debug
+#### `Optional` debug
 
-• **debug**? : *undefined | false | true*
+• **debug**? : _undefined \| false \| true_
 
-___
+#### `Optional` lfu
 
-### `Optional` lfu
+• **lfu**? : _undefined \| object_
 
-• **lfu**? : *undefined | object*
+#### `Optional` publishConcurrency
 
-___
+• **publishConcurrency**? : _undefined \| number_
 
-### `Optional` publishConcurrency
-
-• **publishConcurrency**? : *undefined | number*

@@ -1,97 +1,93 @@
-[Supervised-Emitter](README.md)
+# API Docs
 
-# Supervised-Emitter
+[Supervised-Emitter](./)
 
-## Index
+## Supervised-Emitter
 
-### Classes
+### Index
+
+#### Classes
 
 * [SupervisedEmitter](classes/supervisedemitter.md)
 
-### Interfaces
+#### Interfaces
 
 * [IContext](interfaces/icontext.md)
 * [IOptions](interfaces/ioptions.md)
 * [ISubscription](interfaces/isubscription.md)
 * [ISupervisedEmitter](interfaces/isupervisedemitter.md)
 
+#### Type aliases
+
+* [IEnd](./#iend)
+* [IGetScope](./#igetscope)
+* [IHandler](./#ihandler)
+* [IMiddleware](./#imiddleware)
+
 ### Type aliases
 
-* [IEnd](README.md#iend)
-* [IGetScope](README.md#igetscope)
-* [IHandler](README.md#ihandler)
-* [IMiddleware](README.md#imiddleware)
+#### IEnd
 
-## Type aliases
-
-###  IEnd
-
-Ƭ **IEnd**: *function*
+Ƭ **IEnd**: _function_
 
 Function signature of `end` property in [IContext](interfaces/icontext.md)
 
-#### Type declaration:
+**Type declaration:**
 
-▸ (`data`: any): *any*
+▸ \(`data`: any\): _any_
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`data` | any |
+| Name | Type |
+| :--- | :--- |
+| `data` | any |
 
-___
+#### IGetScope
 
-###  IGetScope
+Ƭ **IGetScope**: _function_
 
-Ƭ **IGetScope**: *function*
-
-Closure function that can add scope
-to the provide event
+Closure function that can add scope to the provide event
 
 **`param`** Event
 
-#### Type declaration:
+**Type declaration:**
 
-▸ (`event`: string): *string*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`event` | string |
-
-___
-
-###  IHandler
-
-Ƭ **IHandler**: *function*
-
-#### Type declaration:
-
-▸ (`ctx`: [IContext](interfaces/icontext.md), ...`args`: any[]): *any*
+▸ \(`event`: string\): _string_
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`ctx` | [IContext](interfaces/icontext.md) |
-`...args` | any[] |
+| Name | Type |
+| :--- | :--- |
+| `event` | string |
 
-___
+#### IHandler
 
-###  IMiddleware
+Ƭ **IHandler**: _function_
 
-Ƭ **IMiddleware**: *function*
+**Type declaration:**
+
+▸ \(`ctx`: [IContext](interfaces/icontext.md), ...`args`: any\[\]\): _any_
+
+**Parameters:**
+
+| Name | Type |
+| :--- | :--- |
+| `ctx` | [IContext](interfaces/icontext.md) |
+| `...args` | any\[\] |
+
+#### IMiddleware
+
+Ƭ **IMiddleware**: _function_
 
 Function signature of middlewares
 
-#### Type declaration:
+**Type declaration:**
 
-▸ (`ctx`: [IContext](interfaces/icontext.md)): *void*
+▸ \(`ctx`: [IContext](interfaces/icontext.md)\): _void_
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`ctx` | [IContext](interfaces/icontext.md) |
+| Name | Type |
+| :--- | :--- |
+| `ctx` | [IContext](interfaces/icontext.md) |
+
