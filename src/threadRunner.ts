@@ -1,15 +1,28 @@
+/**
+ * @hidden
+ * Thread runner options
+ */
 interface IOptions {
   maxRunners?: number;
 }
 
+/**
+ * @hidden
+ * New task interface
+ */
 interface ITask {
   args: any[];
   resolve([err, data]: any[]): void;
 }
 
+/**
+ * @hidden
+ */
 export type IRunTask = (...args: any[]) => Promise<any>;
 
 /**
+ * @hidden
+ * 
  * Thread Runner runs only the
  * controlled number of threads at any given
  * instance of time.

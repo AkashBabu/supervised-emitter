@@ -1,21 +1,41 @@
-import { IHandler, IContext } from './supervisedEmitter';
+import { IHandler, IContext } from './interfaces';
 
 /**
- * Composes the list of functions passed.
+ * Returns all the keys in the Map
  *
- * @param  handlers List of handlers
+ * @param map Map
  *
- * @returns function(x) : y
+ * @returns List of keys in the given map
  */
-function compose(...handlers: IHandler[]) {
-  return composer('reduceRight', ...handlers);
+export function getKeys(map: Map<string, boolean>) {
+  const keys: string[] = [];
+
+  const keysIter = map.keys();
+  let key = keysIter.next();
+  while (!key.done) {
+    keys.push(key.value);
+    key = keysIter.next();
+  }
+
+  return keys;
 }
+
+// /**
+//  * Composes the list of functions passed.
+//  *
+//  * @param  handlers List of handlers
+//  *
+//  * @returns function(x) : y
+//  */
+// export function compose(...handlers: IHandler[]) {
+//   return composer('reduceRight', ...handlers);
+// }
 
 /**
  * Pipes the list of functions passed
  * @param  handlers List of handlers
  */
-function pipe(...handlers: IHandler[]) {
+export function pipe(...handlers: IHandler[]) {
   return composer('reduce', ...handlers);
 }
 
@@ -29,45 +49,28 @@ function pipe(...handlers: IHandler[]) {
  * @returns Composed function
  */
 function composer(method: 'reduce' | 'reduceRight', ...handlers: IHandler[]) {
-  return (ctx: IContext, ...args: any[]) => {
+  return (ctx: IContext, ...args: any[]): Promise<any> => {
     let hasEnded = false;
-    const end = (data: any) => {
-      hasEnded = true;
-      return data;
-    };
 
-    ctx.end = end;
-
-    return handlers[method](async (prev: Promise<any>, handler: IHandler) => {
-      ctx.data = await prev;
-
+    ctx.pipelinePromise = handlers[method](async (prev: Promise<any>, handler: IHandler) => {
       // If the pipeline has ended then
       // do not call further handlers
-      if (hasEnded) return ctx.data;
+      if (hasEnded) return;
+
+      const result = await prev;
+
+      // End the pipeline if any handler
+      // hasn't returned anything.
+      if (result === undefined) {
+        hasEnded = true;
+        return;
+      }
+
+      ctx.data = result;
 
       return handler(ctx, ...args);
     }, ctx.data);
+
+    return ctx.pipelinePromise;
   };
 }
-
-/**
- * Returns all the keys in the map
- *
- * @param map Map
- *
- * @returns List of keys in the given map
- */
-function getKeys(map: Map<string, boolean>) {
-  const keys: string[] = [];
-
-  const keysIter = map.keys();
-  let key = keysIter.next();
-  while (!key.done) {
-    keys.push(key.value);
-    key = keysIter.next();
-  }
-
-  return keys;
-}
-
-export { compose, pipe, getKeys };

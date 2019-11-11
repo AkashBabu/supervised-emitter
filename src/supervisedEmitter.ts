@@ -1,115 +1,24 @@
 import LFU from 'node-lfu-cache';
-
 import DLL, { DLLItem } from './dll';
 import Logger from './logger';
 import { doesPatternMatch, isPatternEvent, sanitizeEvent } from './pattern';
 import ThreadRunner, { IRunTask } from './threadRunner';
 import { getKeys, pipe } from './utils';
+import patternHandler from './patternHandler';
+import InternalEvents from './internalEvents';
 
-export type IHandler = (ctx: IContext, ...args: any[]) => any;
-
-/**
- * Context object that will be passed as the seconds argument
- * to subscribers and first argument to middlewares
- */
-export interface IContext {
-  /** Published data */
-  data: any;
-
-  /** Published event */
-  pubEvent: string;
-
-  /** Matching subscribed events */
-  subEvents: string[];
-
-  /** Function to stop the pipeline */
-  end?: IEnd;
-
-  /**
-   * Any other properties that the middleware desires
-   * to add to context
-   */
-  [newProp: string]: any;
-}
-
-/** Function signature of `end` property in [[IContext]] */
-export type IEnd = (data: any) => any;
-
-/** Function signature of middlewares */
-type IMiddleware = (ctx: IContext) => void;
-
-/** Options to be passed to the constructor */
-interface IOptions {
-  debug?: boolean;
-  lfu?: object;
-  publishConcurrency?: number;
-}
-
-/** SupervisedEmitter's interface */
-interface ISupervisedEmitter {
-  /** Subscribes to an event */
-  subscribe(event: string, ...handlers: IHandler[]): ISubscription;
-
-  /** Subscribes to an event only once */
-  subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
-
-  /** Publishes data on the given pubEvent */
-  publish(pubEvent: string, data: any): Promise<any>;
-
-  /** Returns a Closure function that adds scope to an event */
-  getScope(): IGetScope;
-
-  /** This strip the scope part in the given event */
-  unScope(event: string): string;
-}
-
-/**
- * `.subscribe()` method's interface.
- * It's interesting to note that this indicates
- * a possibility of chaining multiple subscriptions.
- */
-interface ISubscription {
-  unsubscribe(): void; // for unsubscribing from the event
-  subscribe(event: string, ...handlers: IHandler[]): ISubscription; // for chaining multiple subscriptions
-  subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription; // for chaining multiple subscriptions
-}
-
-/**
- * @hidden
- */
-interface IState {
-  debug: boolean;
-
-  // List of middlewares
-  middlewares: IMiddleware;
-
-  // map of event vs pipelines (DLL)
-  subscribers: Map<string, DLL>;
-
-  // list of pattern events
-  patternEvents: string[];
-
-  // cache for maintaining pubEvents vs matching subEvents
-  subEventsCache: any;
-
-  // use to generate a new scope part
-  scopeId: number;
-}
-
-/**
- * Closure function that can add scope
- * to the provide event
- *
- * @param event Event
- */
-type IGetScope = (event: string) => string;
+import {
+  ISupervisedEmitter, IState, IGetScope, IMiddleware,
+  IHandler, IContext, IOptions, ISubscription,
+} from './interfaces';
 
 /**
  * SupervisedEmitter is an event emitter library
  * which supports middlewares, event-tracing, glob subscriptions etc
  *
  * It's main applications can be found in
- * State management (React, Vue etc)
+ * State management, sagas, communication between
+ * component irrespective of whereever it is in the DOM tree
  */
 export default class SupervisedEmitter implements ISupervisedEmitter {
   private state: IState = this.getFreshState();
@@ -152,10 +61,12 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
       debug = false,
       lfu = { max: 100 },
       publishConcurrency = 100,
+      lifeCycleEvents = false,
     } = options || {};
 
     this.logger[debug ? 'enable' : 'disable']();
 
+    this.state.lifeCycleEvents = lifeCycleEvents;
     this.state.debug = debug;
     this.state.middlewares = middlewares
       ? pipe(...middlewares)
@@ -168,6 +79,8 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     );
 
     this.logger.debug('INITIALIZED');
+
+    this.state.lifeCycleEvents && this.publish(InternalEvents.ON_INIT, {});
   }
 
   /**
@@ -229,10 +142,8 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     }
 
     // We're using dll for maintaining a list
-    // of handlers for the ease of removing
-    // handlers during unsubscription without
-    // having to create a new array each time
-    // by means of splicing
+    // of handlers for the ease of splicing
+    // handlers during unsubscription
     const eventHandler = (this.state.subscribers.get(event) as DLL).append({
       // Compose all the subscribers passed at once.
       // Users can use this feature if needed, else
@@ -242,6 +153,10 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     });
 
     this.logger.debug(`SUBSCRIBED => ${event}`);
+
+    if (this.state.lifeCycleEvents && !InternalEvents[event]) {
+      this.publish(InternalEvents.ON_SUBSCRIBE, { subEvent: event });
+    }
 
     const self = this;
     return (() => {
@@ -311,9 +226,13 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    *    for unsubscribing from all the subscriptions
    */
   public subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription {
-    const subscription = this.subscribe(event, ...handlers, () => {
-      subscription.unsubscribe();
-    });
+    const subscription = this.subscribe(event, ({ pipelinePromise, data }) => {
+      (pipelinePromise as Promise<any>).then(subscription.unsubscribe).catch(subscription.unsubscribe);
+
+      return data;
+    }, ...handlers);
+
+    this.logger.debug(`SUBSCRIBED_ONCE => ${event}`);
 
     return subscription;
   }
@@ -378,7 +297,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * /// container.jsx
    * const [{scope}] = useState({scope: SE.getScope()});
    *
-   * SE.subscribe(scope('asdf/asdf/asdf'), ({data}) => {
+   * SE.subscribe(scope('btn/click'), ({data}) => {
    *   // ...
    * });
    *
@@ -386,7 +305,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    *
    *
    * /// In ChildComponent.jsx
-   * SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
+   * SE.publish(this.props.scope('btn/click'),  data)
    * ```
    *
    * @returns Function(Closure) that can add scope to events
@@ -422,6 +341,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    */
   private getFreshState(): IState {
     return {
+      lifeCycleEvents: false,
       debug: false,
       middlewares: ({ data }: IContext) => data,
       subscribers: new Map(), // map of event vs pipelines (DLL)
@@ -466,6 +386,10 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @param eventHandler Handler pipeline
    */
   private unsubscribe(subEvent: string, eventHandler: DLLItem) {
+    if (this.state.lifeCycleEvents &&  !InternalEvents[subEvent]) {
+      this.publish(InternalEvents.ON_UNSUBSCRIBE, { subEvent });
+    }
+
     const subscribers = this.state.subscribers.get(subEvent);
     // remove the handler from DLL
     if (subscribers) {
@@ -546,7 +470,16 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
       subEvents: subEventsArr,
     };
 
-    ctx.data = await this.state.middlewares(ctx);
+    const result = await this.state.middlewares(ctx);
+
+    // If the flow was stopped in the middlewares
+    // then end it w/o passing the data to any of
+    // the subscription pipelines
+    if (result === undefined) {
+      return;
+    }
+
+    ctx.data = result;
 
     return Promise.all(subEventsArr.map<Promise<any>>(async (subEvent: string) => {
       // Subscription pipelines
@@ -569,3 +502,8 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     }));
   }
 }
+
+export {
+  patternHandler,
+  InternalEvents,
+};

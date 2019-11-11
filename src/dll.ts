@@ -88,7 +88,7 @@ export default class DLL {
    * @returns {DLLItem} dllItem, the same
    *      can be used to remove this item from
    *      DLL
-   * 
+   *
    * @throws Invalid data exception
    */
   public append(data: any): DLLItem {
