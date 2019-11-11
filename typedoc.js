@@ -1,19 +1,21 @@
+const path = require('path')
 module.exports = {
   "name": "Supervised-Emitter",
   "mode": "file",
-  "out": "tsdocs",
+  "out": "apidocs",
   "excludePrivate": true,
   "excludeProtected": true,
-  "excludeExternals": true,
   "readme": "none",
-  "toc": [
-    "SupervisedEmitter",
-    "IMiddleware",
-    "IContext",
-    "IHandler",
-    "IEnd",
-    "IOptions",
-    "ISubscription",
-    "IGetScope"
+  "exclude": [
+    "./src/dll.ts",
+    "./src/pattern.ts",
+    "./src/internalEvents.ts",
+    "./src/errors.ts",
+    "./src/logger.ts",
+    "./src/threadRunner.ts",
+    "./src/utils.ts",
   ],
+  "src": [
+    "./src"
+  ]
 }
