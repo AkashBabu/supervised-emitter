@@ -1,69 +1,13 @@
-export declare type IHandler = (ctx: IContext, ...args: any[]) => any;
-/**
- * Context object that will be passed as the seconds argument
- * to subscribers and first argument to middlewares
- */
-export interface IContext {
-    /** Published data */
-    data: any;
-    /** Published event */
-    pubEvent: string;
-    /** Matching subscribed events */
-    subEvents: string[];
-    /** Function to stop the pipeline */
-    end?: IEnd;
-    /**
-     * Any other properties that the middleware desires
-     * to add to context
-     */
-    [newProp: string]: any;
-}
-/** Function signature of `end` property in [[IContext]] */
-export declare type IEnd = (data: any) => any;
-/** Function signature of middlewares */
-declare type IMiddleware = (ctx: IContext) => void;
-/** Options to be passed to the constructor */
-interface IOptions {
-    debug?: boolean;
-    lfu?: object;
-    publishConcurrency?: number;
-}
-/** SupervisedEmitter's interface */
-interface ISupervisedEmitter {
-    /** Subscribes to an event */
-    subscribe(event: string, ...handlers: IHandler[]): ISubscription;
-    /** Subscribes to an event only once */
-    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
-    /** Publishes data on the given pubEvent */
-    publish(pubEvent: string, data: any): Promise<any>;
-    /** Returns a Closure function that adds scope to an event */
-    getScope(): IGetScope;
-    /** This strip the scope part in the given event */
-    unScope(event: string): string;
-}
-/**
- * `.subscribe()` method's interface.
- * It's interesting to note that this indicates
- * a possibility of chaining multiple subscriptions.
- */
-interface ISubscription {
-    unsubscribe(): void;
-    subscribe(event: string, ...handlers: IHandler[]): ISubscription;
-    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
-}
-/**
- * Closure function that can add scope
- * to the provide event
- *
- * @param event Event
- */
-declare type IGetScope = (event: string) => string;
+import patternHandler from './patternHandler';
+import InternalEvents from './internalEvents';
+import { ISupervisedEmitter, IGetScope, IMiddleware, IHandler, IOptions, ISubscription } from './interfaces';
 /**
  * SupervisedEmitter is an event emitter library
  * which supports middlewares, event-tracing, glob subscriptions etc
  *
  * It's main applications can be found in
- * State management (React, Vue etc)
+ * State management, sagas, communication between
+ * component irrespective of whereever it is in the DOM tree
  */
 export default class SupervisedEmitter implements ISupervisedEmitter {
     private state;
@@ -220,7 +164,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      * /// container.jsx
      * const [{scope}] = useState({scope: SE.getScope()});
      *
-     * SE.subscribe(scope('asdf/asdf/asdf'), ({data}) => {
+     * SE.subscribe(scope('btn/click'), ({data}) => {
      *   // ...
      * });
      *
@@ -228,7 +172,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      *
      *
      * /// In ChildComponent.jsx
-     * SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
+     * SE.publish(this.props.scope('btn/click'),  data)
      * ```
      *
      * @returns Function(Closure) that can add scope to events
@@ -307,4 +251,4 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      */
     private publisher;
 }
-export {};
+export { patternHandler, InternalEvents, };
