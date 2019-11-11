@@ -1,11 +1,21 @@
 # CHANGE\_LOG
 
-## 0.7.0
+## v0.8.0
+
+* Removes `end()` function from IContext, instead returning `nothing|undefined` would stop the flow of pipeline.
+* `.subscribeOnce()` now unsubscribes even if the pipeline has been stopped inbetween
+* `createMiddleware()` utility helps to create a middleware that matches only the given pattern
+* adds benchmark for `doesPatternMatch()`
+* benchmark maintains a history of report for every version
+* adds publishing of life-cycle events like onInit, onSubscribe & onUnsubscribe
+* adds rollup bundler
+
+## v0.7.0
 
 * Adds `.subscribeOnce()` method, which subscribes to the event and unsubscribes itself after the first event has been handled
 * Adds linting and load testing stages to travis
 
-## 0.6.0
+## v0.6.0
 
 * Usage of Classes instead of singleton
   * This helped us overcome Security issues when a malicious library could listen to all the events in the application
@@ -15,7 +25,7 @@
 * ThreadRunner gracefully handles the errors thrown in publish pipeline
 * Adds Typescript API doc in the build pipeline
 
-## 0.5.0
+## v0.5.0
 
 * Removal of support Node: 7
 * Migration to TS\(Typescript\)

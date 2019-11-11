@@ -1,4 +1,4 @@
-# Benchmark report for Supervised-Emitter
+# BENCHMARK
 
 ## Environment
 
