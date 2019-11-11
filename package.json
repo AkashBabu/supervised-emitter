@@ -1,17 +1,20 @@
 {
     "name": "supervised-emitter",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "A event emitter library that supports middleware functionality which can be used to supervise the events flow in the system / application.",
-    "main": "build/src/supervisedEmitter",
+    "sideEffects": false,
+    "main": "lib/supervisedEmitter.js",
+    "unpkg": "dist/supervisedEmitter.js",
+    "module": "es/supervisedEmitter.js",
     "typings": "types/src/supervisedEmitter.d.ts",
     "scripts": {
-        "_test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register test/**/*",
+        "_test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register test/**/*.spec.ts",
         "_test:exit": "npm run _test -- --exit",
         "test": "cross-env NODE_ENV=test npm run _test:exit",
         "test:dev": "cross-env NODE_ENV=test npm run _test -- -w",
         "test:grep": "cross-env NODE_ENV=test npm run _test -- -g ",
         "coverage": "nyc npm run test",
-        "build": "tsc",
+        "build": "rollup -c",
         "lint:fix": "tslint --fix --config tslint.json src/supervisedEmitter.ts",
         "lint": "tslint --config tslint.json src/supervisedEmitter.ts",
         "benchmark:clean": "node benchmark/clean.js",
@@ -67,6 +70,10 @@
         ]
     },
     "devDependencies": {
+        "@babel/core": "^7.7.2",
+        "@babel/preset-env": "^7.7.1",
+        "@babel/preset-typescript": "^7.7.2",
+        "@rollup/plugin-replace": "^2.2.1",
         "@types/chai": "^4.2.3",
         "@types/mocha": "^5.2.7",
         "@types/node": "^12.7.12",
@@ -81,6 +88,13 @@
         "pre-commit": "^1.2.2",
         "radargun": "^1.0.1",
         "rimraf": "^2.6.2",
+        "rollup": "^1.26.5",
+        "rollup-plugin-babel": "^4.3.3",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-node-builtins": "^2.1.2",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-terser": "^5.1.2",
+        "rollup-plugin-typescript2": "^0.25.2",
         "source-map-support": "^0.5.13",
         "ts-node": "^8.0.2",
         "tslint": "^5.20.0",
@@ -90,5 +104,14 @@
     },
     "dependencies": {
         "node-lfu-cache": "^5.0.0"
-    }
+    },
+    "npmName": "supervised-emitter",
+    "npmFileMap": [
+        {
+            "basePath": "/dist/",
+            "files": [
+                "*.js"
+            ]
+        }
+    ]
 }
