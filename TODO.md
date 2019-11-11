@@ -1,11 +1,17 @@
-# TODO
+# Road Map
 
 
-- [ ] Features
-  - [ ] skip() - it must skip all the middlewares
-  - [ ] subscribeOnce
-  - [ ] pattern subscription in middlewares
+- [x] Features
+  - [x] Life cycle events
+    - [x] init -> when SE has been bootstrapped and the middleware pipeline has been setup
+    - [x] onSubscribe -> when a listener has been hooked
+          * This can be used to rehydrate the state (like redux-persist)
+    - [x] onUnsubscribe -> when a listener has been removed
+  - [x] ~~skip() - it must skip all the middlewares~~
+  - [x] subscribeOnce
+  - [x] pattern subscription in middlewares
   - [x] ThreadRunner options
+  - [x] Removed `end()` method from IContext, instead `return`ing `nothing | undefined` shall stop the flow of pipeline
 
 - [ ] Performance improvements
   - [ ] Use hashmaps to store the event names against id, then store only the ids in LFU cache for space optimization
@@ -17,8 +23,8 @@
 - [x] Security
   - [x] Anonymous library can listen to all the events and their data
   
-- [ ] Testing
-  - [ ] 100% coverage
+- [x] Testing
+  - [x] 100% coverage
   - [x] ThreadRunner testing
   - [x] Solid test cases on utils and the whole library
     - [x] for ex: what if there are not items in DLL and you still run `shift()`
@@ -26,15 +32,15 @@
 
 - [ ] Support
   - [ ] Use a different library for benchmarking
-  - [ ] TSDoc
-  - [ ] Rollup build
-    - [ ] Minified and compressed versions
-    - [ ] Dev and prod build
-  - [ ] Fix CodeClimate issues
-  - [ ] Create Wiki and remove unwanted content in README.md
+  - [x] TSDoc
+  - [x] Rollup build
+    - [x] Minified and compressed versions
+    - [x] Dev and prod build
+  - [x] Fix CodeClimate issues
+  - [x] Create Wiki and remove unwanted content in README.md
   - [ ] Improve code segregation (SRP)
     - [ ] for instance remove(event) -> must run all the clean up tasks, such as removing all the handlers, deleting dll, cache cleaning (maybe lazy), event removal etc
-  - [ ] Add sample projects
+  - [x] Add sample projects
   - [ ] Explain todo example app
 
 - [ ] Explain the difference between redux and supervised-emitter in case of
