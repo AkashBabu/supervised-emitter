@@ -14,6 +14,7 @@ Options to be passed to the constructor
 
 * [debug](ioptions.md#optional-debug)
 * [lfu](ioptions.md#optional-lfu)
+* [lifeCycleEvents](ioptions.md#optional-lifecycleevents)
 * [publishConcurrency](ioptions.md#optional-publishconcurrency)
 
 ## Properties
@@ -27,6 +28,12 @@ ___
 ### `Optional` lfu
 
 • **lfu**? : *undefined | object*
+
+___
+
+### `Optional` lifeCycleEvents
+
+• **lifeCycleEvents**? : *undefined | false | true*
 
 ___
 

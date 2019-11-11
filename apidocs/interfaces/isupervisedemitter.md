@@ -89,7 +89,7 @@ ___
 
 ▸ **unScope**(`event`: string): *string*
 
-This strip the scope part in the given event
+This strips the scope part in the given event
 
 **Parameters:**
 

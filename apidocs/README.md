@@ -17,30 +17,15 @@
 
 ### Type aliases
 
-* [IEnd](README.md#iend)
 * [IGetScope](README.md#igetscope)
 * [IHandler](README.md#ihandler)
 * [IMiddleware](README.md#imiddleware)
 
+### Functions
+
+* [patternHandler](README.md#patternhandler)
+
 ## Type aliases
-
-###  IEnd
-
-Ƭ **IEnd**: *function*
-
-Function signature of `end` property in [IContext](interfaces/icontext.md)
-
-#### Type declaration:
-
-▸ (`data`: any): *any*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`data` | any |
-
-___
 
 ###  IGetScope
 
@@ -88,10 +73,29 @@ Function signature of middlewares
 
 #### Type declaration:
 
-▸ (`ctx`: [IContext](interfaces/icontext.md)): *void*
+▸ (`ctx`: [IContext](interfaces/icontext.md)): *Promise‹any› | any*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `ctx` | [IContext](interfaces/icontext.md) |
+
+## Functions
+
+###  patternHandler
+
+▸ **patternHandler**(`pattern`: string, `middleware`: [IMiddleware](README.md#imiddleware)): *[IMiddleware](README.md#imiddleware)*
+
+Creates a middleware which will be run
+only when the pubEvent matches the given
+pattern
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`pattern` | string | Subscription event |
+`middleware` | [IMiddleware](README.md#imiddleware) | Middleware subscribed on the pattern  |
+
+**Returns:** *[IMiddleware](README.md#imiddleware)*

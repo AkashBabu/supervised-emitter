@@ -2,9 +2,19 @@
 
 # Interface: ISubscription
 
-`.subscribe()` method's interface.
-It's interesting to note that this indicates
-a possibility of chaining multiple subscriptions.
+`.subscribe()` method's interface. Since this interface
+return [ISubscription](isubscription.md) on subscribe|subscribeOnce, you may
+chain as many subscriptions as needed and all the chained
+subscription can be unsubscribed by running unsubscription
+just once on the final subscription returned.
+
+**Example**
+```TS
+const subscription = SE.subscribe('foo/bar', () => {})
+                       .subscribe('hello/world', () => {});
+
+subscription.unsubscribe();
+```
 
 ## Hierarchy
 

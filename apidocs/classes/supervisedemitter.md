@@ -6,7 +6,8 @@ SupervisedEmitter is an event emitter library
 which supports middlewares, event-tracing, glob subscriptions etc
 
 It's main applications can be found in
-State management (React, Vue etc)
+State management, sagas, communication between
+component irrespective of whereever it is in the DOM tree
 
 ## Hierarchy
 
@@ -94,14 +95,14 @@ are different in each place, then you may achieve it like this:
 /// container.jsx
 const [{scope}] = useState({scope: SE.getScope()});
 
-SE.subscribe(scope('asdf/asdf/asdf'), ({data}) => {
+SE.subscribe(scope('btn/click'), ({data}) => {
   // ...
 });
 
 <ChildComponent scope={scope} />
 
 /// In ChildComponent.jsx
-SE.publish(this.props.scope('asdf/asdf/asdf'),  data)
+SE.publish(this.props.scope('btn/click'),  data)
 ```
 
 **Returns:** *[IGetScope](../README.md#igetscope)*
