@@ -5,6 +5,7 @@
 * adds benchmark for `doesPatternMatch()`
 * benchmark maintains a history of report for every version
 * adds publishing of life-cycle events like onInit, onSubscribe & onUnsubscribe
+* adds rollup bundler
 
 # 0.7.0
 * Adds `.subscribeOnce()` method, which subscribes to the event and unsubscribes itself after the first event has been handled
