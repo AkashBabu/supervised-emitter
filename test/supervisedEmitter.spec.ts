@@ -1,22 +1,21 @@
-/* tslint:disable no-unused-expression */
-
 import { expect } from 'chai';
 import delay from 'delay';
 
-import SupervisedEmitter, { IContext } from '../src/supervisedEmitter';
+import SupervisedEmitter, {patternHandler, InternalEvents} from '../src/supervisedEmitter';
+
+import {IContext} from '../src/interfaces';
 
 describe('#supervised-emitter (SE)', () => {
 
   it(`should include the following in the context(ctx) to the pipelines:
       - data
       - pubEvent (published event)
-      - subEvents (matching subscribers events)
-      - end() (to stop the flow of data in the pipeline)`, async () => {
+      - subEvents (matching subscribers events)`, async () => {
     let calls = 0;
 
     function testCtx(ctx: IContext) {
       const {
-        data, pubEvent, subEvents, end,
+        data, pubEvent, subEvents,
       } = ctx;
 
       calls++;
@@ -24,7 +23,6 @@ describe('#supervised-emitter (SE)', () => {
       expect(data).to.be.eql('test');
       expect(pubEvent).to.be.eql('hello/se/world');
       expect(subEvents).to.have.members(['hello/se/world', 'hello/*/world']);
-      expect(end).to.be.a('function');
 
       return data;
     }
@@ -688,5 +686,126 @@ describe('#supervised-emitter (SE)', () => {
       expect(SE.unScope(scopedTopic)).to.be.eql(topic);
       expect(SE.unScope(topic)).to.be.eql(topic);
     });
+  });
+
+  describe('#life-cycle events', () => {
+    it('should not publish lifecycle events by default', async () => {
+      let calls = 0;
+
+      const SE = new SupervisedEmitter([
+        ({data}) => {
+          calls++;
+          return data;
+        },
+      ]);
+
+      SE.subscribe('foo/bar', () => {});
+
+      expect(calls).to.be.eql(0);
+    });
+
+    it('should not publish lifeCycle events when subscribed to lifeCycle events', async () => {
+      let calls = 0;
+
+      const SE = new SupervisedEmitter([
+        patternHandler(InternalEvents.ON_INIT, ({data}) => {
+          calls++;
+          return data;
+        }),
+      ], {
+        lifeCycleEvents: true,
+      });
+
+      SE.subscribe(InternalEvents.ON_SUBSCRIBE, ({data}) => {
+        return data;
+      });
+
+      SE.subscribe(InternalEvents.ON_UNSUBSCRIBE, ({data}) => {
+        return data;
+      });
+
+      // internal publishes are also async,
+      // hence this delay would ensure they
+      // are resolved before checking `calls`
+      await delay(10);
+
+      expect(calls).to.be.eql(1); // this is because of on_init event
+    });
+
+    it('should publish life-cycle events when `lifeCycleEvents` is set to true', async () => {
+      let initCalled = false;
+      let onSubscribeCalled = false;
+      let onUnsubscribeCalled = false;
+
+      const SE = new SupervisedEmitter([
+        patternHandler(InternalEvents.ON_INIT, ({data}) => {
+          initCalled = true;
+          return data;
+        }),
+      ], {
+        lifeCycleEvents: true,
+      });
+
+      SE.subscribe(InternalEvents.ON_SUBSCRIBE, ({data}) => {
+        onSubscribeCalled = true;
+        return data;
+      });
+
+      SE.subscribe(InternalEvents.ON_UNSUBSCRIBE, ({data}) => {
+        onUnsubscribeCalled = true;
+        return data;
+      });
+
+      const subscription = SE.subscribe('foo/bar', () => {});
+
+      subscription.unsubscribe();
+
+      await delay(10);
+
+      expect(initCalled).to.be.true;
+      expect(onSubscribeCalled).to.be.true;
+      expect(onUnsubscribeCalled).to.be.true;
+    });
+
+  });
+});
+
+describe('#createMiddleware', () => {
+  it('should return a middleware which listens only to the given pattern', async () => {
+    let calls = 0;
+
+    const SE = new SupervisedEmitter([
+      patternHandler('hello/**', () => {
+        calls++;
+        return null;
+      }),
+    ]);
+
+    await SE.publish('hello/world', 'test');
+    await SE.publish('fun/world', 'test');
+
+    expect(calls).to.be.eql(1);
+  });
+
+  it('should pass through the data if the pattern doesnt match with the pubEvent', async () => {
+    const calls = [0, 0];
+
+    const SE = new SupervisedEmitter([
+      patternHandler('hello/**', ({data}) => {
+        calls[0]++;
+        return data;
+      }),
+      ({data}) => {
+        calls[1]++;
+
+        expect(data).to.be.eql('test');
+      },
+    ]);
+
+    await SE.publish('hello/world', 'test');
+    await SE.publish('fun/world', 'test');
+
+    expect(calls[0]).to.be.eql(1);
+    expect(calls[1]).to.be.eql(2);
   });
 });
