@@ -69,5 +69,8 @@ sample.launch.json
 
 .DS_Store
 
-dist
+dist/
+build/
+lib/
+es/
 .cache
