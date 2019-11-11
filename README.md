@@ -279,7 +279,7 @@ You may find the related test-cases in "load/load-test.ts", it also includes tes
 
 
 ## Run example todo app
-> cd example/  
+> cd example/todo-app  
 > npm i  
 > npm start  
 
@@ -300,5 +300,5 @@ Please find the benchmarks at [BENCHMARK.md](https://github.com/AkashBabu/superv
 
 
 ## Contribution
-Please read the [contribution guidelines](https://github.com/AkashBabu/supervised-emitter/blob/master/CONTRIBUTING.md) before raising a PR
-For discussion related to a new feature or modifications please raise an issue.
+Please read the [contribution guidelines](https://github.com/AkashBabu/supervised-emitter/blob/master/CONTRIBUTING.md) before raising a PR.  
+For discussion related to a new feature or modifications please raise an issue [here](https://github.com/AkashBabu/supervised-emitter/issues).
