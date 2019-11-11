@@ -1,7 +1,7 @@
 ---
 name: Feature request
-about: Suggest an idea to improve this project
-title: "[FEATURE]"
+about: Suggest an idea for this project
+title: "[FEATURE] "
 labels: enhancement
 assignees: AkashBabu
 

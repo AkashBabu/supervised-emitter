@@ -11,7 +11,7 @@
   - [x] subscribeOnce
   - [x] pattern subscription in middlewares
   - [x] ThreadRunner options
-  - [x] Removed `end()` method from IContext, instead `return`ing `nothing | undefined` shall stop the flow of pipeline
+  - [x] Removed `end()` method from IContext, instead `return`ing `nothing | undefined` shall stop the flow of pipele
 
 - [ ] Performance improvements
   - [ ] Use hashmaps to store the event names against id, then store only the ids in LFU cache for space optimization
@@ -22,7 +22,7 @@
 
 - [x] Security
   - [x] Anonymous library can listen to all the events and their data
-  
+
 - [x] Testing
   - [x] 100% coverage
   - [x] ThreadRunner testing
@@ -39,7 +39,7 @@
   - [x] Fix CodeClimate issues
   - [x] Create Wiki and remove unwanted content in README.md
   - [ ] Improve code segregation (SRP)
-    - [ ] for instance remove(event) -> must run all the clean up tasks, such as removing all the handlers, deleting dll, cache cleaning (maybe lazy), event removal etc
+    - [ ] for instance remove(event) -> must run all the clean up tasks, such as removing all the handlers, deletinglc
   - [x] Add sample projects
   - [ ] Explain todo example app
 
