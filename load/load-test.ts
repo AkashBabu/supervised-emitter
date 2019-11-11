@@ -10,11 +10,13 @@ function resetCount() {
 }
 function incrementCount() {
   calls++;
+  return null;
 }
 
 async function asyncIncrementCount() {
   await delay(Math.random() * 90 + 10);
   calls++;
+  return null;
 }
 
 const rand = (n: number, m: number = 0) => Math.floor((Math.random() * n) - 0.01) + m;
