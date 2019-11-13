@@ -1,0 +1,7 @@
+{
+  "root": "./gitbook",
+  "title": "Supervised-Emitter",
+  "description": "An advanced event emitter library with modern capabilities which makes it usable in modern web apps",
+  "author": "Akash Babu",
+  "language": "en"
+}
