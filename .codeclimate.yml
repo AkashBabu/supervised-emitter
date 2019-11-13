@@ -6,3 +6,6 @@ exclude_patterns:
   - "load/**/*"
   - "types/**/*"
   - "example/**/*"
+  - "docs/**/*"
+  - "rollup.config.js"
+  
