@@ -42,7 +42,7 @@ function round(num) {
 
 (() => {
   
-  const filePath = path.join(__dirname, '../BENCHMARK.md');
+  const filePath = path.join(__dirname, '../gitbook/untitled-pages/BENCHMARK.md');
   
   const ws = fs.createWriteStream(filePath);
   ws.write(Title);

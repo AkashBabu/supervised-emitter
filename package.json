@@ -25,7 +25,10 @@
         "coveralls": "npm run coverage && nyc report --reporter=text-lcov | coveralls",
         "load": "cross-env TS_NODE_FILES=true mocha --require ts-node/register load/**/*",
         "tsdoc": "typedoc --plugin typedoc-plugin-markdown --theme markdown --hideSources src/supervisedEmitter.ts typings/",
-        "clean": "rimraf types build coverage .nyc_output"
+        "clean": "rimraf types build coverage .nyc_output",
+        "gitbook:serve": "gitbook serve",
+        "gitbook:build": "gitbook build && rimraf docs && cp -R _book ./docs/",
+        "update-docs": "npm run tsdoc && npm run gitbook:build"
     },
     "engines": {
         "node": ">=8"
@@ -56,7 +59,8 @@
         "build",
         "benchmark",
         "tsdoc",
-        "status"
+        "status",
+        "update-docs"
     ],
     "nyc": {
         "extension": [
@@ -82,6 +86,7 @@
         "coveralls": "^3.0.6",
         "cross-env": "^6.0.0",
         "delay": "^4.3.0",
+        "gitbook-cli": "^2.3.2",
         "mocha": "^5.2.0",
         "nodemon": "^1.19.3",
         "nyc": "^12.0.2",

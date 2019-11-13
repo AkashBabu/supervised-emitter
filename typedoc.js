@@ -2,7 +2,7 @@ const path = require('path')
 module.exports = {
   "name": "Supervised-Emitter",
   "mode": "file",
-  "out": "apidocs",
+  "out": "gitbook/apidocs",
   "excludePrivate": true,
   "excludeProtected": true,
   "readme": "none",
