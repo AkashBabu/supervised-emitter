@@ -31,6 +31,7 @@
   - [x] Segregate test suite (method based)
 
 - [ ] Support
+  - [ ] Migrate from gitbook to [docusaurus](https://docusaurus.io/docs/en/installation)
   - [ ] Use a different library for benchmarking
   - [x] TSDoc
   - [x] Rollup build
