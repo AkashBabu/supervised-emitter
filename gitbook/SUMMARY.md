@@ -9,6 +9,10 @@
 * [Features](features.md)
 * [Wildcard subscriptions](wildcard-subscriptions.md)
 * [Caveats](caveats.md)
+
+## BASICS
+
+* [Step by Step tutorial](basics/step-by-step-tutorial.md)
 <!-- * [Step by step tutorial](step-by-step-tutorial.md) -->
 <!-- * [Internal Events](internal-events.md) -->
 
