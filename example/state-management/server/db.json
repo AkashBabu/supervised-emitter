@@ -1,0 +1,21 @@
+{
+  "family": [
+    {
+      "id": 0,
+      "name": "Bro"
+    },
+    {
+      "id": 1,
+      "name": "Amma"
+    },
+    {
+      "id": 2,
+      "name": "Awwa"
+    },
+    {
+      "id": 3,
+      "name": "Nenu"
+    }
+  ],
+  "users": []
+}
