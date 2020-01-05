@@ -1,3 +1,8 @@
+# v0.9.0
+* Renames threadRunner -> taskQueue
+* Allows publishing undefined data
+* ON_ERROR life cycle event for publishing errors during publish cycle
+
 # v0.8.0
 * Removes `end()` function from IContext, instead returning `nothing|undefined` would stop the flow of pipeline.
 * `.subscribeOnce()` now unsubscribes even if the pipeline has been stopped inbetween

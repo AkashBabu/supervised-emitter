@@ -11,7 +11,9 @@
 ### Interfaces
 
 * [IContext](interfaces/icontext.md)
+* [IInternalEvents](interfaces/iinternalevents.md)
 * [IOptions](interfaces/ioptions.md)
+* [ISubPipeline](interfaces/isubpipeline.md)
 * [ISubscription](interfaces/isubscription.md)
 * [ISupervisedEmitter](interfaces/isupervisedemitter.md)
 
@@ -23,6 +25,9 @@
 
 ### Functions
 
+* [getMapKeys](README.md#getmapkeys)
+* [internalEvent](README.md#const-internalevent)
+* [mergeOptions](README.md#mergeoptions)
 * [patternHandler](README.md#patternhandler)
 
 ## Type aliases
@@ -54,7 +59,7 @@ ___
 
 #### Type declaration:
 
-▸ (`ctx`: [IContext](interfaces/icontext.md), ...`args`: any[]): *any*
+▸ (`ctx`: [IContext](interfaces/icontext.md), ...`args`: any[]): *any | Promise‹any›*
 
 **Parameters:**
 
@@ -82,6 +87,56 @@ Name | Type |
 `ctx` | [IContext](interfaces/icontext.md) |
 
 ## Functions
+
+###  getMapKeys
+
+▸ **getMapKeys**(`map`: Map‹string, boolean›): *string[]*
+
+Returns all the keys in the Map
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`map` | Map‹string, boolean› | Map  |
+
+**Returns:** *string[]*
+
+List of keys in the given map
+
+___
+
+### `Const` internalEvent
+
+▸ **internalEvent**(`ev`: string): *string*
+
+Suffixes internal event part
+to the given event
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`ev` | string | Event  |
+
+**Returns:** *string*
+
+___
+
+###  mergeOptions
+
+▸ **mergeOptions**(`givenOpts`: any, `defaultOpts`: any): *any*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`givenOpts` | any |  {} |
+`defaultOpts` | any |  {} |
+
+**Returns:** *any*
+
+___
 
 ###  patternHandler
 

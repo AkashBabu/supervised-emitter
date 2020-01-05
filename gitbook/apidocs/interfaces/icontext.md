@@ -46,8 +46,8 @@ ___
 
 This promise will be resolved when the pipeline
 has completed execution. This can be very useful
-in situation wherein the user wants execute some action
-when this pipeline has been completed irrespective of
+in situations wherein the user wants to execute some action
+when this pipeline has been completed, irrespective of
 whether it is stopped in between or has completed the pipeline.
 In fact, same technique was used to create subscribeOnce
 feature as well.

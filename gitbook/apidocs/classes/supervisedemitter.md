@@ -23,6 +23,11 @@ component irrespective of whereever it is in the DOM tree
 
 * [constructor](supervisedemitter.md#constructor)
 
+### Properties
+
+* [InternalEvents](supervisedemitter.md#static-internalevents)
+* [patternHandler](supervisedemitter.md#static-patternhandler)
+
 ### Methods
 
 * [getScope](supervisedemitter.md#getscope)
@@ -35,7 +40,7 @@ component irrespective of whereever it is in the DOM tree
 
 ###  constructor
 
-\+ **new SupervisedEmitter**(`middlewares?`: [IMiddleware](../README.md#imiddleware)[], `options?`: [IOptions](../interfaces/ioptions.md)): *[SupervisedEmitter](supervisedemitter.md)*
+\+ **new SupervisedEmitter**(`middlewares`: [IMiddleware](../README.md#imiddleware)[], `options`: [IOptions](../interfaces/ioptions.md)): *[SupervisedEmitter](supervisedemitter.md)*
 
 Creates a new instance of SupervisedEmitter
 
@@ -58,12 +63,24 @@ const SE = new SupervisedEmitter(
 
 **Parameters:**
 
-Name | Type | Description |
------- | ------ | ------ |
-`middlewares?` | [IMiddleware](../README.md#imiddleware)[] | List of middlewares. Remember that all these     middlewares will be piped to form a pipeline. i.e. the output of     each of the middleware is passed in `data`(in the context) to the next     middleware in the pipeline (top-down execution) |
-`options?` | [IOptions](../interfaces/ioptions.md) | Options for debugging and LFU  |
+Name | Type | Default | Description |
+------ | ------ | ------ | ------ |
+`middlewares` | [IMiddleware](../README.md#imiddleware)[] |  [({data}) => data] | List of middlewares. Remember that all these     middlewares will be piped to form a pipeline. i.e. the output of     each of the middleware is passed in `data`(in the context) to the next     middleware in the pipeline (top-down execution) |
+`options` | [IOptions](../interfaces/ioptions.md) |  {} | Options for debugging and LFU  |
 
 **Returns:** *[SupervisedEmitter](supervisedemitter.md)*
+
+## Properties
+
+### `Static` InternalEvents
+
+▪ **InternalEvents**: *[IInternalEvents](../interfaces/iinternalevents.md)* =  InternalEvents
+
+___
+
+### `Static` patternHandler
+
+▪ **patternHandler**: *[patternHandler](../README.md#patternhandler)* =  patternHandler
 
 ## Methods
 
@@ -146,10 +163,10 @@ await SE.publish('publish/second', 'second');
 
 **Parameters:**
 
-Name | Type | Description |
------- | ------ | ------ |
-`pubEvent` | string | Event to publish the given data |
-`data` | any | Any data that need to be published  |
+Name | Type | Default | Description |
+------ | ------ | ------ | ------ |
+`pubEvent` | string | - | Event to publish the given data |
+`data` | any |  null | Any data that need to be published  |
 
 **Returns:** *Promise‹any›*
 
