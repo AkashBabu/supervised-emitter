@@ -7,13 +7,11 @@ module.exports = {
   "excludeProtected": true,
   "readme": "none",
   "exclude": [
-    "./src/dll.ts",
     "./src/pattern.ts",
-    "./src/internalEvents.ts",
     "./src/errors.ts",
-    "./src/logger.ts",
-    "./src/threadRunner.ts",
-    "./src/utils.ts",
+    "./src/lib/logger.ts",
+    "./src/lib/taskQueue.ts",
+    "./src/lib/pipe.ts",
   ],
   "src": [
     "./src"

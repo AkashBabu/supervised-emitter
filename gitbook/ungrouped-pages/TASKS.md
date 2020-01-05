@@ -11,6 +11,7 @@
   - [ ] State management handler
 
 - [ ] Support
+  - [ ] Setup Semantic Release in the project and CI
   - [ ] Migrate from gitbook to [docusaurus](https://docusaurus.io/docs/en/installation)
   - [ ] Use a different library for benchmarking
   - [ ] Improve code segregation (SRP)

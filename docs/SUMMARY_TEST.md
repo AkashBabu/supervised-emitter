@@ -34,6 +34,7 @@
 -----------------------
 
 * [API Docs](apidocs/README.md)
+  	
 	- Classes
 	  * [Supervisedemitter](apidocs/classes/supervisedemitter.md)
 	- Interfaces

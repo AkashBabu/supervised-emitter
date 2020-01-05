@@ -34,16 +34,16 @@
 -----------------------
 
 * [API Docs](apidocs/README.md)
-	- Classes
-	  * [Supervisedemitter](apidocs/classes/supervisedemitter.md)
-	- Interfaces
-	  * [Icontext](apidocs/interfaces/icontext.md)
-	  * [Iinternalevents](apidocs/interfaces/iinternalevents.md)
-	  * [Ioptions](apidocs/interfaces/ioptions.md)
-	  * [Isubpipeline](apidocs/interfaces/isubpipeline.md)
-	  * [Isubscription](apidocs/interfaces/isubscription.md)
-	  * [Isupervisedemitter](apidocs/interfaces/isupervisedemitter.md)
-	
+  - Classes
+    * [Supervisedemitter](apidocs/classes/supervisedemitter.md)
+  - Interfaces
+    * [Icontext](gitbook/apidocs/interfaces/icontext.md)
+    * [Iinternalevents](gitbook/apidocs/interfaces/iinternalevents.md)
+    * [Ioptions](gitbook/apidocs/interfaces/ioptions.md)
+    * [Isubpipeline](gitbook/apidocs/interfaces/isubpipeline.md)
+    * [Isubscription](gitbook/apidocs/interfaces/isubscription.md)
+    * [Isupervisedemitter](gitbook/apidocs/interfaces/isupervisedemitter.md)
+
 
 ---------
 

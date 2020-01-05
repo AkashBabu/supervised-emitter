@@ -1,8 +1,8 @@
-const {default: SupervisedEmitter, InternalEvents} = require('supervised-emitter');
+import SupervisedEmitter from 'supervised-emitter';
 
 const SE = new SupervisedEmitter([], {lifeCycleEvents: true, debug: true});
 
-SE.subscribe(InternalEvents.ON_ERROR, ({data}) => {
+SE.subscribe(SupervisedEmitter.InternalEvents.ON_ERROR, ({data}) => {
   console.error('Publish error:', data.error);
 })
 

@@ -1,4 +1,4 @@
-const SupervisedEmitter = require('../').default;
+const SupervisedEmitter = require('../');
 const SE = new SupervisedEmitter();
 
 const N = 10000;

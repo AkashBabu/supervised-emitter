@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Icontext · Supervised-Emitter</title>
+        <title>Iinternalevents · Supervised-Emitter</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -57,8 +57,10 @@
     <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="iinternalevents.html" />
+    <link rel="next" href="ioptions.html" />
     
+    
+    <link rel="prev" href="icontext.html" />
     
 
     </head>
@@ -280,7 +282,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="3.1.2.1" data-path="icontext.html">
+        <li class="chapter " data-level="3.1.2.1" data-path="icontext.html">
             
                 <a href="icontext.html">
             
@@ -293,7 +295,7 @@
             
         </li>
     
-        <li class="chapter " data-level="3.1.2.2" data-path="iinternalevents.html">
+        <li class="chapter active" data-level="3.1.2.2" data-path="iinternalevents.html">
             
                 <a href="iinternalevents.html">
             
@@ -457,7 +459,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="../.." >Icontext</a>
+        <a href="../.." >Iinternalevents</a>
     </h1>
 </div>
 
@@ -472,66 +474,44 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <p><a href="../">Supervised-Emitter</a> &#x203A; <a href="icontext.html">IContext</a></p>
-<h1 id="interface-icontext">Interface: IContext</h1>
-<p>Context object that will be passed as the second argument
-to subscribers and first argument to middlewares</p>
+                                <p><a href="../">Supervised-Emitter</a> &#x203A; <a href="iinternalevents.html">IInternalEvents</a></p>
+<h1 id="interface-iinternalevents">Interface: IInternalEvents</h1>
+<p>Interface for internal-events</p>
 <h2 id="hierarchy">Hierarchy</h2>
 <ul>
-<li><strong>IContext</strong></li>
+<li><strong>IInternalEvents</strong></li>
 </ul>
-<h2 id="indexable">Indexable</h2>
-<ul>
-<li>[ <strong>newProp</strong>: <em>string</em>]: any</li>
-</ul>
-<p>Any other properties that the middleware/subscription
-pipeline desires to add to the context. This technique
-can be used to create methods like printEventTrace, onEnd etc</p>
 <h2 id="index">Index</h2>
 <h3 id="properties">Properties</h3>
 <ul>
-<li><a href="icontext.html#data">data</a></li>
-<li><a href="icontext.html#optional-pipelinepromise">pipelinePromise</a></li>
-<li><a href="icontext.html#pubevent">pubEvent</a></li>
-<li><a href="icontext.html#subevents">subEvents</a></li>
+<li><a href="iinternalevents.html#on_error">ON_ERROR</a></li>
+<li><a href="iinternalevents.html#on_init">ON_INIT</a></li>
+<li><a href="iinternalevents.html#on_subscribe">ON_SUBSCRIBE</a></li>
+<li><a href="iinternalevents.html#on_unsubscribe">ON_UNSUBSCRIBE</a></li>
 </ul>
 <h2 id="properties">Properties</h2>
-<h3 id="data">data</h3>
-<p>&#x2022; <strong>data</strong>: <em>any</em></p>
-<p>Data that was published.
-Since data is piped through the middleware
-pipeline and then through all subscription
-pipeline, this might NOT be the same as
-published.</p>
+<h3 id="onerror">ON_ERROR</h3>
+<p>&#x2022; <strong>ON_ERROR</strong>: <em>string</em></p>
+<p>This event will be published everytime an
+error occurs during publish cycle. Users shall
+subscribe to this topic to understand the error
+and push the same to error tracking systems like
+Sentry, Fabric or the like.</p>
 <hr>
-<h3 id="optional-pipelinepromise"><code>Optional</code> pipelinePromise</h3>
-<p>&#x2022; <strong>pipelinePromise</strong>? : <em>Promise&#x2039;any&#x203A;</em></p>
-<p>This promise will be resolved when the pipeline
-has completed execution. This can be very useful
-in situations wherein the user wants to execute some action
-when this pipeline has been completed, irrespective of
-whether it is stopped in between or has completed the pipeline.
-In fact, same technique was used to create subscribeOnce
-feature as well.</p>
-<p>Note: User MUST NOT await on this promise, instead <code>then</code>
-must be used because if awaited, it would wait for Infinite time
-as it results in a circular dependent promise.</p>
+<h3 id="oninit">ON_INIT</h3>
+<p>&#x2022; <strong>ON_INIT</strong>: <em>string</em></p>
+<p>This event is published when Supervised-Emitter
+instance is created and setup is done</p>
 <hr>
-<h3 id="pubevent">pubEvent</h3>
-<p>&#x2022; <strong>pubEvent</strong>: <em>string</em></p>
-<p>Published event.
-This information can be used in middlewares to
-maintain a stack of event that were published in
-the system and the same can be used to reproduce
-a bug.</p>
+<h3 id="onsubscribe">ON_SUBSCRIBE</h3>
+<p>&#x2022; <strong>ON_SUBSCRIBE</strong>: <em>string</em></p>
+<p>This event will be published everytime a new
+subscription is made</p>
 <hr>
-<h3 id="subevents">subEvents</h3>
-<p>&#x2022; <strong>subEvents</strong>: <em>string[]</em></p>
-<p>All subEvents that match the pubEvent.
-Note that even if multiple pipelines are hooked
-to the same subEvent, this Array would include it
-only once. So NO duplicate event will be found in
-subEvents.</p>
+<h3 id="onunsubscribe">ON_UNSUBSCRIBE</h3>
+<p>&#x2022; <strong>ON_UNSUBSCRIBE</strong>: <em>string</em></p>
+<p>This event will be published everytime an
+unsubscription an any topic is mode</p>
 
                                 
                                 </section>
@@ -559,8 +539,12 @@ subEvents.</p>
 
             
                 
+                <a href="icontext.html" class="navigation navigation-prev " aria-label="Previous page: Icontext">
+                    <i class="fa fa-angle-left"></i>
+                </a>
                 
-                <a href="iinternalevents.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Iinternalevents">
+                
+                <a href="ioptions.html" class="navigation navigation-next " aria-label="Next page: Ioptions">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -571,7 +555,7 @@ subEvents.</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Icontext","level":"3.1.2.1","depth":3,"next":{"title":"Iinternalevents","level":"3.1.2.2","depth":3,"path":"apidocs/interfaces/iinternalevents.md","ref":"apidocs/interfaces/iinternalevents.md","articles":[]},"previous":{"title":"Interfaces","level":"3.1.2","depth":2,"ref":"","articles":[{"title":"Icontext","level":"3.1.2.1","depth":3,"path":"apidocs/interfaces/icontext.md","ref":"apidocs/interfaces/icontext.md","articles":[]},{"title":"Iinternalevents","level":"3.1.2.2","depth":3,"path":"apidocs/interfaces/iinternalevents.md","ref":"apidocs/interfaces/iinternalevents.md","articles":[]},{"title":"Ioptions","level":"3.1.2.3","depth":3,"path":"apidocs/interfaces/ioptions.md","ref":"apidocs/interfaces/ioptions.md","articles":[]},{"title":"Isubpipeline","level":"3.1.2.4","depth":3,"path":"apidocs/interfaces/isubpipeline.md","ref":"apidocs/interfaces/isubpipeline.md","articles":[]},{"title":"Isubscription","level":"3.1.2.5","depth":3,"path":"apidocs/interfaces/isubscription.md","ref":"apidocs/interfaces/isubscription.md","articles":[]},{"title":"Isupervisedemitter","level":"3.1.2.6","depth":3,"path":"apidocs/interfaces/isupervisedemitter.md","ref":"apidocs/interfaces/isupervisedemitter.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"apidocs/interfaces/icontext.md","mtime":"2020-01-05T07:37:38.142Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-05T07:37:45.154Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Iinternalevents","level":"3.1.2.2","depth":3,"next":{"title":"Ioptions","level":"3.1.2.3","depth":3,"path":"apidocs/interfaces/ioptions.md","ref":"apidocs/interfaces/ioptions.md","articles":[]},"previous":{"title":"Icontext","level":"3.1.2.1","depth":3,"path":"apidocs/interfaces/icontext.md","ref":"apidocs/interfaces/icontext.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"apidocs/interfaces/iinternalevents.md","mtime":"2020-01-05T07:37:38.142Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-05T07:37:45.154Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

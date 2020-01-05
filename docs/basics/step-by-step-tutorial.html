@@ -1,0 +1,823 @@
+
+<!DOCTYPE HTML>
+<html lang="en" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Step By Step Tutorial · Supervised-Emitter</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        <meta name="author" content="Akash Babu <001akashbabu@gmail.com>">
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="../apidocs/" />
+    
+    
+    <link rel="prev" href="usage.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">GETTING STARTED</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../terminology.html">
+            
+                <a href="../terminology.html">
+            
+                    
+                    Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../architecture.html">
+            
+                <a href="../architecture.html">
+            
+                    
+                    Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../features.html">
+            
+                <a href="../features.html">
+            
+                    
+                    Features
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../wildcard-subscriptions.html">
+            
+                <a href="../wildcard-subscriptions.html">
+            
+                    
+                    Wildcard subscriptions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../caveats.html">
+            
+                <a href="../caveats.html">
+            
+                    
+                    Caveats
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../beyond_the_docs.html">
+            
+                <a href="../beyond_the_docs.html">
+            
+                    
+                    Beyond the docs
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Basics</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" data-path="usage.html">
+            
+                <a href="usage.html">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.2" data-path="step-by-step-tutorial.html">
+            
+                <a href="step-by-step-tutorial.html">
+            
+                    
+                    Step By Step Tutorial
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" data-path="../apidocs/">
+            
+                <a href="../apidocs/">
+            
+                    
+                    API Docs
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1.1" >
+            
+                <span>
+            
+                    
+                    Classes
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1.1.1" data-path="../apidocs/classes/supervisedemitter.html">
+            
+                <a href="../apidocs/classes/supervisedemitter.html">
+            
+                    
+                    Supervisedemitter
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2" >
+            
+                <span>
+            
+                    
+                    Interfaces
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1.2.1" data-path="../apidocs/interfaces/icontext.html">
+            
+                <a href="../apidocs/interfaces/icontext.html">
+            
+                    
+                    Icontext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2.2" data-path="../apidocs/interfaces/iinternalevents.html">
+            
+                <a href="../apidocs/interfaces/iinternalevents.html">
+            
+                    
+                    Iinternalevents
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2.3" data-path="../apidocs/interfaces/ioptions.html">
+            
+                <a href="../apidocs/interfaces/ioptions.html">
+            
+                    
+                    Ioptions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2.4" data-path="../apidocs/interfaces/isubpipeline.html">
+            
+                <a href="../apidocs/interfaces/isubpipeline.html">
+            
+                    
+                    Isubpipeline
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2.5" data-path="../apidocs/interfaces/isubscription.html">
+            
+                <a href="../apidocs/interfaces/isubscription.html">
+            
+                    
+                    Isubscription
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2.6" data-path="../apidocs/interfaces/isupervisedemitter.html">
+            
+                <a href="../apidocs/interfaces/isupervisedemitter.html">
+            
+                    
+                    Isupervisedemitter
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="4.1" data-path="../ungrouped-pages/TASKS.html">
+            
+                <a href="../ungrouped-pages/TASKS.html">
+            
+                    
+                    TASKS
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.2" data-path="../ungrouped-pages/faqs.html">
+            
+                <a href="../ungrouped-pages/faqs.html">
+            
+                    
+                    FAQs
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3" data-path="../ungrouped-pages/benchmark.html">
+            
+                <a href="../ungrouped-pages/benchmark.html">
+            
+                    
+                    BENCHMARK
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.4" data-path="../ungrouped-pages/change_log.html">
+            
+                <a href="../ungrouped-pages/change_log.html">
+            
+                    
+                    CHANGE_LOG
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Step By Step Tutorial</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="step-by-step-tutorial">Step by step tutorial</h1>
+<h2 id="create-a-simple-todo-app">Create a simple todo app</h2>
+<p>We&apos;re going to be building a simple todo-app in this step-by-step tutorial.</p>
+<h3 id="pre-requisites">Pre-requisites:</h3>
+<p>Hope you have a basic knowledge of the following technologies:</p>
+<ul>
+<li>Javascript</li>
+<li>React</li>
+<li>HTML</li>
+<li>CSS</li>
+</ul>
+<p>If you&apos;re good with the above pre-requisites, then let&apos;s start the show...</p>
+<p>First of all clone this repo:</p>
+<blockquote>
+<p>git clone <a href="https://github.com/AkashBabu/supervised-emitter.git" target="_blank">https://github.com/AkashBabu/supervised-emitter.git</a></p>
+</blockquote>
+<p>Then let&apos;s scaffold a basic folder structure for a simple web-app; todo that please point your current-working directory to <code>example/simple-todo-app-tutorial</code> within this project. This sample scaffolded structure includes a basic setup with [parcel-bundler][1] for building and serving your page (along with HMR).</p>
+<p>Now install all the dependencies by running:</p>
+<blockquote>
+<p>npm install</p>
+</blockquote>
+<p>Then start the UI server:</p>
+<blockquote>
+<p>npm start</p>
+</blockquote>
+<p>Open <code>http://localhost:1234</code> in your browser and you should see<br><img src="../assets/TodoAppInitPage.png" alt="Todo App" title="Todo App Home page"></p>
+<p><strong>Disclaimer</strong> : The intention of this tutorial is NOT to teach [ReactJS][2], instead it&apos;s about inducting <code>Supervised-Emitter</code> only! Hence the boilerplate would include a completely functional code. Your job would be to modify the code and adapt <code>Supervised-Emitter</code> in the project and know how easy it becomes thereafter.</p>
+<p>This is how the components in this project are connected:</p>
+<pre><code>  App
+    + Todo
+      - TodoItem
+      - NewTodo
+      + TodoAdd
+        - Button
+</code></pre><p>As you might have noticed, folder structure is not as a typical [ReactJS][2] project, this is intentional to illustrate the nesting of components.</p>
+<p>Enough of talking, let&apos;s get our hands dirty with <code>Supervised-Emitter</code></p>
+<p>So let&apos;s go and install <code>Supervised-Emitter</code>:</p>
+<blockquote>
+<p>npm i supervised-emitter -S</p>
+</blockquote>
+<p>Then create a new file <code>src/supervisedEmitter.js</code>:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">import</span> SupervisedEmitter <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;supervised-emitter&apos;</span>;
+
+<span class="hljs-keyword">const</span> SE = <span class="hljs-keyword">new</span> SupervisedEmitter();
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> SE;
+</code></pre>
+<p>This file would create an instance and we can use the same throughout our application for communicating between components, state-management etc...</p>
+<p>Let&apos;s create our first event publisher in <code>src/Todo/TodoItem.jsx</code>:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">import</span> SE <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;../supervisedEmitter&apos;</span>
+</code></pre>
+<p>and then create a function <code>handleChange</code>:</p>
+<pre><code class="lang-JS"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleChange</span>(<span class="hljs-params"></span>) </span>{
+  SE.publish(<span class="hljs-string">&apos;input/text/todo/item/change&apos;</span>, todo)
+}
+</code></pre>
+<p>Then change the <code>onChange</code> handler to <code>handleChange</code>:</p>
+<pre><code class="lang-JS">&lt;input type=<span class="hljs-string">&quot;checkbox&quot;</span> name=<span class="hljs-string">&quot;todo_checkbox&quot;</span> checked={todo.completed} onChange={handleChange} id={itemId} /&gt;
+</code></pre>
+<p>Now your <code>TodoItem.jsx</code> should look like this</p>
+<pre><code class="lang-JSX"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;react&apos;</span>
+<span class="hljs-keyword">import</span> SE <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;../supervisedEmitter&apos;</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">TodoItem</span>(<span class="hljs-params">{todo, onChange}</span>) </span>{
+  <span class="hljs-keyword">let</span> style = {}
+
+  <span class="hljs-keyword">if</span>(todo.completed) {
+    style = {
+      color: <span class="hljs-string">&apos;grey&apos;</span>,
+      fontStyle: <span class="hljs-string">&apos;italic&apos;</span>,
+      textDecoration: <span class="hljs-string">&apos;line-through&apos;</span>
+    }
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleChange</span>(<span class="hljs-params"></span>) </span>{
+    SE.publish(<span class="hljs-string">&apos;input/text/todo/item/change&apos;</span>, todo)
+  }
+
+  <span class="hljs-keyword">const</span> itemId = <span class="hljs-string">`todoitem_<span class="hljs-subst">${todo.id}</span>`</span>
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{padding:</span> &apos;<span class="hljs-attr">0.5em</span>&apos;, <span class="hljs-attr">borderBottom:</span> &apos;<span class="hljs-attr">1px</span> <span class="hljs-attr">solid</span> <span class="hljs-attr">lightgrey</span>&apos;}}&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">htmlFor</span>=<span class="hljs-string">{itemId}</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;checkbox&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;todo_checkbox&quot;</span> <span class="hljs-attr">checked</span>=<span class="hljs-string">{todo.completed}</span> <span class="hljs-attr">onChange</span>=<span class="hljs-string">{handleChange}</span> <span class="hljs-attr">id</span>=<span class="hljs-string">{itemId}</span> /&gt;</span>
+        &amp;nbsp;
+        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{style}</span>&gt;</span>{todo.data}<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  )
+}
+</span></code></pre>
+<p>What the above code essentially means is that, I don&apos;t care if anybody is listening to my changes or not, but I&apos;m simplying gonna be yelling about it.</p>
+<p>It&apos;s a pity that nobody is listening to our <code>TodoItem</code>&apos;s events, so let&apos;s create our first listener at <code>Todo.jsx</code></p>
+<p>Add SE to your imports:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">import</span> SE <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;../supervisedEmitter&apos;</span>;
+</code></pre>
+<p>Then remove the onChange handler which was eariler passed to <code>TodoItem.jsx</code> and add a SE listener, so your <code>Todo</code> component should now look like:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Todo</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> [todos, setTodos] = useState([{ id: <span class="hljs-number">0</span>, data: <span class="hljs-string">&apos;First todo&apos;</span>, completed: <span class="hljs-literal">false</span> }])
+  <span class="hljs-keyword">const</span> [addTodoDisabled, setAddTodoDisabled] = useState(<span class="hljs-literal">false</span>);
+  <span class="hljs-keyword">const</span> [newTodoValue, setNewTodoValue] = useState(<span class="hljs-string">&apos;&apos;</span>)
+
+  useEffect(() =&gt; {
+    <span class="hljs-keyword">const</span> subscription = SE.subscribe(<span class="hljs-string">&apos;input/text/todo/item/change&apos;</span>, ({data: {index, todo}}) =&gt; {
+        todo.completed = !todo.completed;
+        todos[index] = todo;
+
+        setTodos([...todos])
+    })
+
+    <span class="hljs-comment">// This is very important!!!</span>
+    <span class="hljs-comment">// If omitted, it will result in multiple subscriptions</span>
+    <span class="hljs-keyword">return</span> subscription.unsubscribe;
+  }, [todos])
+
+  <span class="hljs-comment">// function handleTodoChange(i) {</span>
+  <span class="hljs-comment">//   return (todo) =&gt; {</span>
+  <span class="hljs-comment">//     console.log(&apos;handling todo change in function&apos;);</span>
+
+  <span class="hljs-comment">//     todos[i].completed = !todo.completed</span>
+  <span class="hljs-comment">//     setTodos([...todos])</span>
+  <span class="hljs-comment">//   }</span>
+  <span class="hljs-comment">// }</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleAddTodo</span>(<span class="hljs-params"></span>) </span>{
+    setAddTodoDisabled(<span class="hljs-literal">true</span>)
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleNewTodoChange</span>(<span class="hljs-params">val</span>) </span>{
+    setNewTodoValue(val)
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleNewTodoSubmit</span>(<span class="hljs-params"></span>) </span>{
+    setTodos([...todos, {
+      completed: <span class="hljs-literal">false</span>,
+      id: todos.length,
+      data: newTodoValue
+    }])
+
+    setAddTodoDisabled(<span class="hljs-literal">false</span>),
+    setNewTodoValue(<span class="hljs-string">&apos;&apos;</span>)
+  }
+
+  <span class="hljs-keyword">return</span> (
+    &lt;div style={{
+      boxShadow: &apos;1px 2px 10px 2px lightgrey&apos;,
+    }}&gt;
+      &lt;div style={{ textAlign: &apos;center&apos;, margin: &apos;0.5em&apos;, marginTop: &apos;1em&apos;, borderBottom: &apos;1px solid lightgrey&apos; }}&gt;
+        &lt;h1 style={{ margin: &apos;0.5em&apos; }}&gt;Todo App&lt;/h1&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        {todos.map((todo, i) =&gt; &lt;TodoItem key={todo.id} index={i} todo={todo}
+        //  onChange={handleTodoChange(i)} 
+        /&gt;)}
+      &lt;/div&gt;
+
+      {addTodoDisabled &amp;&amp; &lt;NewTodo value={newTodoValue} onChange={handleNewTodoChange} onSubmit={handleNewTodoSubmit} /&gt;}
+
+      &lt;TodoAdd disabled={addTodoDisabled} onClick={handleAddTodo} /&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<p>Now it&apos;s time for more practise...
+Let&apos;s go ahead and modify <code>NewTodo.jsx</code> to adapt to Supervised-Emitter.</p>
+<p><strong>Please take a moment to do it yourself before proceeding further</strong></p>
+<p>After necessary modifications to <code>NewTodo.jsx</code> it will look like below<br>(Note that we&apos;ve highlight the changes as comments):</p>
+<pre><code class="lang-JSX"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;react&apos;</span>
+<span class="hljs-keyword">import</span> SE <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;../supervisedEmitter&apos;</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">NewTodo</span>(<span class="hljs-params">{value, <span class="hljs-comment">/* onChange, onSubmit */</span>}</span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleSubmit</span>(<span class="hljs-params">e</span>) </span>{
+    e.preventDefault();
+    SE.publish(<span class="hljs-string">&apos;form/submit/new-todo&apos;</span>);
+    <span class="hljs-comment">// onSubmit();</span>
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleChange</span>(<span class="hljs-params">e</span>) </span>{
+    SE.publish(<span class="hljs-string">&apos;input/text/new-todo/change&apos;</span>, e.target.value);
+    <span class="hljs-comment">// onChange(e.target.value);</span>
+  }
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span>
+      <span class="hljs-attr">padding:</span> &apos;<span class="hljs-attr">0.5em</span>&apos;
+    }} <span class="hljs-attr">onSubmit</span>=<span class="hljs-string">{handleSubmit}</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span>
+        <span class="hljs-attr">width:</span> &apos;<span class="hljs-attr">100</span>%&apos;,
+        <span class="hljs-attr">border:</span> &apos;<span class="hljs-attr">none</span>&apos;,
+        <span class="hljs-attr">borderBottom:</span> &apos;<span class="hljs-attr">1px</span> <span class="hljs-attr">solid</span> <span class="hljs-attr">blue</span>&apos;,
+        <span class="hljs-attr">outline:</span> &apos;<span class="hljs-attr">none</span>&apos;,
+        <span class="hljs-attr">fontSize:</span> &apos;<span class="hljs-attr">0.75em</span>&apos;
+      }}
+      <span class="hljs-attr">value</span>=<span class="hljs-string">{value}</span>
+      <span class="hljs-attr">onChange</span>=<span class="hljs-string">{handleChange}</span>
+      <span class="hljs-attr">autoFocus</span>
+       /&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+  )
+}
+</span></code></pre>
+<p>Let&apos;s add corresponding listeners to <code>Todo.jsx</code> by chaining subscriptions.<br>Modify the <code>useEffect</code> hook like below:</p>
+<pre><code class="lang-JSX">useEffect(() =&gt; {
+  <span class="hljs-keyword">const</span> subscription = SE.subscribe(<span class="hljs-string">&apos;input/text/todo/item/change&apos;</span>, ({ data: { index, todo } }) =&gt; handleTodoChange(index, todo))
+    .subscribe(<span class="hljs-string">&apos;input/text/new-todo/change&apos;</span>, ({ data }) =&gt; handleNewTodoChange(data))
+    .subscribe(<span class="hljs-string">&apos;form/submit/new-todo&apos;</span>, ({data}) =&gt; handleNewTodoSubmit(data))
+
+  <span class="hljs-keyword">return</span> subscription.unsubscribe;
+}, [todos, newTodoValue])
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleTodoChange</span>(<span class="hljs-params">index, todo</span>) </span>{
+    todo.completed = !todo.completed;
+    todos[index] = todo;
+
+    setTodos([...todos])
+  }
+</code></pre>
+<p>The above is apparently JS, so you&apos;ve got all the freedom to adapt functional programming or any other pattern of your choice.</p>
+<p>Now finally we&apos;re left with <code>TodoAdd.jsx</code><br>Please find the corresponding modifications below:</p>
+<p><code>TodoAdd.jsx</code> would be modified to:</p>
+<pre><code class="lang-JSX"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;react&apos;</span>
+<span class="hljs-keyword">import</span> Button <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;./Button/Button&apos;</span>
+<span class="hljs-keyword">import</span> SE <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;../../supervisedEmitter&apos;</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">TodoAdd</span>(<span class="hljs-params">{disabled, <span class="hljs-comment">/* onClick */</span>}</span>) </span>{
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{padding:</span> &apos;<span class="hljs-attr">0.5em</span>&apos;}}&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> 
+        <span class="hljs-attr">disabled</span>=<span class="hljs-string">{disabled}</span> 
+        <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> SE.publish(&apos;button/click/todo-add&apos;)}
+      &gt;
+        Add Todo
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+  )
+}
+</code></pre>
+<p>Let&apos;s add TodoAdd button click listener to <code>Todo.jsx</code><br>Modify <code>useEffect</code> hook to look like below:</p>
+<pre><code class="lang-JSX">useEffect(() =&gt; {
+  <span class="hljs-keyword">const</span> subscription = SE.subscribe(<span class="hljs-string">&apos;input/text/todo/item/change&apos;</span>, ({ data: { index, todo } }) =&gt; handleTodoChange(index, todo))
+    .subscribe(<span class="hljs-string">&apos;input/text/new-todo/change&apos;</span>, ({ data }) =&gt; handleNewTodoChange(data))
+    .subscribe(<span class="hljs-string">&apos;form/submit/new-todo&apos;</span>, handleNewTodoSubmit)
+    .subscribe(<span class="hljs-string">&apos;button/click/todo-add&apos;</span>, handleAddTodo)
+
+  <span class="hljs-keyword">return</span> subscription.unsubscribe;
+}, [todos, newTodoValue])
+</code></pre>
+<p>That&apos;s it for the tutorial.</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li><p>Instead of passing the handler functions deep down the nested tree, think about publishing an semantic event (follow good naming convention for events)</p>
+<ul>
+<li>This not only reduces the code, but also reduces the friction when composing components together. i.e, container don&apos;t have to worry about all the handlers that needs to be passed, instead it can pick up only the interested events.</li>
+</ul>
+</li>
+<li><p>Also to mention this library can handle state-management with ease. (Recipe guide in progress...)</p>
+</li>
+<li><p>This will help in cross communication between components</p>
+</li>
+<li><p>Since this is an event emitter library, it can update only the changed part of the tree without disturbing/re-rendering the whole tree</p>
+</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="usage.html" class="navigation navigation-prev " aria-label="Previous page: Usage">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="../apidocs/" class="navigation navigation-next " aria-label="Next page: API Docs">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Step By Step Tutorial","level":"2.2","depth":1,"next":{"title":"API Docs","level":"3.1","depth":1,"path":"apidocs/README.md","ref":"apidocs/README.md","articles":[{"title":"Classes","level":"3.1.1","depth":2,"ref":"","articles":[{"title":"Supervisedemitter","level":"3.1.1.1","depth":3,"path":"apidocs/classes/supervisedemitter.md","ref":"apidocs/classes/supervisedemitter.md","articles":[]}]},{"title":"Interfaces","level":"3.1.2","depth":2,"ref":"","articles":[{"title":"Icontext","level":"3.1.2.1","depth":3,"path":"apidocs/interfaces/icontext.md","ref":"apidocs/interfaces/icontext.md","articles":[]},{"title":"Iinternalevents","level":"3.1.2.2","depth":3,"path":"apidocs/interfaces/iinternalevents.md","ref":"apidocs/interfaces/iinternalevents.md","articles":[]},{"title":"Ioptions","level":"3.1.2.3","depth":3,"path":"apidocs/interfaces/ioptions.md","ref":"apidocs/interfaces/ioptions.md","articles":[]},{"title":"Isubpipeline","level":"3.1.2.4","depth":3,"path":"apidocs/interfaces/isubpipeline.md","ref":"apidocs/interfaces/isubpipeline.md","articles":[]},{"title":"Isubscription","level":"3.1.2.5","depth":3,"path":"apidocs/interfaces/isubscription.md","ref":"apidocs/interfaces/isubscription.md","articles":[]},{"title":"Isupervisedemitter","level":"3.1.2.6","depth":3,"path":"apidocs/interfaces/isupervisedemitter.md","ref":"apidocs/interfaces/isupervisedemitter.md","articles":[]}]}]},"previous":{"title":"Usage","level":"2.1","depth":1,"path":"basics/usage.md","ref":"basics/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"basics/step-by-step-tutorial.md","mtime":"2020-01-03T17:20:58.006Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-05T07:37:45.154Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-ga/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

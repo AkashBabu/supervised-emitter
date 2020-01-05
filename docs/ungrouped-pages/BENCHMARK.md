@@ -18,19 +18,19 @@ OS: Mojave
 
 Name            |  Avg (ms)     |   Min (ms)      |   Max (ms)
 :---------------|:--------------|:----------------|:-------------
-gsub_same_topic  |  25.10  |  10.10  |  45.77  
-gsub_different_topics  |  23.81  |  17.06  |  35.44  
-sub_same_topic  |  21.71  |  8.07  |  38.18  
-sub_different_topics  |  23.32  |  17.40  |  34.55  
-sub_once  |  63.74  |  40.13  |  125.06  
-gunsub_same_topic  |  22.44  |  8.20  |  35.74  
-gunsub_different_topics  |  30.39  |  22.79  |  43.40  
-chained_gunsub_same_topics  |  22.06  |  14.94  |  26.75  
-chained_gunsub_different_topics  |  33.99  |  26.46  |  49.83  
-unsub_same_topic  |  21.05  |  10.18  |  41.52  
-unsub_different_topics  |  30.05  |  20.97  |  55.88  
-chained_unsub_same_topic  |  22.54  |  14.73  |  34.54  
-chained_unsub_different_topics  |  15.37  |  12.97  |  24.18  
+gsub_same_topic  |  22.35  |  12.54  |  43.94  
+gsub_different_topics  |  31.39  |  25.66  |  43.73  
+sub_same_topic  |  26.19  |  12.72  |  44.70  
+sub_different_topics  |  32.85  |  24.35  |  52.30  
+sub_once  |  78.81  |  50.84  |  172.62  
+gunsub_same_topic  |  29.24  |  17.81  |  47.59  
+gunsub_different_topics  |  42.96  |  31.73  |  58.50  
+chained_gunsub_same_topics  |  31.01  |  20.75  |  48.12  
+chained_gunsub_different_topics  |  46.38  |  36.90  |  60.34  
+unsub_same_topic  |  30.51  |  15.37  |  51.24  
+unsub_different_topics  |  41.57  |  33.69  |  54.69  
+chained_unsub_same_topic  |  29.81  |  19.82  |  42.54  
+chained_unsub_different_topics  |  25.21  |  19.99  |  35.02  
 
 
 

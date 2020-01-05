@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Introduction · Supervised-Emitter</title>
+        <title>Beyond the docs · Supervised-Emitter</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -57,8 +57,10 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="terminology.html" />
+    <link rel="next" href="basics/usage.html" />
     
+    
+    <link rel="prev" href="caveats.html" />
     
 
     </head>
@@ -89,7 +91,7 @@
         
         
     
-        <li class="chapter active" data-level="1.1" data-path="./">
+        <li class="chapter " data-level="1.1" data-path="./">
             
                 <a href="./">
             
@@ -167,7 +169,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.7" data-path="beyond_the_docs.html">
+        <li class="chapter active" data-level="1.7" data-path="beyond_the_docs.html">
             
                 <a href="beyond_the_docs.html">
             
@@ -457,7 +459,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="." >Introduction</a>
+        <a href="." >Beyond the docs</a>
     </h1>
 </div>
 
@@ -472,23 +474,58 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="introduction">Introduction</h1>
-<p>Well everything in web-space is <em>events (onClick, onHover, onReqReceived etc),</em> so why shouldn&apos;t the underlying libraries or frameworks also be in the same paradigm and hence this library was created. </p>
-<p>But there seems to be lots of features missing in the currently existing pub-sub or event-emitter libraries, which makes it less popular or not useful in modern web applications. Modern web application have demanding needs such as debuggability, composability, reproducibility etc, which have been considered in the design of <strong>Supervised-Emitter</strong> (any suggestions for a better name will be greatly appreciated!)</p>
-<p>This is a very small library written in typescript and hence would suggest y&apos;all to take a look at the source code for a greater understanding of how this library works and if you like it, add a star!</p>
-<blockquote>
-<p><strong>NOTE</strong><br>This library follows a convention (rather strictly) of using <code>/</code> for separating the event logically. For example if you were to create a subscription on <code>req_GET_details</code> then we strongly recommend you to use <code>req/GET/details</code> instead. Because every string in between <code>/</code> is treated as an event part and has special meaning when using wildcard subscriptions. So for uniformity we suggest you to use <code>/</code> everywhere.<br>Read more about wildcard subscriptions <a href="wildcard-subscriptions.html">here</a>.</p>
-</blockquote>
-<p>There are a couple of reasons for creating this library, here are the <a href="features.html">list of features</a> that one can get by adopting this event-emitter library.</p>
-<h2 id="getting-started">Getting started</h2>
-<p>For basic usage visit this <a href="basics/usage.html">page</a></p>
-<p>If you wish to learn with step-by-step guidance, then start <a href="basics/step-by-step-tutorial.html">here</a> </p>
-<p>Else, if you prefer running an example app first, then run the following commands:</p>
-<blockquote>
-<p>cd example/todo-app<br>npm i<br>npm start</p>
-</blockquote>
-<h2 id="contribution">Contribution</h2>
-<p>Please read the <a href="https://github.com/AkashBabu/supervised-emitter/blob/master/CONTRIBUTING.md" target="_blank">contribution guidelines</a> before raising a PR.<br>For discussion related to a new feature or modifications please raise an issue <a href="https://github.com/AkashBabu/supervised-emitter/issues" target="_blank">here</a>.</p>
+                                <h1 id="for-the-curious-ones">For the curious ones</h1>
+<h2 id="performance">Performance</h2>
+<p>Lots of attention has been paid since inception to ensure greater efficiency in this library. Please read on to know more about it! The below pointers can give you a gist of the library:</p>
+<ul>
+<li>Usage of <a href="https://www.npmjs.com/package/@akashbabu/node-dll" target="_blank">DLL</a> for maintaining a list of subscribers. This makes it very efficient during removal of a <a href="terminology.html#handler">handler</a> (or a <a href="terminology.html#subscription-pipeline">pipeline</a>)</li>
+<li>Usage of <a href="https://www.npmjs.com/package/@akashbabu/lfu-cache" target="_blank">LFU cache</a> to maintain all subEvents matching a pubEvent.</li>
+</ul>
+<p>Also note that the pre-commit hook scripts include test, load &amp; benchmarking amongst the rest of them to assure you that we don&apos;t fall out of our boundary limits (both in terms of memory and time).</p>
+<h2 id="battle-tested">Battle tested</h2>
+<p>This library has been rigorously tested to work in a battle environment (large scale apps with a huge number of events).<br>You may find the related test-cases <a href="https://github.com/AkashBabu/supervised-emitter/blob/master/load/load-test.ts" target="_blank">here</a>, it also includes test case for memory leakage detection.</p>
+<h2 id="design-challenges-faced-during-architecting">Design challenges faced during architecting</h2>
+<ul>
+<li>How to make event handler match performant? <ul>
+<li>Cache the matched result</li>
+<li>Which cache to use ? LRU ? LFU ?<ul>
+<li>Choose to use LFU based on heuristics that same events once used will be used more frequently (For instance onChange of input field, form Submit (retry) etc)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>how to maintain scope of an event?<ul>
+<li>By creating a closure that adds a random (never colliding) part as a suffix to the event and the same closure must be used by the publisher and subscriber</li>
+</ul>
+</li>
+<li>Chaining subscriptions / unsubscriptions<ul>
+<li>How to unsubscribe from all the subscriptions at once ??<ul>
+<li>Used scope (closure) and recursion methods to unsubscribe from all the chained subscriptions at once</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>how to trace events?<ul>
+<li>Add a middleware that updates entries of all the published events and adds <code>.printEventTrace()</code> method to the context, so that it can be accessed in all handlers</li>
+</ul>
+</li>
+<li>how to maintain state?<ul>
+<li>Create a subscriber that listens on a glob pattern like <code>save_state/**</code> and maintain a state tree, then publish the data to be saved on events like <code>save_state/login</code></li>
+</ul>
+</li>
+<li>how to run middlewares post subscribers?<ul>
+<li>You can&apos;t do that, but instead you can publish events post your logic. For instance you may publish event like <code>__only_middlewares/foo/bar</code> after executing your logic in any subscription handler.</li>
+</ul>
+</li>
+</ul>
+<h2 id="design-highlights">Design highlights</h2>
+<ul>
+<li>DLL instead of array (easier for splicing)</li>
+<li>LFU cache, for storing the matched patterns and update the cache when a new subscription is made</li>
+<li>Glob like pattern matching algorithm</li>
+<li>Subscription chaning (internally unsubscription happens in a recursive manner)</li>
+<li>Event scope</li>
+</ul>
 
                                 
                                 </section>
@@ -516,8 +553,12 @@
 
             
                 
+                <a href="caveats.html" class="navigation navigation-prev " aria-label="Previous page: Caveats">
+                    <i class="fa fa-angle-left"></i>
+                </a>
                 
-                <a href="terminology.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Terminology">
+                
+                <a href="basics/usage.html" class="navigation navigation-next " aria-label="Next page: Usage">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -528,7 +569,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"Terminology","level":"1.2","depth":1,"path":"terminology.md","ref":"terminology.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"README.md","mtime":"2019-12-29T10:03:45.607Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-05T07:37:45.154Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Beyond the docs","level":"1.7","depth":1,"next":{"title":"Usage","level":"2.1","depth":1,"path":"basics/usage.md","ref":"basics/usage.md","articles":[]},"previous":{"title":"Caveats","level":"1.6","depth":1,"path":"caveats.md","ref":"caveats.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"beyond_the_docs.md","mtime":"2019-12-29T08:42:02.456Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-01-05T07:37:45.154Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
