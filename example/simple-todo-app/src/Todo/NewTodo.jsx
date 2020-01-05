@@ -1,13 +1,16 @@
 import React from 'react'
+import SE from '../supervisedEmitter'
 
-export default function NewTodo({value, onChange, onSubmit}) {
+export default function NewTodo({value, /* onChange, onSubmit */}) {
   function handleSubmit(e) {
     e.preventDefault();
-    onSubmit();
+    SE.publish('form/submit/new-todo');
+    // onSubmit();
   }
 
   function handleChange(e) {
-    onChange(e.target.value)
+    SE.publish('input/text/new-todo/change', e.target.value);
+    // onChange(e.target.value);
   }
 
   return (

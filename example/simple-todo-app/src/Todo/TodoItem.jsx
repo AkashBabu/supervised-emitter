@@ -1,7 +1,7 @@
 import React from 'react'
 import SE from '../supervisedEmitter'
 
-export default function TodoItem({todo, index, onChange}) {
+export default function TodoItem({todo, index}) {
   let style = {}
 
   if(todo.completed) {
@@ -14,13 +14,10 @@ export default function TodoItem({todo, index, onChange}) {
 
   function handleChange() {
     SE.publish('input/text/todo/item/change', {todo, index})
-    onChange(todo)
+    // onChange(todo)
   }
   
   const itemId = `todoitem_${todo.id}`
-
-  console.log('todo:', todo.id, todo.completed);
-  
 
   return (
     <div style={{padding: '0.5em', borderBottom: '1px solid lightgrey'}}>
