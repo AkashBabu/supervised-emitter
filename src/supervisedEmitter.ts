@@ -1,16 +1,18 @@
-import LFU from 'node-lfu-cache';
-import DLL, { DLLItem } from './dll';
-import Logger from './logger';
+import LFUCache from '@akashbabu/lfu-cache';
+import { DLL, DLLItem } from '@akashbabu/node-dll';
+import Logger from './lib/logger';
 import { doesPatternMatch, isPatternEvent, sanitizeEvent } from './pattern';
-import ThreadRunner, { IRunTask } from './threadRunner';
-import { getKeys, pipe } from './utils';
+import TaskQueue, { ITaskQueue } from './lib/taskQueue';
+import { pipe } from './lib/pipe';
+import getMapKeys from './lib/getMapKeys';
 import patternHandler from './patternHandler';
-import InternalEvents from './internalEvents';
+import {InternalEvents, InternalEventsRev, IInternalEvents} from './internalEvents';
 
 import {
   ISupervisedEmitter, IState, IGetScope, IMiddleware,
-  IHandler, IContext, IOptions, ISubscription,
+  IHandler, IOptions, ISubscription, ISubPipeline, IOptionsInt,
 } from './interfaces';
+import mergeOptions from './lib/mergeOptions';
 
 /**
  * SupervisedEmitter is an event emitter library
@@ -21,14 +23,23 @@ import {
  * component irrespective of whereever it is in the DOM tree
  */
 export default class SupervisedEmitter implements ISupervisedEmitter {
-  private state: IState = this.getFreshState();
+  public static patternHandler = patternHandler;
+  public static InternalEvents: IInternalEvents = InternalEvents;
+
+  private state: IState;
   private logger = new Logger(Logger.LEVEL.DEBUG, false);
 
   // ThreadRunner to run publish pipelines from task queue
-  private threadRunner: IRunTask;
+  private taskQueue: ITaskQueue<Promise<any>>;
 
   // Pre-compiling regex for efficiency
   private scopeReg = new RegExp('^__scope_[0-9]+_/(.+)$');
+
+  // Options for internal usage after merging the default options
+  private options: IOptionsInt;
+
+  // Middlewares
+  private middlewares: IMiddleware;
 
   /**
    * Creates a new instance of SupervisedEmitter
@@ -56,31 +67,36 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    *     middleware in the pipeline (top-down execution)
    * @param options Options for debugging and LFU
    */
-  constructor(middlewares?: IMiddleware[], options?: IOptions) {
-    const {
-      debug = false,
-      lfu = { max: 100 },
-      publishConcurrency = 100,
-      lifeCycleEvents = false,
-    } = options || {};
+  constructor(
+    middlewares: IMiddleware[] = [({data}) => data],
+    options: IOptions = {},
+  ) {
+    this.middlewares = pipe(...middlewares);
 
-    this.logger[debug ? 'enable' : 'disable']();
+    this.options = mergeOptions(options, {
+      debug: false,
+      lfu: {
+        max: 100,
+        evictCount: 10,
+        maxAge: 10 * 60 * 1000,
+      },
+      publishConcurrency: 100,
+      lifeCycleEvents: false,
+    });
 
-    this.state.lifeCycleEvents = lifeCycleEvents;
-    this.state.debug = debug;
-    this.state.middlewares = middlewares
-      ? pipe(...middlewares)
-      : this.state.middlewares;
-    this.state.subEventsCache = new LFU(lfu);
+    this.logger[this.options.debug ? 'enable' : 'disable']();
 
-    this.threadRunner = ThreadRunner(
+    // initialize state
+    this.state = this.getFreshState();
+
+    this.taskQueue = new TaskQueue<Promise<any>>(
       this.publisher.bind(this),
-      { maxRunners: publishConcurrency },
+      { maxRunners: this.options.publishConcurrency },
     );
 
     this.logger.debug('INITIALIZED');
 
-    this.state.lifeCycleEvents && this.publish(InternalEvents.ON_INIT, {});
+    this.publishInternalEvents(InternalEvents.ON_INIT, {});
   }
 
   /**
@@ -138,13 +154,13 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
         this.addNormalEventToCache(event);
       }
 
-      this.state.subscribers.set(event, new DLL());
+      this.state.subscribers.set(event, new DLL<ISubPipeline>());
     }
 
     // We're using dll for maintaining a list
     // of handlers for the ease of splicing
     // handlers during unsubscription
-    const eventHandler = (this.state.subscribers.get(event) as DLL).append({
+    const eventHandler = (this.state.subscribers.get(event) as DLL<ISubPipeline>).push({
       // Compose all the subscribers passed at once.
       // Users can use this feature if needed, else
       // can choose to go with the classical approach
@@ -154,8 +170,9 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
 
     this.logger.debug(`SUBSCRIBED => ${event}`);
 
-    if (this.state.lifeCycleEvents && !InternalEvents[event]) {
-      this.publish(InternalEvents.ON_SUBSCRIBE, { subEvent: event });
+    // This checks avoid infinite publishing of internal eventss
+    if (!this.isInternalEvent(event)) {
+      this.publishInternalEvents(InternalEvents.ON_SUBSCRIBE, { subEvent: event });
     }
 
     const self = this;
@@ -270,8 +287,8 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    *
    * @returns Awaitable publish
    */
-  public publish(pubEvent: string, data: any): Promise<any> {
-    return this.threadRunner(pubEvent, data);
+  public publish(pubEvent: string, data: any = null): Promise<any> {
+    return this.taskQueue.add(pubEvent, data);
   }
 
   /**
@@ -341,12 +358,9 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    */
   private getFreshState(): IState {
     return {
-      lifeCycleEvents: false,
-      debug: false,
-      middlewares: ({ data }: IContext) => data,
       subscribers: new Map(), // map of event vs pipelines (DLL)
       patternEvents: [], // list of pattern events
-      subEventsCache: new LFU({}), // cache for maintaining pubEvents vs matching subEvents
+      subEventsCache: new LFUCache(this.options.lfu), // cache for maintaining pubEvents vs matching subEvents
       scopeId: 0, // use to generate a new scope part
     };
   }
@@ -360,7 +374,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @param patternEvent Pattern event
    */
   private addPatternEventToCache(patternEvent: string) {
-    this.state.subEventsCache.forEach((cachedEvents: Map<string, boolean>, pubEvent: string) => {
+    this.state.subEventsCache.forEach(([pubEvent, cachedEvents]) => {
       if (doesPatternMatch(pubEvent, patternEvent)) { cachedEvents.set(patternEvent, true); }
     });
   }
@@ -372,7 +386,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @param event Normal event (w/o pattern)
    */
   private addNormalEventToCache(event: string) {
-    const matchingEvents: Map<string, boolean> | null = this.state.subEventsCache.peek(event);
+    const matchingEvents = this.state.subEventsCache.peek(event);
 
     if (matchingEvents instanceof Map) {
       matchingEvents.set(event, true);
@@ -385,9 +399,10 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @param subEvent Subscribed Event
    * @param eventHandler Handler pipeline
    */
-  private unsubscribe(subEvent: string, eventHandler: DLLItem) {
-    if (this.state.lifeCycleEvents &&  !InternalEvents[subEvent]) {
-      this.publish(InternalEvents.ON_UNSUBSCRIBE, { subEvent });
+  private unsubscribe(subEvent: string, eventHandler: DLLItem<ISubPipeline>) {
+    // This checks avoid infinite publishing of internal events
+    if (!this.isInternalEvent(subEvent)) {
+      this.publishInternalEvents(InternalEvents.ON_UNSUBSCRIBE, { subEvent });
     }
 
     const subscribers = this.state.subscribers.get(subEvent);
@@ -462,7 +477,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     pubEvent = sanitizeEvent(pubEvent) as string;
 
     const subEvents = this.getSubEvents(pubEvent);
-    const subEventsArr = getKeys(subEvents);
+    const subEventsArr = getMapKeys(subEvents);
 
     const ctx = {
       data,
@@ -470,7 +485,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
       subEvents: subEventsArr,
     };
 
-    const result = await this.state.middlewares(ctx);
+    const result = await this.middlewares(ctx);
 
     // If the flow was stopped in the middlewares
     // then end it w/o passing the data to any of
@@ -485,25 +500,47 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
       // Subscription pipelines
       const subPipelines = this.state.subscribers.get(subEvent);
 
+      // lazy pruning of removed subscription pipelines
       if (!subPipelines) {
         subEvents.delete(subEvent);
         return null;
       }
 
       const pipelinePromises = subPipelines.map<Promise<any>>(async ({ pipeline }) => {
-        // use new ctx for every pipeline because
-        // one pipeline must never affect the other
-        // except middleware pipeline, else it gets
-        // difficult to debug
-        return pipeline({ ...ctx });
+        try {
+          // use new ctx for every pipeline because
+          // one pipeline must never affect the other
+          // except middleware pipeline, else it gets
+          // difficult to debug
+          const output = await pipeline({ ...ctx });
+          return output;
+        } catch (error) {
+          this.logger.error('Error during publish:', error);
+          this.publishInternalEvents(InternalEvents.ON_ERROR, {error});
+        }
       });
 
       return Promise.all(pipelinePromises);
     }));
   }
-}
 
-export {
-  patternHandler,
-  InternalEvents,
-};
+  private publishInternalEvents(pubEvent: string, data: any): Promise<any> {
+    if (this.isInternalEvent(pubEvent) && this.options.lifeCycleEvents) {
+      return this.publish(pubEvent, data);
+    }
+
+    return Promise.resolve();
+  }
+
+  /**
+   * Predicate for determining whether the given
+   * event is internal event or not
+   *
+   * @param event event to be checked for internal event
+   *
+   * @returns true if the given event is internal event
+   */
+  private isInternalEvent(event: string): boolean {
+    return event in InternalEventsRev;
+  }
+}

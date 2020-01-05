@@ -1,5 +1,5 @@
 import patternHandler from './patternHandler';
-import InternalEvents from './internalEvents';
+import { IInternalEvents } from './internalEvents';
 import { ISupervisedEmitter, IGetScope, IMiddleware, IHandler, IOptions, ISubscription } from './interfaces';
 /**
  * SupervisedEmitter is an event emitter library
@@ -10,10 +10,14 @@ import { ISupervisedEmitter, IGetScope, IMiddleware, IHandler, IOptions, ISubscr
  * component irrespective of whereever it is in the DOM tree
  */
 export default class SupervisedEmitter implements ISupervisedEmitter {
+    static patternHandler: typeof patternHandler;
+    static InternalEvents: IInternalEvents;
     private state;
     private logger;
-    private threadRunner;
+    private taskQueue;
     private scopeReg;
+    private options;
+    private middlewares;
     /**
      * Creates a new instance of SupervisedEmitter
      *
@@ -140,7 +144,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      *
      * @returns Awaitable publish
      */
-    publish(pubEvent: string, data: any): Promise<any>;
+    publish(pubEvent: string, data?: any): Promise<any>;
     /**
      * Adds scope to a event by prefixing
      * it with a incrementing counter string(__scope_<counter>_/),
@@ -250,5 +254,14 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      * @returns Promise that resolves after publish pipeline completion
      */
     private publisher;
+    private publishInternalEvents;
+    /**
+     * Predicate for determining whether the given
+     * event is internal event or not
+     *
+     * @param event event to be checked for internal event
+     *
+     * @returns true if the given event is internal event
+     */
+    private isInternalEvent;
 }
-export { patternHandler, InternalEvents, };

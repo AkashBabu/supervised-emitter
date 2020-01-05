@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import delay from 'delay';
 
-import SupervisedEmitter, {patternHandler, InternalEvents} from '../src/supervisedEmitter';
-
+import SupervisedEmitter from '../src/supervisedEmitter';
 import {IContext} from '../src/interfaces';
+
+const {patternHandler, InternalEvents} = SupervisedEmitter;
 
 describe('#supervised-emitter (SE)', () => {
 
@@ -119,6 +120,34 @@ describe('#supervised-emitter (SE)', () => {
       SE.publish('/foo/', test);
     });
 
+    it('should ensure correct functionality', async () => {
+      const SE = new SupervisedEmitter();
+
+      const calls = [0, 0, 0];
+
+      SE.subscribe('foo/', ({ data }) => {
+        calls[0]++;
+        expect(data).to.be.eql('foo');
+      });
+
+      SE.subscribe('bar/', ({ data }) => {
+        calls[1]++;
+        expect(data).to.be.eql('bar');
+      })
+      .subscribe('baz/', ({ data }) => {
+        calls[2]++;
+        expect(data).to.be.eql('baz');
+      });
+
+      await SE.publish('/foo/', 'foo');
+      await SE.publish('/bar/', 'bar');
+      await SE.publish('/baz', 'baz');
+
+      expect(calls[0]).to.be.eql(1);
+      expect(calls[1]).to.be.eql(1);
+      expect(calls[2]).to.be.eql(1);
+    });
+
     it('should pipe handlers when more than one handler is present', done => {
       const test = 0;
       const SE = new SupervisedEmitter();
@@ -145,8 +174,7 @@ describe('#supervised-emitter (SE)', () => {
         expect(data).to.be.eql(test);
       });
 
-      SE.publish('foo/bar', test);
-      await delay(10);
+      await SE.publish('foo/bar', test);
       expect(calls).to.be.eql(1);
 
       subscription.unsubscribe();
@@ -156,8 +184,7 @@ describe('#supervised-emitter (SE)', () => {
         expect(data).to.be.eql(test);
       });
 
-      SE.publish('hello/my/world', test);
-      await delay(10);
+      await SE.publish('hello/my/world', test);
       expect(calls).to.be.eql(2);
     });
 
@@ -263,7 +290,8 @@ describe('#supervised-emitter (SE)', () => {
       expect(calls).to.be.eql(2);
     });
 
-    it('should allow chaining multiple subscriptions and return an unsubscribe object that unsubsribes from all the chained subscriptions', async () => {
+    it(`should allow chaining multiple subscriptions and return an unsubscribe
+          object that unsubsribes from all the chained subscriptions`, async () => {
       let calls = 0;
       const SE = new SupervisedEmitter();
 
@@ -310,14 +338,14 @@ describe('#supervised-emitter (SE)', () => {
             await delay(10);
             return 1;
           },
-          async ({ data, end }) => {
+          async ({ data }) => {
             calls++;
             expect(data).to.be.eql(1);
 
             await delay(10);
 
             SE.publish('completed', 2);
-            return (end as Function)(2);
+            return;
           },
           ({ data }) => {
             calls++;
@@ -616,6 +644,22 @@ describe('#supervised-emitter (SE)', () => {
 
       expect(calls).to.be.eql(4);
     });
+
+    it('should be able to publish empty|undefined data', async () => {
+      let calls = 0;
+      const SE = new SupervisedEmitter();
+
+      SE.subscribe('foo/bar',
+        ({ data }) => {
+          calls++;
+          expect(data).to.be.null;
+        },
+      );
+
+      await SE.publish('foo/bar');
+
+      expect(calls).to.be.eql(1);
+    });
   });
 
   describe('.unsubscribe()', () => {
@@ -756,7 +800,7 @@ describe('#supervised-emitter (SE)', () => {
         return data;
       });
 
-      const subscription = SE.subscribe('foo/bar', () => {});
+      const subscription = SE.subscribe('foo/bar', () => { });
 
       subscription.unsubscribe();
 
@@ -767,45 +811,25 @@ describe('#supervised-emitter (SE)', () => {
       expect(onUnsubscribeCalled).to.be.true;
     });
 
-  });
-});
+    it(`should publish ON_EVENT life-cycle event when an error occurs during
+          publish cycle (in subscription pipeline or elsewhere)`, async () => {
+      let calls = 0;
 
-describe('#createMiddleware', () => {
-  it('should return a middleware which listens only to the given pattern', async () => {
-    let calls = 0;
+      const SE = new SupervisedEmitter([], {
+        lifeCycleEvents: true,
+      });
 
-    const SE = new SupervisedEmitter([
-      patternHandler('hello/**', () => {
+      SE.subscribe('foo/bar', () => {throw new Error('Failed'); });
+
+      SE.subscribe(InternalEvents.ON_ERROR, ({data: {error}}) => {
         calls++;
-        return null;
-      }),
-    ]);
+        expect(error).to.be.an.instanceof(Error);
+      });
 
-    await SE.publish('hello/world', 'test');
-    await SE.publish('fun/world', 'test');
+      await SE.publish('foo/bar');
 
-    expect(calls).to.be.eql(1);
-  });
+      expect(calls).to.be.eql(1);
+    });
 
-  it('should pass through the data if the pattern doesnt match with the pubEvent', async () => {
-    const calls = [0, 0];
-
-    const SE = new SupervisedEmitter([
-      patternHandler('hello/**', ({data}) => {
-        calls[0]++;
-        return data;
-      }),
-      ({data}) => {
-        calls[1]++;
-
-        expect(data).to.be.eql('test');
-      },
-    ]);
-
-    await SE.publish('hello/world', 'test');
-    await SE.publish('fun/world', 'test');
-
-    expect(calls[0]).to.be.eql(1);
-    expect(calls[1]).to.be.eql(2);
   });
 });

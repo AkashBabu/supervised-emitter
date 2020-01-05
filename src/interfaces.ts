@@ -1,6 +1,7 @@
-import DLL from './dll';
+import {DLL} from '@akashbabu/node-dll';
+import LFUCache from '@akashbabu/lfu-cache';
 
-export type IHandler = (ctx: IContext, ...args: any[]) => any;
+export type IHandler = (ctx: IContext, ...args: any[]) => any | Promise<any>;
 
 /**
  * Context object that will be passed as the second argument
@@ -37,8 +38,8 @@ export interface IContext {
   /**
    * This promise will be resolved when the pipeline
    * has completed execution. This can be very useful
-   * in situation wherein the user wants execute some action
-   * when this pipeline has been completed irrespective of
+   * in situations wherein the user wants to execute some action
+   * when this pipeline has been completed, irrespective of
    * whether it is stopped in between or has completed the pipeline.
    * In fact, same technique was used to create subscribeOnce
    * feature as well.
@@ -66,6 +67,22 @@ export interface IOptions {
   lfu?: object;
   publishConcurrency?: number;
   lifeCycleEvents?: boolean;
+}
+
+/**
+ * @hidden
+ *
+ * Options interface for internal usage.
+ * This was created, since the original IOptions object
+ * has a couple of options property which causes `may be undefined`
+ * error during usage even after assigning default param to it.
+ * Hence this interface solved the problem
+ */
+export interface IOptionsInt {
+  debug: boolean;
+  lfu: object;
+  publishConcurrency: number;
+  lifeCycleEvents: boolean;
 }
 
 /** SupervisedEmitter's interface */
@@ -111,28 +128,14 @@ export interface ISubscription {
  * @hidden
  */
 export interface IState {
-  /**
-   * When set to true, SE publishes life-cycle
-   * events like => init, onSubscribe & onUnsubscribe
-   */
-  lifeCycleEvents: boolean;
-
-  /**
-   * When true, debug logs are printed to console
-   */
-  debug: boolean;
-
-  // List of middlewares
-  middlewares: IMiddleware;
-
   // map of event vs pipelines (DLL)
-  subscribers: Map<string, DLL>;
+  subscribers: Map<string, DLL<ISubPipeline>>;
 
   // list of pattern events
   patternEvents: string[];
 
   // cache for maintaining pubEvents vs matching subEvents
-  subEventsCache: any;
+  subEventsCache: LFUCache<Map<string, boolean>>;
 
   // use to generate a new scope part
   scopeId: number;
@@ -145,3 +148,7 @@ export interface IState {
  * @param event Event
  */
 export type IGetScope = (event: string) => string;
+
+export interface ISubPipeline {
+  pipeline: IHandler;
+}
