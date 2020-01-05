@@ -28,6 +28,7 @@ export default [
     output: { file: 'lib/supervisedEmitter.js', format: 'cjs', indent: false },
     external: [
       ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.devDependencies || {}),
       ...Object.keys(pkg.peerDependencies || {})
     ],
     plugins: [
@@ -48,6 +49,7 @@ export default [
     output: { file: 'es/supervisedEmitter.js', format: 'es', indent: false },
     external: [
       ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.devDependencies || {}),
       ...Object.keys(pkg.peerDependencies || {})
     ],
     plugins: [
