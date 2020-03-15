@@ -6,7 +6,7 @@ import TaskQueue, { ITaskQueue } from './lib/taskQueue';
 import { pipe } from './lib/pipe';
 import getMapKeys from './lib/getMapKeys';
 import patternHandler from './patternHandler';
-import {InternalEvents, InternalEventsRev, IInternalEvents} from './internalEvents';
+import { InternalEvents, InternalEventsRev, IInternalEvents } from './internalEvents';
 
 import {
   ISupervisedEmitter, IState, IGetScope, IMiddleware,
@@ -68,7 +68,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @param options Options for debugging and LFU
    */
   constructor(
-    middlewares: IMiddleware[] = [({data}) => data],
+    middlewares: IMiddleware[] = [({ data }) => data],
     options: IOptions = {},
   ) {
     this.middlewares = pipe(...middlewares);
@@ -176,10 +176,20 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
     }
 
     const self = this;
-    return (() => {
-      function chainSubscription(this: any, method: 'subscribe' | 'subscribeOnce',
-                                 cEvent: string, ...cHandlers: IHandler[]): ISubscription {
-        const subscription = self[method](cEvent, ...cHandlers);
+    return {
+      /**
+       * Unsubscribes from this subscription
+       */
+      unsubscribe() {
+        self.unsubscribe(event, eventHandler);
+      },
+
+      /**
+       * This method allows chaining subscription to
+       * multiple events via the same subscription
+       */
+      subscribe(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
+        const subscription = self.subscribe(cEvent, ...cHandlers);
         const prevSubscription = this;
 
         return {
@@ -189,33 +199,8 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
             subscription.unsubscribe();
           },
         };
-      }
-
-      return {
-        /**
-         * Unsubscribes from this subscription
-         */
-        unsubscribe() {
-          self.unsubscribe(event, eventHandler);
-        },
-
-        /**
-         * This method allows chaining subscription to
-         * multiple events via the same subscription
-         */
-        subscribe(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
-          return chainSubscription.call(this, 'subscribe', cEvent, ...cHandlers);
-        },
-
-        /**
-         * This method allows chaining subscription to
-         * multiple events via the same subscription
-         */
-        subscribeOnce(cEvent: string, ...cHandlers: IHandler[]): ISubscription {
-          return chainSubscription.call(this, 'subscribeOnce', cEvent, ...cHandlers);
-        },
-      };
-    })();
+      },
+    };
   }
 
   /**
@@ -242,16 +227,44 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
    * @returns Subscription for chaining more subscriptions or
    *    for unsubscribing from all the subscriptions
    */
-  public subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription {
-    const subscription = this.subscribe(event, ({ pipelinePromise, data }) => {
-      (pipelinePromise as Promise<any>).then(subscription.unsubscribe).catch(subscription.unsubscribe);
+  public subscribeOnce(event: string, ...handlers: IHandler[]): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const unsubscriber: IHandler = ({ pipelinePromise, data }) => {
+        pipelinePromise?.then(resolve)
+            .catch(reject)
+            .finally(subscription.unsubscribe);
 
-      return data;
-    }, ...handlers);
+        return data;
+      };
 
-    this.logger.debug(`SUBSCRIBED_ONCE => ${event}`);
+      const subscription = this.subscribe(event, unsubscriber, ...handlers);
 
-    return subscription;
+      this.logger.debug(`SUBSCRIBED_ONCE => ${event}`);
+    });
+  }
+
+  /**
+   * Waits untill the required event is received.
+   * This is especially useful when writing flows of
+   * execution.
+   *
+   * **Example**
+   * In a request life-cycle
+   * if some action needs to be take post a response
+   * has been received, then it can be written as follow
+   * ```JS
+   * SE.publish('req/profiles/load')
+   * await SE.waitTill('req/profiles/success')
+   *
+   * SE.publish('req/profiles/sort')
+   * ```
+   *
+   * @param event Subscription event
+   *
+   * @returns a Promise that resolves to data
+   */
+  public waitTill(event: string): Promise<any> {
+    return this.subscribeOnce(event);
   }
 
   /**
@@ -516,7 +529,7 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
           return output;
         } catch (error) {
           this.logger.error('Error during publish:', error);
-          this.publishInternalEvents(InternalEvents.ON_ERROR, {error});
+          this.publishInternalEvents(InternalEvents.ON_ERROR, { error });
         }
       });
 
