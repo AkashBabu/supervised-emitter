@@ -230,9 +230,13 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
   public subscribeOnce(event: string, ...handlers: IHandler[]): Promise<any> {
     return new Promise((resolve, reject) => {
       const unsubscriber: IHandler = ({ pipelinePromise, data }) => {
-        pipelinePromise?.then(resolve)
-            .catch(reject)
-            .finally(subscription.unsubscribe);
+        pipelinePromise?.then((sData) => {
+          subscription.unsubscribe();
+          resolve(sData);
+        }).catch((err) => {
+          subscription.unsubscribe();
+          reject(err);
+        });
 
         return data;
       };
