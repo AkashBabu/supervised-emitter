@@ -21,6 +21,7 @@ SupervisedEmitter's interface
 * [subscribe](isupervisedemitter.md#subscribe)
 * [subscribeOnce](isupervisedemitter.md#subscribeonce)
 * [unScope](isupervisedemitter.md#unscope)
+* [waitTill](isupervisedemitter.md#waittill)
 
 ## Methods
 
@@ -70,7 +71,7 @@ ___
 
 ###  subscribeOnce
 
-▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
+▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *Promise‹any›*
 
 Subscribes to an event only once
 
@@ -81,7 +82,7 @@ Name | Type |
 `event` | string |
 `...handlers` | [IHandler](../README.md#ihandler)[] |
 
-**Returns:** *[ISubscription](isubscription.md)*
+**Returns:** *Promise‹any›*
 
 ___
 
@@ -98,3 +99,19 @@ Name | Type |
 `event` | string |
 
 **Returns:** *string*
+
+___
+
+###  waitTill
+
+▸ **waitTill**(`event`: string): *Promise‹any›*
+
+Waits untill the required event is fired
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`event` | string |
+
+**Returns:** *Promise‹any›*

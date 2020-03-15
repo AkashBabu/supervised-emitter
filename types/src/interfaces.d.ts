@@ -80,7 +80,9 @@ export interface ISupervisedEmitter {
     /** Subscribes to an event */
     subscribe(event: string, ...handlers: IHandler[]): ISubscription;
     /** Subscribes to an event only once */
-    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
+    subscribeOnce(event: string, ...handlers: IHandler[]): Promise<any>;
+    /** Waits untill the required event is fired */
+    waitTill(event: string): Promise<any>;
     /** Publishes data on the given pubEvent */
     publish(pubEvent: string, data: any): Promise<any>;
     /** Returns a Closure function that adds scope to an event */
@@ -106,7 +108,6 @@ export interface ISupervisedEmitter {
 export interface ISubscription {
     unsubscribe(): void;
     subscribe(event: string, ...handlers: IHandler[]): ISubscription;
-    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
 }
 /**
  * @hidden

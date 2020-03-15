@@ -110,7 +110,28 @@ export default class SupervisedEmitter implements ISupervisedEmitter {
      * @returns Subscription for chaining more subscriptions or
      *    for unsubscribing from all the subscriptions
      */
-    subscribeOnce(event: string, ...handlers: IHandler[]): ISubscription;
+    subscribeOnce(event: string, ...handlers: IHandler[]): Promise<any>;
+    /**
+     * Waits untill the required event is received.
+     * This is especially useful when writing flows of
+     * execution.
+     *
+     * **Example**
+     * In a request life-cycle
+     * if some action needs to be take post a response
+     * has been received, then it can be written as follow
+     * ```JS
+     * SE.publish('req/profiles/load')
+     * await SE.waitTill('req/profiles/success')
+     *
+     * SE.publish('req/profiles/sort')
+     * ```
+     *
+     * @param event Subscription event
+     *
+     * @returns a Promise that resolves to data
+     */
+    waitTill(event: string): Promise<any>;
     /**
      * Publishes the given event to all the matching
      * subscribers.

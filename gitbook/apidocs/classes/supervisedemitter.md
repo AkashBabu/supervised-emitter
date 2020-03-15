@@ -35,6 +35,7 @@ component irrespective of whereever it is in the DOM tree
 * [subscribe](supervisedemitter.md#subscribe)
 * [subscribeOnce](supervisedemitter.md#subscribeonce)
 * [unScope](supervisedemitter.md#unscope)
+* [waitTill](supervisedemitter.md#waittill)
 
 ## Constructors
 
@@ -65,7 +66,7 @@ const SE = new SupervisedEmitter(
 
 Name | Type | Default | Description |
 ------ | ------ | ------ | ------ |
-`middlewares` | [IMiddleware](../README.md#imiddleware)[] |  [({data}) => data] | List of middlewares. Remember that all these     middlewares will be piped to form a pipeline. i.e. the output of     each of the middleware is passed in `data`(in the context) to the next     middleware in the pipeline (top-down execution) |
+`middlewares` | [IMiddleware](../README.md#imiddleware)[] |  [({ data }) => data] | List of middlewares. Remember that all these     middlewares will be piped to form a pipeline. i.e. the output of     each of the middleware is passed in `data`(in the context) to the next     middleware in the pipeline (top-down execution) |
 `options` | [IOptions](../interfaces/ioptions.md) |  {} | Options for debugging and LFU  |
 
 **Returns:** *[SupervisedEmitter](supervisedemitter.md)*
@@ -229,7 +230,7 @@ ___
 
 ###  subscribeOnce
 
-▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](../interfaces/isubscription.md)*
+▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *Promise‹any›*
 
 *Implementation of [ISupervisedEmitter](../interfaces/isupervisedemitter.md)*
 
@@ -257,7 +258,7 @@ Name | Type | Description |
 `event` | string | Subscription event |
 `...handlers` | [IHandler](../README.md#ihandler)[] | List of handlers  |
 
-**Returns:** *[ISubscription](../interfaces/isubscription.md)*
+**Returns:** *Promise‹any›*
 
 Subscription for chaining more subscriptions or
    for unsubscribing from all the subscriptions
@@ -288,3 +289,36 @@ Name | Type | Description |
 **Returns:** *string*
 
 Event without scope part
+
+___
+
+###  waitTill
+
+▸ **waitTill**(`event`: string): *Promise‹any›*
+
+*Implementation of [ISupervisedEmitter](../interfaces/isupervisedemitter.md)*
+
+Waits untill the required event is received.
+This is especially useful when writing flows of
+execution.
+
+**Example**
+In a request life-cycle
+if some action needs to be take post a response
+has been received, then it can be written as follow
+```JS
+SE.publish('req/profiles/load')
+await SE.waitTill('req/profiles/success')
+
+SE.publish('req/profiles/sort')
+```
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`event` | string | Subscription event  |
+
+**Returns:** *Promise‹any›*
+
+a Promise that resolves to data

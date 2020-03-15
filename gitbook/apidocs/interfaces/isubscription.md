@@ -25,7 +25,6 @@ subscription.unsubscribe();
 ### Methods
 
 * [subscribe](isubscription.md#subscribe)
-* [subscribeOnce](isubscription.md#subscribeonce)
 * [unsubscribe](isubscription.md#unsubscribe)
 
 ## Methods
@@ -33,21 +32,6 @@ subscription.unsubscribe();
 ###  subscribe
 
 ▸ **subscribe**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`event` | string |
-`...handlers` | [IHandler](../README.md#ihandler)[] |
-
-**Returns:** *[ISubscription](isubscription.md)*
-
-___
-
-###  subscribeOnce
-
-▸ **subscribeOnce**(`event`: string, ...`handlers`: [IHandler](../README.md#ihandler)[]): *[ISubscription](isubscription.md)*
 
 **Parameters:**
 
