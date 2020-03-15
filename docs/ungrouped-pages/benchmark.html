@@ -478,6 +478,97 @@
 <h3 id="environment">Environment</h3>
 <p>Node: 10.1.1<br>Machine: Mac Book Pro, 16GB RAM<br>OS: Mojave  </p>
 <h3 id="stats">Stats</h3>
+<p><strong>1.0.0</strong>  </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Avg (ms)</th>
+<th style="text-align:left">Min (ms)</th>
+<th style="text-align:left">Max (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">gsub_same_topic</td>
+<td style="text-align:left">21.59</td>
+<td style="text-align:left">9.79</td>
+<td style="text-align:left">44.18  </td>
+</tr>
+<tr>
+<td style="text-align:left">gsub_different_topics</td>
+<td style="text-align:left">31.37</td>
+<td style="text-align:left">25.52</td>
+<td style="text-align:left">40.14  </td>
+</tr>
+<tr>
+<td style="text-align:left">sub_same_topic</td>
+<td style="text-align:left">23.08</td>
+<td style="text-align:left">11.34</td>
+<td style="text-align:left">37.95  </td>
+</tr>
+<tr>
+<td style="text-align:left">sub_different_topics</td>
+<td style="text-align:left">29.48</td>
+<td style="text-align:left">22.94</td>
+<td style="text-align:left">38.05  </td>
+</tr>
+<tr>
+<td style="text-align:left">sub_once</td>
+<td style="text-align:left">81.61</td>
+<td style="text-align:left">58.60</td>
+<td style="text-align:left">149.32  </td>
+</tr>
+<tr>
+<td style="text-align:left">gunsub_same_topic</td>
+<td style="text-align:left">25.99</td>
+<td style="text-align:left">9.66</td>
+<td style="text-align:left">48.53  </td>
+</tr>
+<tr>
+<td style="text-align:left">gunsub_different_topics</td>
+<td style="text-align:left">35.99</td>
+<td style="text-align:left">26.83</td>
+<td style="text-align:left">55.30  </td>
+</tr>
+<tr>
+<td style="text-align:left">chained_gunsub_same_topics</td>
+<td style="text-align:left">25.88</td>
+<td style="text-align:left">14.74</td>
+<td style="text-align:left">41.02  </td>
+</tr>
+<tr>
+<td style="text-align:left">chained_gunsub_different_topics</td>
+<td style="text-align:left">39.08</td>
+<td style="text-align:left">32.24</td>
+<td style="text-align:left">55.19  </td>
+</tr>
+<tr>
+<td style="text-align:left">unsub_same_topic</td>
+<td style="text-align:left">25.16</td>
+<td style="text-align:left">9.15</td>
+<td style="text-align:left">43.82  </td>
+</tr>
+<tr>
+<td style="text-align:left">unsub_different_topics</td>
+<td style="text-align:left">37.32</td>
+<td style="text-align:left">28.67</td>
+<td style="text-align:left">57.49  </td>
+</tr>
+<tr>
+<td style="text-align:left">chained_unsub_same_topic</td>
+<td style="text-align:left">26.22</td>
+<td style="text-align:left">17.87</td>
+<td style="text-align:left">37.46  </td>
+</tr>
+<tr>
+<td style="text-align:left">chained_unsub_different_topics</td>
+<td style="text-align:left">19.18</td>
+<td style="text-align:left">13.70</td>
+<td style="text-align:left">26.49  </td>
+</tr>
+</tbody>
+</table>
 <p><strong>0.9.0</strong>  </p>
 <table>
 <thead>
@@ -794,7 +885,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"BENCHMARK","level":"4.3","depth":1,"next":{"title":"CHANGE_LOG","level":"4.4","depth":1,"path":"ungrouped-pages/change_log.md","ref":"ungrouped-pages/change_log.md","articles":[]},"previous":{"title":"FAQs","level":"4.2","depth":1,"path":"ungrouped-pages/faqs.md","ref":"ungrouped-pages/faqs.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"ungrouped-pages/benchmark.md","mtime":"2020-03-15T14:06:53.109Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-03-15T14:08:23.102Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"BENCHMARK","level":"4.3","depth":1,"next":{"title":"CHANGE_LOG","level":"4.4","depth":1,"path":"ungrouped-pages/change_log.md","ref":"ungrouped-pages/change_log.md","articles":[]},"previous":{"title":"FAQs","level":"4.2","depth":1,"path":"ungrouped-pages/faqs.md","ref":"ungrouped-pages/faqs.md","articles":[]},"dir":"ltr"},"config":{"plugins":["ga"],"root":"./gitbook","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"ga":{"configuration":"auto","token":"UA-152398034-1"},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","author":"Akash Babu <001akashbabu@gmail.com>","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Supervised-Emitter","language":"en","gitbook":"*","description":"An advanced event emitter library with modern capabilities which makes it usable in modern web apps"},"file":{"path":"ungrouped-pages/benchmark.md","mtime":"2020-03-15T14:11:53.200Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-03-15T14:12:01.947Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
