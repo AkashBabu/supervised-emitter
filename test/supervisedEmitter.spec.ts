@@ -358,8 +358,7 @@ describe('#supervised-emitter (SE)', () => {
           completed = true;
         });
 
-      SE.publish('/hello/world', 0);
-      await delay(50);
+      await SE.publish('/hello/world', 0);
 
       expect(completed).to.be.true;
       expect(calls).to.be.eql(2);
